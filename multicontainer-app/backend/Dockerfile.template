@@ -1,0 +1,11 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:10
+
+WORKDIR /usr/src/app
+
+COPY package* ./
+
+RUN npm ci --production && npm cache clean --force && rm -rf /tmp/*
+
+COPY index.js ./
+
+CMD ["npm", "start"]

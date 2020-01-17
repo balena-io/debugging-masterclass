@@ -1,0 +1,11 @@
+version: '2.1'
+services:
+  frontend:
+    build: ./frontend
+    network_mode: host
+  backend:
+    build: ./backend
+    labels:
+      io.balena.features.supervisor-api: '1'
+      io.balena.features.balena-api: '1'
+    privileged: true
