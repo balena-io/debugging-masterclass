@@ -1,8 +1,8 @@
 Balena Device Debugging Masterclass
 ===================================
 
-**Masterclass Type:** Core
-**Maximum Expected Time To Complete: 3 hours**
++ **Masterclass Type:** Core
++ **Maximum Expected Time To Complete:** 3 hours
 
 # Prerequisite Classes
 
@@ -10,9 +10,9 @@ This masterclass builds upon knowledge that has been taught in previous classes.
 To gain the most from this masterclass, we recommend that you first undertake
 the following masterclasses:
 
-* [balena CLI Masterclass](https://github.com/balena-io-projects/balena-cli-masterclass)
-* [balenaOS Masterclass](https://github.com/balena-io-projects/balenaos-masterclass/)
-* [balena Networking Masterclass]() *NOT YET AVAILABLE*
+* [balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
+* [balenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
+* [balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) *NOT YET AVAILABLE*
 
 # Introduction
 
@@ -27,7 +27,7 @@ as an initial guide for new engineers about to start support duties.
 
 Whilst the majority of devices never see an issue, occasionally a customer will
 contact balena support with a query where one of their devices is exhibiting
-anomalous behaviour.
+anomalous behavior.
 
 Obviously, no guide can cover the range of queries that may occur, but it can
 give an insight into how to tackle problems and the most common problems that
@@ -81,7 +81,7 @@ As per the other masterclasses in this series we're going to assume that's a
 balenaFin, however you can simply alter the device type as appropriate in the
 following instructions. The balena CLI is going to be used over the WebTerminal
 in the balenaCloud Dashboard for accessing the device, but all of the exercises
-could be completed via this.
+could be completed in this manner.
 
 First login to your balena account via `balena login`, and then create a new
 application:
@@ -181,7 +181,7 @@ variables and configurations (both application and device).
 Whilst this sounds like a limitation, it in fact ensures that a device being
 investigated for an issue cannot be unduly altered or modified. Support
 investigations are intended as an avenue of exploration and research for
-ensuring that issues are categorised to allow improvements to the product
+ensuring that issues are categorized to allow improvements to the product
 surface such that these issues are eliminated.
 
 ## 2. Initial Diagnosis
@@ -213,7 +213,7 @@ should see the following conditions:
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| check_balenaOS | Succeededsupported | balenaOS 2.x detected |
+| check_balenaOS | Succeeded | Supported balenaOS 2.x detected |
 | check_under_voltage | Succeeded | No under-voltage events detected |
 | check_memory | Succeeded | 75% memory available |
 | check_container_engine | Succeeded | Container engine balena is running and has not restarted uncleanly
@@ -238,9 +238,9 @@ root@7db55ce:~#
 ```
 We're going to do a couple of things that will show up as problems. Something
 you'll often check, and that we'll discuss later, is the state of the balena
-Supervisor (which is responsible for the download, configuration, initialisation
+Supervisor (which is responsible for the download, configuration, initialization
 and startup of applications and their services) and balenaEngine (which is a
-highly customised fork of Docker that actually handles the images, containers
+highly customized fork of Docker that actually handles the images, containers
 and volumes of an application's service).
 
 First of all, we're going to kill the balenaEngine maliciously without letting
@@ -271,7 +271,7 @@ root@7db55ce:~# journalctl --no-pager -n 400 -u balena.service
 ```
 You'll see a *lot* of output, as the logs don't just show the balenaEngine
 output but the output from the Supervisor as well. However, if you search
-through the output, you'll fine a couple of lines like the following:
+through the output, you'll find several lines like the following:
 ```
 Nov 15 10:33:04 7db55ce 36025a63fdf2[779]: [api]     GET /v1/healthy 200 - 12.070 ms
 Nov 15 10:35:17 7db55ce systemd[1]: balena.service: Main process exited, code=killed, status=9/KILL
@@ -318,7 +318,7 @@ masterclass.
 
 There are many other health checks that can immediately show up an issue.
 For example, warnings on low free memory or disk space can show up issues which
-will exhibit themselves as application updates failling to download, or service
+will exhibit themselves as application updates failing to download, or service
 containers restarting abnormally (especially if an application service runs
 unchecked and consumes memory until none if left). We'll also go through some
 of these scenarios later.
@@ -487,9 +487,10 @@ and in what order comes down to the context of support, and the symptoms seen.
 
 ### 4.1 Service Status and Journal Logs
 
-balenaOS uses [systemd]() as its [init system](), and as such almost all the
-fundamental components in balenaOS run as systemd services. systemd builds a
-dependency graph of all of its unit files (in which services are defined) to
+balenaOS uses [systemd](https://www.freedesktop.org/wiki/Software/systemd/) as
+its [init system](https://en.wikipedia.org/wiki/Init), and as such almost all
+the fundamental components in balenaOS run as systemd services. systemd builds
+a dependency graph of all of its unit files (in which services are defined) to
 determine the order in which these should be started/shutdown in. This is
 generated when systemd is run, although there are ways to rebuild this after
 startup and during normal system execution.
@@ -1051,7 +1052,7 @@ This will move the default DNSMasq resolver config file, so that it's not
 picked up. Additionally, it will modify the configuration to set the nameserver
 to use as `1.2.3.4`. As this isn't a valid nameserver, nothing will get the
 right address to make connections. Note that usually, remounting the root FS
-as writable is a very risky move, and should not be carried out without good
+as writeable is a very risky move, and should not be carried out without good
 reason!
 
 After a while, once the device has rebooted, SSH back into the device, and look
@@ -1333,7 +1334,8 @@ becomes a customer issue.
 ### 5.4 Firewalled Endpoints
 
 Balena devices work on a variety of networks, but they do require the basic
-networking environment as listed in "5. Determining Networking Issues".
+networking environment as listed in
+[5. Determining Networking Issues](#5-detemining-networking-issues).
 
 Firewalls are a sensible precaution in any network, be they personal or
 corporate. A large number of firewalls are built to provide freedom for devices
@@ -1413,7 +1415,7 @@ as all encrypted traffic (such as SSL) ends up as being shown to have come from
 the DPI and not from the endpoint requested (as the DPI has repackaged the
 traffic).
 
-Balena devices are able to accomadate this if it is known a DPI network is in
+Balena devices are able to accommodate this if it is known a DPI network is in
 use, by adding the `balenaRootCA` property to the `/mnt/boot/config.json` file,
 where the value is the DPI's root Certificate Authority (CA) that has been
 base64 encoded. This CA certificate should be supplied by the network operator
@@ -1476,7 +1478,9 @@ root@dee2945:~# cat /resin-boot/config.json
 ```
 As you can see, there's very little information in the configuration file in
 the `/resin-boot` directory, and certainly nothing that associates it with an
-application. On the other hand, if we look at `/mnt/boot/config.json`:
+application. On the other hand, if we look at `/mnt/boot/config.json` you can
+see that all the required information for the device to be associated with its
+application exists:
 ```
 root@dee2945:~# cat /mnt/boot/config.json | jq
 {
@@ -1518,7 +1522,7 @@ file, which is essentially just a very long string:
 root@dee2945:~# cat /mnt/boot/config.json | jq
 {"apiEndpoint": "https://api.balena-cloud.com","appUpdatePollInterval": 900000,"applicationId": "1234567","applicationName": "DebugApp","deltaEndpoint": "https://delta.balena-cloud.com","deviceApiKey": "1234566edab91fe8cc9ed6b27ff81215","deviceApiKeys": {  "api.balena-cloud.com": "1234566edab91fe8cc9ed6b27ff81215"},"deviceType": "fincm3","listenPort": "48484","mixpanelToken": "123456ea64cb6cd8bbc96af72345d70d","pubnubPublishKey": "","pubnubSubscribeKey": "","registryEndpoint": "registry2.balena-cloud.com","userId": "1234","username": "captaincaveman","vpnEndpoint": "vpn.balena-cloud.com","vpnPort": "443","uuid": "1234565a13195b0d209ad88574447bf3","registered_at": 1578331919919,"deviceId": 1234564}
 ```
-This is difficult to read, so you should familiarise yourself with `jq` to parse
+This is difficult to read, so you should familiarize yourself with `jq` to parse
 the file and also to make changes. `jq` will not make changes to the same file
 it's reading, so we need to make a copy of the file to change it, and then copy
 it back to its original location. This acts also as a guard, because it ensures
@@ -1700,7 +1704,7 @@ investigations can occur asynchronously to determine what occured and how it
 may be mitigated in the future. Enabling permanent logging may also be of
 benefit in cases where symptoms are repeatedly occuring.
 
-To restart the Supervisor, simply issue a `systemd` restart on the service:
+To restart the Supervisor, simply restart the `systemd` service:
 ```
 root@8117443:~# systemctl restart resin-supervisor.service
 systroot@8117443:~# systemctl status resin-supervisor.service
@@ -1771,7 +1775,7 @@ built for this to work (in this case `armv7hf` as can be seen by the tag).
 
 There is an alternate way of updating the Supervisor, via the HUP scripts
 [here](https://github.com/balena-os/resinhup/). You should read the
-documentation before carrying out any sort of update, but in esscence
+documentation before carrying out any sort of update, but in essence
 it's possible to carry out HUP scenarios that aren't possible via the
 standard `update-resin-supervisor` script. This includes updating
 development OS version. The following example, will remotely update
@@ -1934,7 +1938,7 @@ Additionally, as the Supervisor is also executed as a container, it is required
 for its operation. This means that should balenaEngine fail for some reason,
 it is likely that the Supervisor will also fail.
 
-Issues with balenaEngine themselves are rare, although it can be intially
+Issues with balenaEngine themselves are rare, although it can be initially
 tempting to attribute them to balenaEngine instead of the actual underlying
 issue. A couple of examples
 of issues which are misattributed to :
@@ -2084,7 +2088,7 @@ Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: Started backend
 
 ### 8.1 Service Image, Container and Volume Locations
 
-balenaEngine stores all its writable data in the `/var/lib/docker` directory,
+balenaEngine stores all its writeable data in the `/var/lib/docker` directory,
 which is part of the data partition. We can see this by using the `mount`
 command:
 ```
@@ -2739,10 +2743,10 @@ find the diffs for subsequent layers in the same way.
 However, whilst this allows you to examine all the layers for an image, the
 situtation changes slightly when an image is used to create a container. At this
 point, a container can also bind to volumes (persistent data directories across
-container restarts) and writable layers that are used only for that container
+container restarts) and writeable layers that are used only for that container
 (which are *not* persistent across container restarts). Volumes are described in
 a later section dealing with media storage. However, we will show an example
-here of creating a writable layer in a container and finding it in the
+here of creating a writeable layer in a container and finding it in the
 appropriate `/var/lib/docker` directory.
 
 Assuming you're running the application that goes along with this masterclass,
@@ -2756,13 +2760,13 @@ CONTAINER ID        IMAGE                               COMMAND                 
 ```
 You should see something similar. Let's pick the `backend` service, which in
 this instance is container `5c36f880c4b3`. We'll `exec` into it via a `bash`
-shell, and create a new file. This will create a new writable layer for the
+shell, and create a new file. This will create a new writeable layer for the
 container:
 ```
 root@dee2945:~# balena exec -ti 5c36f880c4b3 /bin/bash
-root@5c36f880c4b3:/usr/src/app# echo 'This is a new, container-only writable file!' > /mynewfile.txt
+root@5c36f880c4b3:/usr/src/app# echo 'This is a new, container-only writeable file!' > /mynewfile.txt
 root@5c36f880c4b3:/usr/src/app# cat /mynewfile.txt
-This is a new, container-only writable file!
+This is a new, container-only writeable file!
 root@5c36f880c4b3:/usr/src/app# exit
 ```
 Now we'll determine where this new file has been stored by balenaEngine.
@@ -2788,7 +2792,7 @@ root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat 5c36f880c4b3d6f8a730
 root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# ls /var/lib/docker/aufs/diff/7a1b70a76338b34aefc37763fdeb29ea876cb6d79ff8204ae9b74b8b90ee1fcb
 mynewfile.txt  root  run  tmp
 root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat /var/lib/docker/aufs/diff/7a1b70a76338b34aefc37763fdeb29ea876cb6d79ff8204ae9b74b8b90ee1fcb/mynewfile.txt
-This is a new, container-only writable file!
+This is a new, container-only writeable file!
 ```
 
 ### 8.2 Restarting balenaEngine
@@ -2955,9 +2959,9 @@ Jan 17 09:59:36 dee2945 515ad785c072[19453]: Internet Connectivity: OK
 However, doing so has also had another side-effect. Because the Supervisor is
 itself comprised of a container, restarting balenaEngine has *also* stopped
 and restarted the Supervisor. This is another good reason why balenaEngine
-should only be stopped/restarted if absolutely neccesary.
+should only be stopped/restarted if absolutely necessary.
 
-So, when is absolutely neccesary? There are some issues which occasionally
+So, when is absolutely necessary? There are some issues which occasionally
 occur that might require this. Some examples might include:
 * Corruption in the `/var/lib/docker` directory, usually related to
 * Memory exhaustion and investigation
@@ -3102,7 +3106,7 @@ so that any unused images, containers, networks and volumes are removed. It
 should be noted that in the day-to-day operation of the Supervisor, it attempts
 to ensure that anything that is no longer used on the device *is* removed when
 not required. However, there are issues that sometimes occur that can cause this
-behaviour to not work correctly. In these cases, a prune should help clean
+behavior to not work correctly. In these cases, a prune should help clean
 anything that should note be present:
 ```
 root@dee2945:/# balena system prune -a -f --volumes
@@ -3262,11 +3266,11 @@ device').
 
 # Conclusion
 
-In this masterclass, you've learnt how to deal with balena devices as a
+In this masterclass, you've learned how to deal with balena devices as a
 support agent. You should now be confident enough to:
 * Request access from a customer and access their device, including 'offline'
     devices on the same network as one that is 'online'.
-* Run diagnostics checks and undesrstand their results.
+* Run diagnostics checks and understand their results.
 * Understand the core balenaOS services that make up the system, including
     the ability to read journals from those services, as well as stopping,
     starting and restarting them.
