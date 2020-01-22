@@ -1418,7 +1418,7 @@ to the customer who will be operating their devices on the DPI network.
 
 ## 7. Working with the `config.json` File
 
-***IMPORTANT!:*** Making changes to a device's configuration in-situ can
+***IMPORTANT:*** Making changes to a device's configuration in-situ can
 be extremely hazardous. This can potentially result in a device that, at best,
 does not behave consistently and at worst needs its media removed and the
 configuration reset before being replaced in the device. Do not change
@@ -3049,11 +3049,12 @@ easier to run it on-device.
 
 Some common issues to watch for include:
 * Under-voltage warnings, signifying that a device is not receiving what it
-    requires from the power supply to operate correctly
+    requires from the power supply to operate correctly (these warnings
+    are only present on the Raspberry Pi series).
 * Block device warnings, which could signify issues with the media that balenaOS
-    is running from (for example, SD card corruption)
+    is running from (for example, SD card corruption).
 * Device detection problems, where devices that are expected to show in the
-    device node list are either incorrectly detected or misdetected
+    device node list are either incorrectly detected or misdetected.
 
 ## 11. Media Issues
 
@@ -3140,6 +3141,19 @@ they've filled the data partition and that appropriate pruning is required.
 Filling disk space does not tend to stop access to devices, so in these cases
 customers should be asked to enter the relevant services and manually prune
 data.
+
+Before discussion on persistent data, it's worth noting that occasionally
+customer applications store data to the service container instead of a
+persistent data volume. Sometimes, this data is intended as temporary, so doing
+so is not an issue (although if they are doing so and expecting it to stay
+permanent, this will not occur as service container rebuilds will remove the
+layers where new data is stored). However there are cases where even this
+temporary data can be so large that it fills the storage media. In these cases,
+the Supervisor can be stopped, and then the service container affected, allowing
+that container to be removed so the Supervisor can rebuild from the service
+image. This will remove the layers filling the space. Care should be taken
+and customers informed first, in case this data is required. They should also
+be informed of persistent data and how to use it.
 
 Because persistent data is stored as volumes, it's also possible to prune data
 for a service from within the host OS. For example, should a service be filling
