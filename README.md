@@ -1,20 +1,19 @@
-Balena Device Debugging Masterclass
-===================================
+# Balena Device Debugging Masterclass
 
-+ **Masterclass Type:** Core
-+ **Maximum Expected Time To Complete:** 3 hours
+* **Masterclass Type:** Core
+* **Maximum Expected Time To Complete:** 3 hours
 
-# Prerequisite Classes
+## Prerequisite Classes
 
 This masterclass builds upon knowledge that has been taught in previous classes.
 To gain the most from this masterclass, we recommend that you first undertake
 the following masterclasses:
 
-* [balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
-* [balenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
-* [balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) *NOT YET AVAILABLE*
+* [Balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
+* [BalenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
+* [Balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) *NOT YET AVAILABLE*
 
-# Introduction
+## Introduction
 
 At balena, we believe the best people to support a customer are the engineers
 who build the product. They have the depth and breadth of knowledge that can
@@ -55,26 +54,24 @@ In this masterclass, you will learn how to:
     balena support is *always* contacted should you have an issue with a device
     that is not working correctly.
 
-# Hardware and Software Requirements
+## Hardware and Software Requirements
 
 It is assumed that the reader has access to the following:
 
-* A local copy of this repository
-        [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass).
-        Either:
-        * `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
-        * Download ZIP file (from 'Clone or download'->'Download ZIP') and then
-                unzip it to a suitable directory
-* A balena supported device, such as a [balenaFin 1.1](https://store.balena.io/collections/developer-kit/products/balenafin-v1-1-0-developer-kit),
-        [Raspberry Pi 3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)
-        or [Intel NUC](https://www.intel.co.uk/content/www/uk/en/products/boards-kits/nuc.html). If you don't have a device, you can emulate an Intel NUC by
-        installing VirtualBox and following [this guide](https://www.balena.io/blog/no-hardware-use-virtualbox/)
+* A local copy of this repository [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass). This copy can be obtained by either method:
+    * `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
+    * Download ZIP file (from 'Clone or download'->'Download ZIP') and then unzip it to a suitable directory
+* A balena supported device, such as a [balenaFin
+  1.1](https://store.balena.io/collections/developer-kit/products/balenafin-v1-1-0-developer-kit), [Raspberry Pi
+  3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) or [Intel
+  NUC](https://www.intel.co.uk/content/www/uk/en/products/boards-kits/nuc.html). If you don't have a device, you can emulate an Intel NUC by
+  installing VirtualBox and following [this guide](https://www.balena.io/blog/no-hardware-use-virtualbox/)
 * A suitable shell environment for command execution (such as `bash`)
 * A [balenaCloud](https://www.balena.io/) account
 * A familiarity with [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
 * An installed instance of the [balena CLI](https://github.com/balena-io/balena-cli/)
 
-# Exercises
+## Exercises
 
 The following exercises assume access to a device that has been provisioned.
 As per the other masterclasses in this series we're going to assume that's a
@@ -85,7 +82,8 @@ the exercises could be completed using the WebTerminal if preferred.
 
 First login to your balena account via `balena login`, and then create a new
 application:
-```
+
+```shell
 $ balena app create --type fincm3 DebugApp
 Application created: DebugApp (fincm3, id 1544229)
 ```
@@ -94,16 +92,19 @@ Now provision a device, either by downloading a *development* image from the
 Dashboard, or by flashing via the command line (note that currently,
 balenaEtcher must be running to enable discovery of the balenaFin from balena
 CLI):
-```
+
+```shell
 $ balena os download fincm3 --version 2.44.0+rev1.dev --output balena-debug.img
 Getting device operating system for fincm3
 The image was downloaded successfully
 ```
+
 Carry out any configuration generation required, should you be using a Wifi
 AP and inject the configuration into the image (see
 [balena CLI Advanced Masterclass](https://github.com/balena-io-projects/balena-cli-advanced-masterclass#32-configuring-a-provisioning-image)
 for more details), or use a configuration for an ethernet connection:
-```
+
+```shell
 $ balena os configure balena-debug.img --app DebugApp --config-network=ethernet
 Configuring operating system image
 $ balena util available-drives
@@ -120,23 +121,29 @@ Writing Device OS [========================] 100% eta 0s
 Validating Device OS [========================] 100% eta 0s
 You can safely remove /dev/disk4 now
 ```
+
 You should now have a device that will appear as part of the DebugApp fleet:
-```
+
+```shell
 $ balena devices | grep DebugApp
 1744728 7db55ce black-mountain    fincm3       DebugApp         Idle   true      10.3.7             balenaOS 2.44.0+rev1 https://dashboard.balena-cloud.com/devices/7db55ce99e9c135dbc69974a7abbe511/summary
 ```
+
 For convenience, export a variable to point to the root of this masterclass
 repository, as we'll use this for the rest of the exercises, eg:
-```
+
+```shell
 $ export BALENA_DEBUGGING_MASTERCLASS=~/debugging-masterclass
 ```
+
 Finally, push the code in the `multicontainer-app` directory to the application:
-```
+
+```shell
 $ cd $BALENA_DEBUGGING_MASTERCLASS/multicontainer-app
 $ balena push DebugApp
 ```
 
-## 1. Accessing a User Device
+### 1. Accessing a User Device
 
 Any device owned by a customer automatically allows access by that user via
 either the WebTerminal (in the device's Dashboard page), or the balena CLI
@@ -144,7 +151,7 @@ via `balena ssh <uuid>`. However, for a support agent to gain access to a device
 that isn't owned by them, a user or collaborator that does have access must
 grant it explicitly.
 
-### 1.1 Granting Support Access to a Support Agent
+#### 1.1 Granting Support Access to a Support Agent
 
 A user can grant access to support agents by selecting the device from the
 Dashboard, and then selecting the 'Actions' tab in the left-hand sidepanel.
@@ -152,7 +159,8 @@ Scrolling down the Actions page will show a list of actions, with the 'Grant
 Support Access' option being the one required here. A user can select this, then
 detemine the amount of time that support agents are allowed access for. Once
 support has been granted, the Dashboard will look something like this:
-![Granted Support Access](resources/black-mountain-granted.png)
+
+![Granted Support Access](https://github.com/balena-io/debugging-masterclass/blob/master/resources/black-mountain-granted.png?raw=true)
 
 **Note:** It's also possible for a user to grant support for an entire
 application by selecting the application's Dashboard page and going through
@@ -172,7 +180,7 @@ running.
 They may also use balena CLI to SSH into either the balenaOS host or any service
 using `balena ssh <uuid> [serviceName]`.
 
-### 1.2 Access Restrictions
+#### 1.2 Access Restrictions
 
 There are limits on what a support agent may do with a device they have
 been granted access to. This includes the alteration of service and environment
@@ -184,7 +192,7 @@ investigations are intended as an avenue of exploration and research for
 ensuring that issues are categorized to allow improvements to the product
 surface such that these issues are eliminated.
 
-## 2. Initial Diagnosis
+### 2. Initial Diagnosis
 
 The balenaCloud Dashboard includes the ability to run a set of diagnostics on
 a device, to determine its current condition. This should, in most cases,
@@ -204,7 +212,7 @@ page and select 'Diagnostics (Experimental)' from the left-hand panel.
 Diagnostics are split into three separate sections: health checks, diagnostics
 and Supervisor state.
 
-### 2.1 Device Health Checks
+#### 2.1 Device Health Checks
 
 Select the 'Device Health Checks' tab in the Diagnostics page, and then click
 'Run checks'. A set of health checks will be run on the device, and you should
@@ -228,22 +236,26 @@ let's create one!
 
 SSH into your device, via `balena ssh`, using the appropriate UUID. We want to
 SSH into the host OS, as that's where we'll wreak havoc:
-```
+
+```shell
 $ balena ssh 7db55ce99e9c135dbc69974a7abbe511
 =============================================================
     Welcome to balenaOS
 =============================================================
 root@7db55ce:~#
 ```
+
 We're going to do a couple of things that will show up as problems. Something
 you'll often check, and that we'll discuss later, is the state of the balena
 Supervisor and balenaEngine.
 
 First of all, we're going to kill the balenaEngine maliciously without letting
 it shut down properly:
-```
+
+```shell
 root@7db55ce:~# ps | awk '!/awk/ && /balenad/ {print $1}' | xargs kill -9
 ```
+
 What this does is list the processes running, looks for the `balenad` executable
 (the balenaEngine itself) and then stop the engine with a `SIGKILL` signal,
 which will make it immediately terminate instead of shutting down correctly.
@@ -263,26 +275,31 @@ This usually happens when something catastrophic occurs between the Supervisor
 and balenaEngine or corruption occurs in the image/container/volume store.
 Let's take a look at the journal for balenaEngine (`balena.service`) on the
 device:
-```
+
+```shell
 root@7db55ce:~# journalctl --no-pager -n 400 -u balena.service
 ```
+
 You'll see a *lot* of output, as the logs don't just show the balenaEngine
 output but the output from the Supervisor as well. However, if you search
 through the output, you'll find several lines like the following:
-```
+
+```shell
 Nov 15 10:33:04 7db55ce 36025a63fdf2[779]: [api]     GET /v1/healthy 200 - 12.070 ms
 Nov 15 10:35:17 7db55ce systemd[1]: balena.service: Main process exited, code=killed, status=9/KILL
 Nov 15 10:35:17 7db55ce systemd[1]: balena.service: Failed with result 'signal'.
 Nov 15 10:35:18 7db55ce balenad[2873]: time="2019-11-15T10:35:18.148843059Z" level=warning msg="Running experimental build"
 Nov 15 10:35:18 7db55ce balenad[2873]: time="2019-11-15T10:35:18.157035456Z" level=info msg="libcontainerd: started new balena-engine-containerd process" pid=2891
 ```
+
 As you can see, the `balena.service` was killed with a `SIGKILL` instruction.
 The next lines show the service restarting, as the service is configured to
 restart whenever it exits. If you continue searching, you'll see another similar
 set of logs where we killed it a second time.
 
 You might also notice some lines that look like:
-```
+
+```shell
 Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [1B blob data]
 Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [36B blob data]
 Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [16B blob data]
@@ -292,10 +309,12 @@ Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [35B blob data]
 Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [16B blob data]
 Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [1B blob data]
 ```
+
 This `blob data` is in fact logs from running service containers that are not
 the Supervisor (as the Supervisor is always logged in the clear). You can
 read this data by using the `-a` switch when viewing the logs for balenaEngine:
-```
+
+```shell
 root@7db55ce:~# journalctl --no-pager -a -n 400 -u balena.service
 ...
 Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]:
@@ -307,6 +326,7 @@ Nov 15 10:35:28 7db55ce 8794d382f463[2873]: > backend@1.0.0 start /usr/src/app
 Nov 15 10:35:28 7db55ce 8794d382f463[2873]: > node index.js
 Nov 15 10:35:28 7db55ce 8794d382f463[2873]:
 ```
+
 As you can see, this have now been specifically output for the two running
 service containers.
 
@@ -325,7 +345,7 @@ containers restarting abnormally (especially if an application service runs
 unchecked and consumes memory until none if left). We'll also go through some
 of these scenarios later.
 
-### 2.2 Device Diagnostics
+#### 2.2 Device Diagnostics
 
 Move to the 'Device Diagnostics' tab on the 'Diagnostics' page and click the
 'Run diagnostics' button.
@@ -338,6 +358,7 @@ Once the diagnostic run has completed, you'll see a lot of logs from commands
 that have been run. The section `--- COMMANDS ---` shows a list of all of the
 commands that are run to produce the diagnostics report. These commands cover
 a wide range of functionality, but are comprised of 5 main areas:
+
 * BALENA - The balenaEngine and latest journals
 * HARDWARE - All aspects of HW, including CPU, memory and device tree info
     as well as statistics on device nodes, USB devices and disk space
@@ -353,12 +374,13 @@ Examination of this output will help to determine if something is not working
 correctly. Whilst we won't go into this here, the following exercises will all
 deal with issues where the diagnostics will show abnormalities when examined.
 
-### 2.3 Supervisor State
+#### 2.3 Supervisor State
 
 Now click the 'Supervisor State' tab on the 'Diagnostics' page.
 
 This does not require execution, and immediately queries the Supervisor to
 determine its current configuration. This output is shown in two panels:
+
 * Current Supervisor State - This is the current status of the Supervisor,
     including the address and port it can be reached on, the versions pertaining
     to it and the current application status (note that this only works should
@@ -383,7 +405,7 @@ correctly upon a device (as the `docker-compose` manifest for the release
 can be read from the application's 'Release' page in the Dashboard), as well
 as ensuring it's the commit that's expected.
 
-## 3. Device Access Responsibilities
+### 3. Device Access Responsibilities
 
 When accessing a customer's device you have a number  of responsibilities, both
 technically and ethically. A customer assumes that the support agent has a level
@@ -416,7 +438,7 @@ destructive when supporting a customer:
     be an outcome in advance, and that they must explicitly give permission for
     a reboot to be carried out.
 
-### 4. Accessing a Device using a Gateway Device
+#### 4. Accessing a Device using a Gateway Device
 
 It may not always be possible to access the device directly, especially if the
 VPN component isn't working.
@@ -439,16 +461,19 @@ possible, the IP address of the target device (by default, the last seen
 'Online' state IP address will be used if the IP is not passed). Once you
 have these details, you can carry this out by executing the following on your
 host machine:
-```
+
+```shell
 $ ssh -t \
    -o LogLevel=ERROR \
    -p 22 $USERNAME@ssh.balena-devices.com hostvia $UUID_GATEWAY $UUID_TARGET [$IPADDR]
 ```
+
 Should this not work, it's possible that the IP address has changed (and if it
 has, you *will* need to specify the correct address). The easiest way to find
 the potentially correct IP address is to SSH into the gateway device and run the
 following script:
-```
+
+```shell
 ( prefix=192.168.1; \
     for i in {2..254}; \
     do \
@@ -457,6 +482,7 @@ following script:
      done \
 )
 ```
+
 Ensure you change the `prefix` variable to the correct prefix for the local
 network before starting. This script will then go through the range `$prefix.2`
 to `$prefix.254`, and flag those devices it believes are potential balena
@@ -464,7 +490,7 @@ devices. This should help you narrow down the address range to try connections
 to balena devices, substituting the IP address appropriately in the SSH
 connection command.
 
-## 5. Component Checklist
+### 5. Component Checklist
 
 The key to any support is context. As a support agent, you should have enough
 context from a customer to start an investigation. If you do not, then you
@@ -482,7 +508,7 @@ The following sections discuss some of the first components to check when
 carrying out on-device support. The components that should be checked
 and in what order comes down to the context of support, and the symptoms seen.
 
-### 5.1 Service Status and Journal Logs
+#### 5.1 Service Status and Journal Logs
 
 balenaOS uses [systemd](https://www.freedesktop.org/wiki/Software/systemd/) as
 its [init system](https://en.wikipedia.org/wiki/Init), and as such almost all
@@ -508,7 +534,8 @@ useful being:
 A typical example of using `journalctl` might be following a service to see
 what's occuring. Here's it for the Supervisor, following journal entries in
 real time:
-```
+
+```shell
 root@11a12ec:~# journalctl --follow --unit=resin-supervisor
 -- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
 Dec 03 15:36:06 11a12ec resin-supervisor[1184]: Container log timestamp flush complete
@@ -522,6 +549,7 @@ Dec 03 15:56:06 11a12ec resin-supervisor[1184]: Attempting container log timesta
 Dec 03 15:56:06 11a12ec resin-supervisor[1184]: Container log timestamp flush complete
 Dec 03 15:56:43 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.830 ms
 ```
+
 Any systemd service can be referenced in the same way, and there are some common
 commands that can be used with services:
 
@@ -531,7 +559,8 @@ commands that can be used with services:
     notionally (and beware here, this isn't always the amount of physical
     memory) using, the command used to run it and finally the last set of
     entries in its journal log. Here's example output from the OpenVPN service:
-    ```
+
+    ```shell
     root@11a12ec:~# systemctl status openvpn.service
     ● openvpn.service - OpenVPN
     Loaded: loaded (/lib/systemd/system/openvpn.service; enabled; vendor preset: enabled)
@@ -552,6 +581,7 @@ commands that can be used with services:
     Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 UID set to openvpn
     Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 Initialization Sequence Completed
     ```
+
 * `systemctl start <serviceName>` - Will start a non-running service. Note that
     this will *not* restart a service that is already running.
 * `systemctl stop <serviceName>` - Will stop a running service. If the service
@@ -606,6 +636,7 @@ them:
 
 Additionally, there are some utility services that, whilst not required
 for a barebones operation, are also useful:
+
 * `ModemManager.service` - Deals with non-Ethernet or Wifi devices, such as
     LTE/GSM modems.
 * `avahi-daemon.service` - Used to broadcast the device's local hostname
@@ -619,7 +650,7 @@ Additionally there are a large number of utility services that facilitate the
 services above, such as those to mount the correct partitions for data storage,
 configuring the Supervisor and running it should it crash, etc.
 
-### 5.2 Persistent Logs
+#### 5.2 Persistent Logs
 
 As described in the previous section, the ability to read journals from the
 different services that make up balenaOS is vital in helping to track down
@@ -644,7 +675,8 @@ located on-device at `/var/log/journal/<uuid>` where the UUID is variable.
 Journals can be read like those for any unit file, using `journalctl`, although
 the switches passed to the command are slightly different. Here's an example
 of how to read persistent journals:
-```
+
+```shell
 root@dee2945:~# cd /var/log/journal/b9ccd869194e4f1381c06967f99b0265/
 root@dee2945:/var/log/journal/b9ccd869194e4f1381c06967f99b0265# ls -l
 total 2051
@@ -684,11 +716,13 @@ Jan 13 11:05:07 dee2945 kernel: i2c /dev entries driver
 Jan 13 11:05:07 dee2945 kernel[664]: [   14.974497] i2c /dev entries driver
 ...
 ```
+
 The rest of the journal has been truncated for brevity. Note that the `-a`
 (short for `--all`) has been used, so that the logs from the service containers
 themselves are also visible. Without this switch, the service container output
 from `balena.service` (the balenaEngine) would be output like this:
-```
+
+```shell
 Jan 13 11:05:20 dee2945 69dc1cee03e4[765]: [1B blob data]
 Jan 13 11:05:20 dee2945 69dc1cee03e4[765]: [36B blob data]
 Jan 13 11:05:20 dee2945 69dc1cee03e4[765]: [16B blob data]
@@ -698,6 +732,7 @@ Jan 13 11:05:20 dee2945 e374bbb9ddd4[765]: [35B blob data]
 Jan 13 11:05:20 dee2945 e374bbb9ddd4[765]: [16B blob data]
 Jan 13 11:05:20 dee2945 e374bbb9ddd4[765]: [1B blob data]
 ```
+
 If you're not examing the application's services then this output is fine, but
 usually enabling persistent logs allows us to examine what also might be
 happening in a service container that could cause an issue (for example, maybe
@@ -713,7 +748,7 @@ space to store logs that might be useful. It's worth noting this, and informing
 customers of this fact so they can cut down the logging output if persistent
 logs are deemed important for issue finding.
 
-## 6. Determining Networking Issues
+### 6. Determining Networking Issues
 
 There are some common networking issues that can stop several major components
 (the VPN, Supervisor, balenaEngine) from working correctly.
@@ -721,6 +756,7 @@ There are some common networking issues that can stop several major components
 The current list of core networking requirements are
 [here](https://www.balena.io/docs/reference/OS/network/2.x/#network-requirements)
 and in brief, include:
+
 * Access to TCP port 443 (for VPN, API, etc.), and UDP ports 123 and 53 for
     NTP and DNS respectively.
 * Access to the `*.balena-cloud.com`, `*.docker.com` and `*.docker.io`
@@ -749,7 +785,7 @@ can lead to the VPN failing to connect (as the certificate is probably not yet
 date-valid) as well as the Supervisor failing to download updates (for the same
 reason).
 
-### 6.1 NTP Failure
+#### 6.1 NTP Failure
 
 Service: `chronyd.service`
 CLI: `chronyc`
@@ -768,16 +804,19 @@ presented will appear to be date invalid when compared to the system clock.
 
 Depending on how skewed the device date is from the real date, this can manifest
 as several different issues:
+
 * Refusal to connect to the balenaCloud VPN
 * Refusal to download configuration from the API
 * Refusal by the Supervisor to download the latest application updates
 
 Examining the status of the `chrony` service can show these symptoms, along
 with the simple `date` command:
-```
+
+```shell
 root@11a12ec:/# date
 Tue Dec  3 17:27:33 UTC 2019
 ```
+
 If the date reported by the device differs to the current date and time, then
 there is most probably a problem with the time service.
 
@@ -787,22 +826,27 @@ for it to come online before SSHing into it.
 Ensure you know the local IP address of the debug device (or use `balena scan`
 to find the hostname of your device), and SSH into it like this (where
 `192.168.1.173` is the IP address of your device, or `<host>.local` name):
-```
+
+```shell
 $ balena ssh 192.168.1.173
 root@f34c2e9:~#
 ```
+
 Your device should be connected, bring up the Dashboard page for the device.
 It should be 'Online' and running the pushed application code.
 
 We'll demonstrate an NTP failure by making some manual changes to the date:
-```
+
+```shell
 root@f34c2e9:~# date -s "23 MAR 2017 12:00:00"
 Thu Mar 23 12:00:00 UTC 2017
 root@f34c2e9:~# systemctl restart openvpn
 ```
+
 Almost immediately, you'll see that the device status moves to 'Offline'. So,
 why has this happened? Let's take a look in the OpenVPN logs:
-```
+
+```shell
 root@f34c2e9:~# journalctl -f -n 200 -u openvpn.service
 Nov 22 11:17:28 f34c2e9 openvpn[786]: Fri Nov 22 11:17:28 2019 Initialization Sequence Completed
 Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 event_wait : Interrupted system call (code=4)
@@ -838,17 +882,20 @@ Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 NOTE: the curren
 Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 TCP/UDP: Preserving recently used remote address: [AF_INET]34.237.229.125:443
 Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 Socket Buffers: R=[87380->87380] S=[16384->16384]
 ```
+
 There's a bit to wade through here, but the first line shows the OpenVPN
 successfully finalising a connection to the balenaCloud VPN backend. However,
 we then see our manual restart of the `openvpn.service` unit file
 (`Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 SIGTERM[hard,] received, process exiting`)
 and then it starting up again. But whilst it initialises, you'll note that
 whilst trying to connect it found a problem in the verification stage:
-```
+
+```shell
 Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
 Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY ERROR: depth=0, error=certificate is not yet valid: CN=vpn.balena-cloud.com
 Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 OpenSSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed
 ```
+
 The certificate that it fetched from the balenaCloud VPN service is not yet
 valid. This is because SSL certificates have "valid from" and "valid to"
 dates. These ensure that they can only be used in a particular time window, and
@@ -860,15 +907,18 @@ However, after reading the above, if you look at the Dashboard, you'll now
 see that the device has actually reconnected to the network again and its status
 is 'Online'. But if the date is incorrect, why has the device reconnected?
 Run the following on the device:
-```
+
+```shell
 root@f34c2e9:~# date
 Fri Nov 22 11:41:54 UTC 2019
 ```
+
 So the date's actually now correct. This is because the NTP service
 (`chronyd.service`) has eventually noticed that there's a mismatch in the
 set time on the device, and the time from one of it's sources. Let's look at
 the journal for it:
-```
+
+```shell
 root@f34c2e9:~# journalctl -f -u chronyd.service
 -- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
 Nov 22 11:17:17 localhost chronyd[737]: 2019-11-22T11:17:17Z chronyd version 3.4 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -SECHASH +IPV6 -DEBUG)
@@ -880,10 +930,12 @@ Nov 22 11:34:43 f34c2e9 chronyd[737]: 2017-03-23T12:02:14Z System clock wrong by
 Nov 22 11:34:43 f34c2e9 chronyd[737]: 2019-11-22T11:34:43Z System clock was stepped by 84151949.073647 seconds
 Nov 22 11:35:50 f34c2e9 chronyd[737]: 2019-11-22T11:35:50Z Selected source 85.199.214.100
 ```
+
 As you can see, it selected a source and set the time back to the correct
 current time. This had a knock on effect, in that the OpenVPN service
 reattempted to connect to the backend:
-```
+
+```shell
 root@f34c2e9:~# journalctl -f -n 100 -u openvpn
 Mar 23 12:02:06 f34c2e9 openvpn[2787]: Thu Mar 23 12:02:06 2017 Fatal TLS error (check_tls_errors_co), restarting
 Mar 23 12:02:06 f34c2e9 openvpn[2787]: Thu Mar 23 12:02:06 2017 SIGUSR1[soft,tls-error] received, process restarting
@@ -903,6 +955,7 @@ Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 ++ Certificate h
 Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY EKU OK
 Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY OK: depth=0, CN=vpn.balena-cloud.com
 ```
+
 This time the connection has been verified and the device has come online. This
 shows what might have happened if someone had manually set the date, but what
 happens if it doesn't recover? This is a good example of where the NTP port
@@ -913,21 +966,26 @@ for some reason, and restarting it would solve the issue.
 Changes such as this don't just affect the online status of the device. Let's
 stop the chrony service completely (so it can't correctly resync the time) and
 change the date again:
-```
+
+```shell
 root@f34c2e9:~# systemctl stop chronyd.service
 root@f34c2e9:~# date -s "23 MAR 2017 12:00:00"
 ```
+
 Now from your development machine, repush the application from the
 `multicontainer-app` directory:
-```
+
+```shell
 $ balena push DebugApp
 ```
+
 Once the build has completed, the device should try and download the updated
 application. However, you'll notice that the download doesn't start and
 no changes are made. The Dashboard stays static. Why is this? Well as you've
 probably guessed, it's for the same reasons that the VPN connection doesn't
 work. Run the following on your device:
-```
+
+```shell
 journalctl -f -u resin-supervisor
 -- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
 Nov 22 11:48:09 f34c2e9 resin-supervisor[1830]: [debug]   Container log timestamp flush complete
@@ -945,11 +1003,13 @@ Mar 23 12:04:23 f34c2e9 resin-supervisor[1830]: [debug]   Container log timestam
 Mar 23 12:04:26 f34c2e9 resin-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
 Mar 23 12:04:31 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
 ```
+
 As you can see, the certificate is again not valid as the current device time
 does not fall within the validity window, and so the Supervisor won't pull the
 updated application. If we restart chrony, this will be rectified and the
 Supervisor will, after a short delay, update the application:
-```
+
+```shell
 root@f34c2e9:~# systemctl start chronyd.service
 root@f34c2e9:~# journalctl -f -u resin-supervisor
 -- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
@@ -970,6 +1030,7 @@ Nov 22 12:02:18 f34c2e9 resin-supervisor[1830]: [debug]   Replacing container fo
 Nov 22 12:02:18 f34c2e9 resin-supervisor[1830]: [debug]     Non-array fields:  {"added":{},"deleted":{"command":{},"entrypoint":{},"environment":{},"labels":{}},"updated":{"image":"registry2.balena-cloud.com/v2/83732ad30648d5f3e68188ed154ffdc2@sha256:8ec0ba1f96a51d936a83d8aa0ac1db2827a0458c2b6f7e3a5f814d6ad26b6d1f","workingDir":""}}
 ...
 ```
+
 This shows the importance of a working service such as timesetting, and how this
 can affect the system as a whole. As a note, be aware that not *every* device
 relies completely on NTP. Some devices, such as an Intel NUC, also have battery
@@ -981,6 +1042,7 @@ issues.
 
 `chronyc` is a command-line utility that can be used to interoperate with the
 NTP daemon. `chonyc` has many commands, the most useful are:
+
 * `sources` - A list of all the current NTP sources being used by the NTP
     daemon.
 * `reselect` - Forces the NTP daemon to reselect the best time synchronisation
@@ -988,7 +1050,7 @@ NTP daemon. `chonyc` has many commands, the most useful are:
 * `tracking` - Information about the system clock itself, including skew.
 * `ntpdata` - Detailed information on all the current NTP sources.
 
-### 6.2 DNS Issues
+#### 6.2 DNS Issues
 
 Service: `dnsmasq.service`
 
@@ -1020,7 +1082,8 @@ separated list of the IP addresses of the nameservers to use (see
 information).
 
 SSH into your device:
-```
+
+```shell
 $ balena ssh 192.168.1.173
 The authenticity of host '[192.168.1.173]:22222 ([192.168.1.173]:22222)' can't be established.
 ECDSA key fingerprint is SHA256:xr1DjpoK8Ga6J318INrxP7bQbtALX8+//QlzoASbgWY.
@@ -1032,13 +1095,15 @@ root@f34c2e9:~#
 We're going to modify the DNS servers to point at one that doesn't exist,
 just to show what happens. SSH into your device as above, then run the
 following:
-```
+
+```shell
 root@51cc514:~# jq '.dnsServers = "1.2.3.4"' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
 root@51cc514:~# mount -o remount,rw /
 root@51cc514:~# mv /etc/resolv.dnsmasq /etc/resolv.dnsmasq.moved
 root@51cc514:~# sync
 root@51cc514:~# reboot
 ```
+
 This will move the default DNSMasq resolver config file, so that it's not
 picked up. Additionally, it will modify the configuration to set the nameserver
 to use as `1.2.3.4`. As this isn't a valid nameserver, nothing will get the
@@ -1048,7 +1113,8 @@ reason!
 
 After a while, once the device has rebooted, SSH back into the device, and look
 at the `dnsmasq.service` unit:
-```
+
+```shell
 root@51cc514:~# systemctl status dnsmasq
 Warning: The unit file, source configuration file or drop-ins of dnsmasq.service changed on disk. Run 'systemctl daemon-reload' to reload units.
 ● dnsmasq.service - DNS forwarder and DHCP server
@@ -1072,11 +1138,13 @@ Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: read /etc/hosts - 6 addresse
 Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: using nameserver 1.2.3.4#53
 Dec 04 17:47:01 51cc514 dnsmasq[762]: dnsmasq[762]: failed to access /etc/resolv.dnsmasq: No such file or directory
 ```
+
 As you can see, it's tried, and failed to get the `/etc/resolv.dnsmasq` file
 and has just the one nameserver to use, `1.2.3.4`.
 
 Now let's look at the Supervisor:
-```
+
+```shell
 root@51cc514:~# systemctl status resin-supervisor
 ● resin-supervisor.service - Resin supervisor
    Loaded: loaded (/lib/systemd/system/resin-supervisor.service; enabled; vendor preset: enabled)
@@ -1101,6 +1169,7 @@ Dec 04 17:52:12 51cc514 resin-supervisor[1330]: Event: Device state report failu
 Dec 04 17:53:22 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
 Dec 04 17:54:32 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
 ```
+
 As you can see, the Supervisor is not at all happy, unable to connect to the API
 and failing to get the current target state. This is because it is unable to get
 an IP address for `api.balena-cloud.com`.
@@ -1112,12 +1181,14 @@ to verify this.
 Many other services will be in the same state. A good test of whether DNS is
 working is to try to get to a known service on the internet, including
 balenaCloud and Google:
-```
+
+```shell
 root@51cc514:~# curl https://google.com
 curl: (6) Could not resolve host: google.com
 root@51cc514:~# curl https://api.balena-cloud.com/ping
 curl: (6) Could not resolve host: api.balena-cloud.com
 ```
+
 Both of these should succeed if DNS is working, but as you can see, both give
 a `Could not resolve host` error. This is an extremely good pointer that DNS
 is failing.
@@ -1127,17 +1198,19 @@ server, but because the traffic for port 53 (the DNS port) is being firewalled
 (see later section).
 
 For now, we're going to put the DNS service back how it should be:
-```
+
+```shell
 root@51cc514:/etc# mount -o remount,rw /
 root@51cc514:/etc# mv resolv.dnsmasq.moved resolv.dnsmasq
 root@51cc514:/etc# jq -M 'del(.dnsServers)' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
 root@51cc514:/etc# sync
 root@51cc514:/etc# reboot
 ```
+
 This will put the device back into its previously working DNS state, and it
 will reconnect to the network.
 
-### 6.3 OpenVPN
+#### 6.3 OpenVPN
 
 Services: `openvpn.service`, `os-config.service`
 
@@ -1153,7 +1226,8 @@ Initially, the `os-config.service` unit requests a block of configuration data
 from the API, once the device has been registered against the application. Let's
 have a look at the journal output from a device that's been freshly provisioned
 and started for the first time:
-```
+
+```shell
 root@8117443:~# journalctl -f -n 300 -u os-config
 -- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
 Dec 05 10:10:28 8117443 systemd[1]: Started OS configuration update service.
@@ -1173,6 +1247,7 @@ Dec 05 10:10:34 8117443 os-config[841]: Starting openvpn.service...
 Dec 05 10:10:34 8117443 os-config[841]: /home/root/.ssh/authorized_keys_remote updated
 Dec 05 10:10:34 8117443 os-config[841]: Starting resin-supervisor.service...
 ```
+
 You can see that, once registered, the `os-config` service requested the
 configuration for the device from the API, received it, and then used the
 returned data to:
@@ -1206,7 +1281,8 @@ configurations (and it is unlikely to have changed in the meantime).
 
 Let's now look at the current OpenVPN journal entries on your device. SSH into
 the device:
-```
+
+```shell
 $ balena ssh 192.168.1.173
 root@8117443:~# journalctl -f -n 200 -u openvpn.service
 -- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
@@ -1274,10 +1350,12 @@ Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 GID set to openvp
 Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 UID set to openvpn
 Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Initialization Sequence Completed
 ```
+
 There's a lot to take in here, but there are some key lines here that show
 that the VPN has negotiated with the backend and is connected and routing
 traffic:
-```
+
+```shell
 Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 Attempting to establish TCP connection with [AF_INET]18.232.192.190:443 [nonblock]
 Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP connection established with [AF_INET]18.232.192.190:443
 Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP_CLIENT link local: (not bound)
@@ -1298,6 +1376,7 @@ Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 GID set to openvp
 Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 UID set to openvpn
 Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Initialization Sequence Completed
 ```
+
 The first part of the journal shows that the device has initiated contact with
 the VPN backend, accepted the certificate passed to it, and then started the
 initialisation of the VPN. We've cut some option stuff out, but the final lines
@@ -1322,7 +1401,7 @@ If every balena device on the network is failing to connect to the VPN, this
 usually indicates the network is being overly restrictive, which becomes a
 customer issue.
 
-### 6.4 Firewalled Endpoints
+#### 6.4 Firewalled Endpoints
 
 Balena devices work on a variety of networks, but they do require the basic
 networking environment as listed in
@@ -1373,6 +1452,7 @@ to a network.
 
 There are some very simple tests that can be carried out to see if most of the
 network requirements are satisfied:
+
 * `curl` to the API (`curl https://api.balena-cloud.com/ping`) and VPN
     (`curl https://vpn.balena-cloud.com/ping`) endpoints to see if a connection
     is attempted (in the latter case, you'll get an error, but shouldn't get
@@ -1386,7 +1466,7 @@ network requirements are satisfied:
     allow you to see whether any connection is made, or whether it timeouts/
     disconnects.
 
-#### 6.4.1 Deep Packet Inspection
+##### 6.4.1 Deep Packet Inspection
 
 Some firewalls and routers implement further restrictions on traffic, namely
 that of Deep Packet Inspection (DPI). This is a system where all (or sometimes
@@ -1416,7 +1496,7 @@ where the value is the DPI's root Certificate Authority (CA) that has been
 base64 encoded. This CA certificate should be supplied by the network operator
 to the customer who will be operating their devices on the DPI network.
 
-## 7. Working with the `config.json` File
+### 7. Working with the `config.json` File
 
 ***IMPORTANT:*** Making changes to a device's configuration in-situ can
 be extremely hazardous. This can potentially result in a device that, at best,
@@ -1444,7 +1524,8 @@ accessed from there.
 
 On-device, the boot partition is mounted at `/mnt/boot/`. Assuming you're still
 logged into your debug device, run the following:
-```
+
+```shell
 root@dee2945:~# ls /mnt/boot/
 bcm2708-rpi-0-w.dtb	bcm2710-rpi-3-b-plus.dtb	  bootcode.bin	    dt-blob.bin		kernel7.img	     splash
 bcm2708-rpi-b-plus.dtb	bcm2710-rpi-3-b.dtb		  cmdline.txt	    fixup.dat		os-release	     start.elf
@@ -1452,6 +1533,7 @@ bcm2708-rpi-b.dtb	bcm2710-rpi-cm3.dtb		  config.json	    fixup_cd.dat	overlays	 
 bcm2708-rpi-cm.dtb	bcm2835-bootfiles-20181112.stamp  config.txt	    fixup_x.dat		resin-image	     start_x.elf
 bcm2709-rpi-2-b.dtb	boot.scr			  device-type.json  image-version-info	resinos.fingerprint  system-connections
 ```
+
 As you can see, all the boot required files exist in the root, including
 `config.json`, and it is from the `/mnt/boot` mountpoint that any services that
 require access to files on the boot partition (including the configuration)
@@ -1462,7 +1544,8 @@ read this data.
 This is *not* the case, and in fact this directory is a pre-built directory
 that exists as part of the root FS partition, and *not* the mounted boot
 partition. Let's verify this:
-```
+
+```shell
 root@dee2945:~# cat /resin-boot/config.json
 {
   "deviceType": "fincm3",
@@ -1471,12 +1554,14 @@ root@dee2945:~# cat /resin-boot/config.json
   "persistentLogging": false
 }
 ```
+
 As you can see, there's very little information in the configuration file in
 the `/resin-boot` directory, and certainly nothing that associates it with an
 application. On the other hand, if we look at `/mnt/boot/config.json` you can
 see that all the required information for the device to be associated with its
 application exists:
-```
+
+```shell
 root@dee2945:~# cat /mnt/boot/config.json | jq
 {
   "apiEndpoint": "https://api.balena-cloud.com",
@@ -1503,6 +1588,7 @@ root@dee2945:~# cat /mnt/boot/config.json | jq
   "deviceId": 1234564
 }
 ```
+
 you can see that all the required information for the device to be associated
 with its application exists.
 
@@ -1513,10 +1599,12 @@ read-only.
 For the configuration itself, as you can see we used `jq` to prettify the
 output of the `config.json`. If we hadn't used it, you'd see the raw
 file, which is essentially just a very long string:
-```
+
+```shell
 root@dee2945:~# cat /mnt/boot/config.json
 {"apiEndpoint": "https://api.balena-cloud.com","appUpdatePollInterval": 900000,"applicationId": "1234567","applicationName": "DebugApp","deltaEndpoint": "https://delta.balena-cloud.com","deviceApiKey": "1234566edab91fe8cc9ed6b27ff81215","deviceApiKeys": {  "api.balena-cloud.com": "1234566edab91fe8cc9ed6b27ff81215"},"deviceType": "fincm3","listenPort": "48484","mixpanelToken": "123456ea64cb6cd8bbc96af72345d70d","pubnubPublishKey": "","pubnubSubscribeKey": "","registryEndpoint": "registry2.balena-cloud.com","userId": "1234","username": "captaincaveman","vpnEndpoint": "vpn.balena-cloud.com","vpnPort": "443","uuid": "1234565a13195b0d209ad88574447bf3","registered_at": 1578331919919,"deviceId": 1234564}
 ```
+
 This is difficult to read, so you should familiarize yourself with `jq` to parse
 the file and also to make changes. `jq` will not make changes to the same file
 it's reading, so we need to make a copy of the file to change it, and then copy
@@ -1525,7 +1613,8 @@ you keep a backup of the original configuration in case you make a mistake.
 
 As an example, we're going to change the hostname from the short UUID of the
 device to something else, `debug-device`:
-```
+
+```shell
 root@2f69955:~# cd /mnt/boot/
 root@04916bf:/mnt/boot# cp config.json config.json.backup && cat config.json.backup | jq ".hostname=\"debug-device\"" -c > config.json
 root@04916bf:/mnt/boot# cat config.json | jq
@@ -1556,12 +1645,15 @@ root@04916bf:/mnt/boot# cat config.json | jq
 }
 root@04916bf:/mnt/boot# reboot
 ```
+
 The reboot is required as the hostname change will not be picked up until the
 device restarts. Wait a little while, and then SSH back into the device, we'll
 see that the hostname has changed:
-```
+
+```shell
 root@debug-device:~#
 ```
+
 Whilst making the changes, the new configuration is written to the `config.json`
 file, whilst we have a backup of the original (`config.json.backup`).
 
@@ -1573,7 +1665,7 @@ There is full documentation on the configuration of a balena device
 [here](https://www.balena.io/docs/reference/OS/configuration/#sample-configjson)
 which includes all the properties applicable.
 
-## 8. Working with the Supervisor
+### 8. Working with the Supervisor
 
 Service: `resin-supervisor.service`
 
@@ -1594,7 +1686,8 @@ just like any other service (although actually carrying that out is slightly
 different to updating an application, see 'Updating the Supervisor').
 
 Assuming you're still logged into your development device, run the following:
-```
+
+```shell
 root@8117443:~# systemctl status resin-supervisor.service
 ● resin-supervisor.service - Resin supervisor
    Loaded: loaded (/lib/systemd/system/resin-supervisor.service; enabled; vendor preset: enabled)
@@ -1619,6 +1712,7 @@ Dec 17 07:49:18 8117443 resin-supervisor[1357]: Attempting container log timesta
 Dec 17 07:49:18 8117443 resin-supervisor[1357]: Container log timestamp flush complete
 Dec 17 07:51:59 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.994 ms
 ```
+
 You can see the Supervisor is just another `systemd` service
 (`resin-supervisor.service)`, and that it is  started and run by balenaEngine.
 
@@ -1652,7 +1746,8 @@ then the Supervisor is restarted. The default period for this check is 180
 seconds at the time of writing, but inspect the
 `/lib/systemd/system/resin-supervisor.service` file on-device to see what
 it is for the device you're SSHd into. For example, using our example device:
-```
+
+```shell
 root@14350bd:~# cat /lib/systemd/system/resin-supervisor.service
 [Unit]
 Description=Resin supervisor
@@ -1688,7 +1783,7 @@ ExecStop=-/usr/bin/balena stop resin_supervisor
 WantedBy=multi-user.target
 ```
 
-### 8.1 Restarting the Supervisor
+#### 8.1 Restarting the Supervisor
 
 It's actually incredibly rare to actually *need* a Supervisor restart. The
 Supervisor will attempt to recover from issues that occur automatically, without
@@ -1710,7 +1805,8 @@ may be mitigated in the future. Enabling permanent logging may also be of
 benefit in cases where symptoms are repeatedly occuring.
 
 To restart the Supervisor, simply restart the `systemd` service:
-```
+
+```shell
 root@8117443:~# systemctl restart resin-supervisor.service
 systroot@8117443:~# systemctl status resin-supervisor.service
 ● resin-supervisor.service - Resin supervisor
@@ -1728,7 +1824,7 @@ systroot@8117443:~# systemctl status resin-supervisor.service
 ...
 ```
 
-### 8.2 Updating the Supervisor
+#### 8.2 Updating the Supervisor
 
 Occasionally, there are situations where the Supervisor requires an update. This
 may be because a device needs to use a new feature or because the version of
@@ -1741,7 +1837,8 @@ should there be an issue where a Supervisor release isn't yet in a new OS
 release but is required on a device), then this can be achieved by running
 the `update-resin-supervisor` script. Here's an example where the version
 (v9.2.2) on balenaOS v2.38.0+rev1 is updated to v10.2.2:
-```
+
+```shell
 oot@8117443:~# balena images
 REPOSITORY                                                       TAG                 IMAGE ID            CREATED             SIZE
 registry2.balena-cloud.com/v2/533a18828e15458e354a35afceb3de4a   <none>              b4362eb4725f        3 days ago          204MB
@@ -1769,6 +1866,7 @@ resin_supervisor
 Start supervisor...
 root@8117443:~#
 ```
+
 This has moved the Supervisor from v9.2.2 to version v10.2.2, including
 downloading the required update and then installing it, and removing the old
 version of the Supervisor.
@@ -1786,13 +1884,15 @@ standard `update-resin-supervisor` script. This includes updating
 development OS version. The following example, will remotely update
 the Raspberry Pi device with UUID `123457890abcdef` on the production
 balenaCloud environment to version `v2.43.0+rev1.dev` of balenaOS:
-```
+
+```shell
 ./upgrade-ssh-2.x.sh -s balenadevice --hostos-version 2.43.0+rev1.dev --assume-supported --ignore-sanity-checks --force-slug raspberrypi3 -u 123457890abcdef
 ```
+
 Extreme care should be taken when carrying out updates like this, as
 they are not common and should only be used in extreme circumstances.
 
-### 8.3 The Supervisor Database
+#### 8.3 The Supervisor Database
 
 The Supervisor uses a SQLite database to store persistent state (so in the
 case of going offline, or a reboot, it knows exactly what state an
@@ -1803,13 +1903,16 @@ This database is located at
 `/mnt/data/resin-data/resin-supervisor/database.sqlite` and can be accessed
 inside the Supervisor, most easily by running Node. Assuming you're logged
 into your device, run the following:
-```
+
+```shell
 root@28c8bf0:~# balena exec -ti resin_supervisor node
 ```
+
 This will get you into a Node interpretter in the Supervisor service
 container. From here, we can use the `sqlite3` NPM module used by
 the Supervisor to make requests to the database:
-```
+
+```shell
 > sqlite3 = require('sqlite3');
 { Database: [Function: Database],
   Statement: [Function: Statement],
@@ -1857,8 +1960,10 @@ the Supervisor to make requests to the database:
 > db = new sqlite3.Database('/data/database.sqlite');
 Database { open: false, filename: '/data/database.sqlite', mode: 65542 }
 ```
+
 You can get a list of all the tables used by the Supervisor by issuing:
-```
+
+```shell
 > db.all("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", console.log);
 Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
 > null [ { name: 'app' },
@@ -1875,10 +1980,12 @@ Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
   { name: 'logsChannelSecret' },
   { name: 'sqlite_sequence' } ]
 ```
+
 With these, you can then examine and modify data, if required. Note that there's
 usually little reason to do so, but this is included for completeness. For
 example, to examine the configuration used by the Supervisor:
-```
+
+```shell
 > db.all('SELECT * FROM config;', console.log);
 Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
 > null [ { key: 'localMode', value: 'false' },
@@ -1900,7 +2007,8 @@ is neccesary to clear the database. This usually goes hand-in-hand with removing
 the current containers and putting the Supervisor into a 'first boot' state,
 whilst keeping the Supervisor and application images. This can be achieved by
 carrying out the following:
-```
+
+```shell
 root@dee2945:~# systemctl stop resin-supervisor.service update-resin-supervisor.timer
 root@dee2945:~# balena rm -f $(balena ps -aq)
 0780f5a88e52
@@ -1908,7 +2016,9 @@ root@dee2945:~# balena rm -f $(balena ps -aq)
 88d1051bcc3f
 root@dee2945:~# rm /mnt/data/resin-data/resin-supervisor/database.sqlite
 ```
+
 This:
+
 * Stops the Supervisor (and the timer that will attempt to restart it).
 * Removes all current services containers (including the Supervisor).
 * Removes the Supervisor database.
@@ -1916,9 +2026,11 @@ This:
 `balena rmi -f $(balena images -q)` which will remove all images *including*
 the Supervisor image).
 You can now restart the Supervisor:
-```
+
+```shell
 root@dee2945:~# systemctl start update-resin-supervisor.timer resin-supervisor.service
 ```
+
 (If you deleted all the images, this will first download the Supervisor image
 again before restarting it).
 At this point, the Supervisor will start up as if the device has just been
@@ -1926,7 +2038,7 @@ provisioned (though it will already be registered), and the application will
 be freshly downloaded (if the images were removed) before starting the service
 containers.
 
-## 9. Working with balenaEngine
+### 9. Working with balenaEngine
 
 Service: `balena.service`
 
@@ -1947,6 +2059,7 @@ Issues with balenaEngine themselves are rare, although it can be initially
 tempting to attribute them to balenaEngine instead of the actual underlying
 issue. A couple of examples
 of issues which are misattributed to :
+
 * Failure to download application service updates - usually because there is an
     underlying network problem, or possibly issues with free space
 * Failure to start service containers - most commonly customer services exit
@@ -1955,7 +2068,8 @@ of issues which are misattributed to :
 
 Reading the journal for balenaEngine is similar to all other `systemd` services.
 Log into your device and then execute the following:
-```
+
+```shell
 root@dee2945:~# journalctl --follow --unit balena.service
 -- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
 Jan 15 14:31:48 dee2945 515ad785c072[765]: Container log timestamp flush complete
@@ -1969,6 +2083,7 @@ Jan 15 14:51:48 dee2945 515ad785c072[765]: Attempting container log timestamp fl
 Jan 15 14:51:48 dee2945 515ad785c072[765]: Container log timestamp flush complete
 Jan 15 14:55:35 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 10.088 ms
 ```
+
 What you'll first notice here is that there's Supervisor output here. This is
 because balenaEngine is running the Supervisor and it pipes all Supervisor
 logs to its own service output. This comes in particularly useful if you need to
@@ -1978,7 +2093,8 @@ output in the same logs chronologically.
 Assuming your device is still running the pushed multicontainer application,
 we can also see additionally logging for all the application service containers.
 To do so, we'll restart balenaEngine, so that the services are started again:
-```
+
+```shell
 root@dee2945:~# systemctl restart balena.service
 root@dee2945:~# journalctl --follow -n 40 --unit balena.service
 -- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
@@ -2023,9 +2139,11 @@ Jan 15 15:02:52 dee2945 515ad785c072[28215]: Finished applying target state
 Jan 15 15:02:52 dee2945 515ad785c072[28215]: Apply success!
 Jan 15 15:03:00 dee2945 515ad785c072[28215]: Internet Connectivity: OK
 ```
+
 This is the last 40 lines of the balenaEngine journal after a restart. Note that
 the Supervisor has been restarted, but also the following lines:
-```
+
+```shell
 Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: [17B blob data]
 Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
 Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [35B blob data]
@@ -2033,11 +2151,13 @@ Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [16B blob data]
 Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
 Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: [16B blob data]
 ```
+
 By default, service container output is not displayed, and instead any output
 from the containers are given as `blob data`. We can change this to output
 the actual logs by using the `--all` (`-a`) switch. Let's try the same journal
 command by requesting all output:
-```
+
+```shell
 root@dee2945:~# journalctl --all --follow -n 40 --unit balena.service
 -- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
 Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.131177535Z" level=info msg="Daemon has completed initialization"
@@ -2081,8 +2201,10 @@ Jan 15 15:02:52 dee2945 515ad785c072[28215]: Finished applying target state
 Jan 15 15:02:52 dee2945 515ad785c072[28215]: Apply success!
 Jan 15 15:03:00 dee2945 515ad785c072[28215]: Internet Connectivity: OK
 ```
+
 As you can see, this time we get the output from the service containers:
-```
+
+```shell
 Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: Started frontend
 Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
 Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: > backend@1.0.0 start /usr/src/app
@@ -2091,32 +2213,37 @@ Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
 Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: Started backend
 ```
 
-### 9.1 Service Image, Container and Volume Locations
+#### 9.1 Service Image, Container and Volume Locations
 
 balenaEngine stores all its writeable data in the `/var/lib/docker` directory,
 which is part of the data partition. We can see this by using the `mount`
 command:
-```
+
+```shell
 root@dee2945:~# mount | grep lib/docker
 /dev/mmcblk0p6 on /var/lib/docker type ext4 (rw,relatime,data=ordered)
 ```
+
 All balenaEngine state is stored in here, include images, containers and
 volume data. Let's take a brief look through the most important directories
 and explain the layout, which should help with investigations should they be
 required.
 
 Run `balena images` on your device:
-```
+
+```shell
 root@dee2945:/var/lib/docker# balena images
 REPOSITORY                                                       TAG                 IMAGE ID            CREATED             SIZE
 registry2.balena-cloud.com/v2/9954d5f822472d8746c102abe2d81ff0   <none>              b55e61fcd743        2 days ago          238MB
 registry2.balena-cloud.com/v2/90ed3ed07798f4b1c3faf3c4926b27ea   <none>              4c973956a691        2 days ago          233MB
 balena/armv7hf-supervisor                                        v9.15.7             3977c88a7059        7 months ago        53.8MB
 ```
+
 Each image has an image ID. These identify each image uniquely for operations
 upon it, such as executing it as a container, removal, etc. We can inspect an
 image to look at how it's made up:
-```
+
+```shell
 root@dee2945:/var/lib/docker# balena inspect 4c973956a691
 [
     {
@@ -2241,6 +2368,7 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
     }
 ]
 ```
+
 Of particular interest here is the `"RootFS"` section, which shows all of the
 layers that make up an image. Without going into detail (there are plenty of
 easily Googleable pages describing this), each balena image is made up of a
@@ -2255,7 +2383,8 @@ directory (note that we are moving to `overlay2` for all devices eventually,
 and that this guide will work simply by replacing `aufs` by `overlay2`). This
 directory holds a set of directories, each named after each unique layer using
 the SHA256 associated with it. Let's look at the layer DB directory:
-```
+
+```shell
 root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# ls
 084d479ff39eee821c584315063f121a5fed634d8eb3dcd8cf8dd9274cc3908a  8e76114ec559fc7b9c9316286c595cad947b65e9aa4f81b8a7f440488f586870
 09f49c7cda3e1c586c48bc764a16488fadda03b47d0ba819c3c8fe8ba20d5d05  9084a902d87b7a77fe23cfa2add4a202df04fffb772019230c6f871acf54fb9f
@@ -2271,27 +2400,33 @@ root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# ls
 5f3a49e21e4c8bb5fd7493ba8f75354b6f829da1ab94435fb761de9bbb25da0d  e7d96f171f2d54fc95e99d853dff1b20ed0cf81148a7b64639bca6d2712a9d6a
 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a  f0278d96034e3b35c6a1b97321781d9fa2a1ceaa83df8206af317dfdfc0f3618
 ```
+
 Note that there are layers named here that are *not* named in the `"RootFS"`
 object in the image description (although base image layers usually are). This
 is because of the way balenaEngine describes layers and naming internally
 (which we will not go into here). However, each layer is described by a
 `cache-id` which is a randomly generated UUID. You can find the `cache-id`
 for a layer by searching for it in the layer DB directory:
-```
+
+```shell
 root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# grep -r 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a *
 09f49c7cda3e1c586c48bc764a16488fadda03b47d0ba819c3c8fe8ba20d5d05/parent:sha256:73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a
 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a/diff:sha256:73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a
 ```
+
 In this case, we find two entries, but we're only interested in the directory
 with the `diff` file result, as this describes the diff for the layer:
-```
+
+```shell
 root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# cat 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a/cache-id
 1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
 ```
+
 We now have the corresponding `cache-id` for the layer's directory layout,
 and we can now examine the file system for this layer (all the diffs are
 store in the `/var/lib/docker/aufs/diff` directory):
-```
+
+```shell
 root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# du -hc /var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
 4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/srv
 4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/proc
@@ -2742,6 +2877,7 @@ root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# root@dee2945:/var/lib/do
 57M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
 57M	total
 ```
+
 And there's all of the directories in the base image for the image! You can
 find the diffs for subsequent layers in the same way.
 
@@ -2756,43 +2892,50 @@ appropriate `/var/lib/docker` directory.
 
 Assuming you're running the application that goes along with this masterclass,
 SSH into your device:
-```
+
+```shell
 root@dee2945:~# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                 PORTS               NAMES
 3ce646179335        8353bf5a40d9                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               frontend_1862610_1219773
 5c36f880c4b3        95fb9c5f84d2                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               backend_1862611_1219773
 515ad785c072        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             2 days ago          Up 2 hours (healthy)                       resin_supervisor
 ```
+
 You should see something similar. Let's pick the `backend` service, which in
 this instance is container `5c36f880c4b3`. We'll `exec` into it via a `bash`
 shell, and create a new file. This will create a new writeable layer for the
 container:
-```
+
+```shell
 root@dee2945:~# balena exec -ti 5c36f880c4b3 /bin/bash
 root@5c36f880c4b3:/usr/src/app# echo 'This is a new, container-only writeable file!' > /mynewfile.txt
 root@5c36f880c4b3:/usr/src/app# cat /mynewfile.txt
 This is a new, container-only writeable file!
 root@5c36f880c4b3:/usr/src/app# exit
 ```
+
 Now we'll determine where this new file has been stored by balenaEngine.
 Similarly to the images, any writeable layer ends up in the
 `/var/lib/docker/aufs/diff` directory, but to determine the correct layer ID
 we need to examine the layer DB for it. We do this by looking in the
 `/var/lib/docker/image/aufs/layerdb/mounts` directory, which lists all the
 currently created containers:
-```
+
+```shell
 root@dee2945:~# cd /var/lib/docker/image/aufs/layerdb/mounts
 root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# ls
 3ce646179335cedd38c8bd74bb434e5ce583ce07d4ddc29f17f16ea47e0ed428  5c36f880c4b3d6f8a73034fdce0efc44c2021b2b8575e11b215db7659a2282ba
 515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981
 ```
+
 As you can see, there's a list of all the container IDs of those container
 that have been created. If we look for the `mount-id` file in the directory
 for the `backend` container, that will include the layer ID of the layer that
 has been created. From there, we simply look in the appropriate diff layer
 directory to find our newly created file (the `awk` command below is to add
 a newline to the end of the discovered value for clarity reasons):
-```
+
+```shell
 root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat 5c36f880c4b3d6f8a73034fdce0efc44c2021b2b8575e11b215db7659a2282ba/mount-id | awk '{ print $1 }'
 root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# ls /var/lib/docker/aufs/diff/7a1b70a76338b34aefc37763fdeb29ea876cb6d79ff8204ae9b74b8b90ee1fcb
 mynewfile.txt  root  run  tmp
@@ -2800,12 +2943,13 @@ root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat /var/lib/docker/aufs
 This is a new, container-only writeable file!
 ```
 
-### 9.2 Restarting balenaEngine
+#### 9.2 Restarting balenaEngine
 
 As with the Supervisor, it's very rare to actually need to carry this out.
 However, for completeness, should you need to, this again is as simple as
 carrying out a `systemd` restart:
-```
+
+```shell
 Jan 17 09:58:51 dee2945 systemd[1]: Stopping Balena Application Container Engine...
 Jan 17 09:58:53 dee2945 balenad[772]: time="2020-01-17T09:58:53.817987274Z" level=info msg="Container failed to stop after sending signal 15 to the process, force killing"
 Jan 17 09:58:53 dee2945 balenad[772]: time="2020-01-17T09:58:53.818949240Z" level=info msg="Container failed to stop after sending signal 15 to the process, force killing"
@@ -2961,6 +3105,7 @@ Jan 17 09:59:28 dee2945 515ad785c072[19453]: Apply success!
 Jan 17 09:59:36 dee2945 515ad785c072[19453]: Internet Connectivity: OK
 
 ```
+
 However, doing so has also had another side-effect. Because the Supervisor is
 itself comprised of a container, restarting balenaEngine has *also* stopped
 and restarted the Supervisor. This is another good reason why balenaEngine
@@ -2968,6 +3113,7 @@ should only be stopped/restarted if absolutely necessary.
 
 So, when is absolutely necessary? There are some issues which occasionally
 occur that might require this. Some examples might include:
+
 * Corruption in the `/var/lib/docker` directory, usually related to
 * Memory exhaustion and investigation
 * Container start/stop conflicts
@@ -2975,7 +3121,7 @@ occur that might require this. Some examples might include:
 Many examples of these are documented in the support knowledge base, so we will
 not delve into them here.
 
-## 10. Using the Kernel Logs
+### 10. Using the Kernel Logs
 
 There are occasionally instances where a problem arises which is not immediately
 obvious. In these cases, you might see services fail 'randomly', perhaps
@@ -2986,7 +3132,8 @@ examination of the kernel logs can be a useful check to see if anything is
 causing an issue.
 
 To examine the kernel log on-device, simply run `dmesg` from the host OS:
-```
+
+```shell
 root@dee2945:/# dmesg
 [    0.000000] Booting Linux on physical CPU 0x0
 [    0.000000] Linux version 4.14.98 (oe-user@oe-host) (gcc version 8.2.0 (GCC)) #1 SMP Mon Jun 17 12:12:45 UTC 2019
@@ -3037,6 +3184,7 @@ root@dee2945:/# dmesg
 [    0.001281] Mountpoint-cache hash table entries: 2048 (order: 1, 8192 bytes)
 ...
 ```
+
 The rest of the output is truncated here. Note that the time output is in
 seconds. If you want to display a human readable time, use the `-T` switch.
 This will, however, stip the nanosecond accuracy and revert to chronological
@@ -3048,6 +3196,7 @@ However, due to the sheer amount of information presented here, it's sometimes
 easier to run it on-device.
 
 Some common issues to watch for include:
+
 * Under-voltage warnings, signifying that a device is not receiving what it
     requires from the power supply to operate correctly (these warnings
     are only present on the Raspberry Pi series).
@@ -3056,7 +3205,7 @@ Some common issues to watch for include:
 * Device detection problems, where devices that are expected to show in the
     device node list are either incorrectly detected or misdetected.
 
-## 11. Media Issues
+### 11. Media Issues
 
 Sometimes issues occur with the media being used (the medium that balenaOS
 and all other data is stored on, for example an SD card or eMMC drive).
@@ -3064,9 +3213,10 @@ and all other data is stored on, for example an SD card or eMMC drive).
 This can include multiple issues, but the most common are that of exhaustion
 of free space on a device, or that of SD card corruption.
 
-### 11.1 Out of Space Issues
+#### 11.1 Out of Space Issues
 
 A media partition that is full can cause issues such as the following:
+
 * Failure to download application updates, or failure to start new/updated
     services after a download has occurred
 * Failure for an application to store data into defined volumes
@@ -3075,7 +3225,8 @@ A media partition that is full can cause issues such as the following:
 
 Determining how much space left on the media for a device can be achieved by
 logging into the host OS and running:
-```
+
+```shell
 root@dee2945:/# df -h
 Filesystem                         Size  Used Avail Use% Mounted on
 devtmpfs                           481M     0  481M   0% /dev
@@ -3094,6 +3245,7 @@ overlay                            488M   20K  488M   1% /var/cache
 overlay                            488M   20K  488M   1% /var/lib
 /dev/mmcblk0p6                      57G  342M   54G   1% /mnt/data
 ```
+
 The `-h` switch makes the figures returned 'human readable'. Without this switch
 the returned figures will be in block sizes (usually 1k or 512byte blocks).
 
@@ -3105,7 +3257,7 @@ are stored.
 
 There are a few ways to try and relieve out of space issues on a media drive.
 
-#### 11.1.1 Image and Container Pruning
+##### 11.1.1 Image and Container Pruning
 
 One fairly easy cleanup routine to perform is that of pruning the Docker tree
 so that any unused images, containers, networks and volumes are removed. It
@@ -3114,7 +3266,8 @@ to ensure that anything that is no longer used on the device *is* removed when
 not required. However, there are issues that sometimes occur that can cause this
 behavior to not work correctly. In these cases, a prune should help clean
 anything that should note be present:
-```
+
+```shell
 root@dee2945:/# balena system prune -a -f --volumes
 Deleted Containers:
 81473114c1ed742595d1f04aee193e1071a29dadfce619b1d72253c5f7a98388
@@ -3128,11 +3281,12 @@ deleted: sha256:ea46a56e67595cafbd7632b362b1b21b5c167d3188564987735a4f29ddee969d
 
 Total reclaimed space: 98.85MB
 ```
+
 Note that in the above, *all* unused images, containers, networks and volumes
 will be removed. To just remove dangling images, you can use
 `balena system prune -a`.
 
-#### 11.1.2 Customer Data
+##### 11.1.2 Customer Data
 
 Occasionally, customer volumes can also fill up the data partition. This
 obviously causes more issues, because usually this is data that cannot just
@@ -3166,15 +3320,18 @@ not all volumes pertain directly to customer data.
 
 In single service applications, the relevant data volume is suffixed with the
 `_resin-data` string. For example:
-```
+
+```shell
 root@dee2945:/# ls -l /var/lib/docker/volumes/
 total 28
 drwxr-xr-x 3 root root  4096 Jan 14 11:10 1544229_resin-data
 -rw------- 1 root root 32768 Jan 14 11:11 metadata.db
 ```
+
 This tallies with the single service currently running, which can be inspected
 to determine the relevant volume:
-```
+
+```shell
 root@dee2945:/# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
 f596a2ac8d19        b1b05d58f2a7                        "/usr/bin/entry.sh n…"   18 seconds ago      Up 14 seconds                               main_1849012_1215051
@@ -3182,6 +3339,7 @@ f596a2ac8d19        b1b05d58f2a7                        "/usr/bin/entry.sh n…"
 root@dee2945:/# balena inspect main_1849012_1215051 | grep /var/lib/docker/volumes
                 "Source": "/var/lib/docker/volumes/1544229_resin-data/_data",
 ```
+
 As you can see, all data that can be saved by a service into `/data` corresponds
 to the `/var/lib/docker/volumes/1544229_resin-data/_data` on the host.
 As `/var/lib/docker` is mapped to the host OS's data partition, this data gets
@@ -3192,7 +3350,8 @@ OS.
 In multicontainer applications, the suffix always corresponds with the name
 of the bound volume. For example, let's look at the docker-compose manifest
 for the `multicontainer-app` application used in this debugging masterclass:
-```
+
+```yaml
 version: '2.1'
 volumes:
   backend-data: {}
@@ -3209,11 +3368,13 @@ services:
     volumes:
       - 'backend-data:/mydata'
 ```
+
 As you can see, a `backend-data` volume is defined, and then used by the
 `backend` service. Assuming your device is still running the multicontainer
 application for this masterclass, SSH into the device, and then examine the
 running services:
-```
+
+```shell
 root@dee2945:/# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
 75727d0a4bea        eeb7acdade4c                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 4 minutes                                backend_1849057_1215070
@@ -3222,6 +3383,7 @@ CONTAINER ID        IMAGE                               COMMAND                 
 root@dee2945:/# balena inspect backend_1849057_1215070 | grep /var/lib/docker/volumes/
                 "Source": "/var/lib/docker/volumes/1544229_backend-data/_data",
 ```
+
 This time, the volume is denoted with the suffix of the defined volume name.
 Should there be multiple volumes, then appropriate directories for these will
 be created in the `/var/lib/docker/volumes` directory, with the relevant
@@ -3229,6 +3391,7 @@ suffixes.
 
 Knowing this, it becomes fairly simple to stop services that have filled volumes
 and to clear these out:
+
 1. Stop the Supervisor and start timer (`resin-supervisor.service` and
     `update-resin-supervisor.timer`).
 2. Determine the relevant data directories for the volumes filling the data
@@ -3236,7 +3399,7 @@ and to clear these out:
 3. Clean them appropriately.
 4. Restart the Supervisor and start timer.
 
-### 11.2 Storage Media Corruption
+#### 11.2 Storage Media Corruption
 
 Many device types use storage media that has high wear levels. This includes
 devices such as the Raspberry Pi series, where SD cards are the usual storage
@@ -3246,6 +3409,7 @@ dying due to SD card failure. However, they do occur (and not just on SD cards,
 any type of flash memory based storage includes a shorter lifespan compared to
 media such as platter drives). Initially, media corruption and wearing exhibit
 'random' signs, including but not limited to:
+
 * Application updates failing to download/start/stop.
 * Services suddenly restarting.
 * Devices not being mapped to device nodes.
@@ -3265,10 +3429,12 @@ check. This checks the MD5 hashes fingerprints of all the files in the filing
 system against those when they were built. This tends to give an idea of
 whether corruption may be an issue (but it certainly isn't guaranteed).
 SSH into your device and run the following:
-```
+
+```shell
 root@dee2945:/# grep -v "/var/cache/ldconfig/aux-cache" /resinos.fingerprint | md5sum --quiet -c -
 root@dee2945:/#
 ```
+
 If the check returns successfully, none of the files differ in their MD5
 fingerprints from when they were built.
 
@@ -3283,10 +3449,11 @@ device and then follow appropriate instructions. The Jellyfish knowledgebase
 includes an entry for doing this (search for 'Recovery data from a dead
 device').
 
-# Conclusion
+## Conclusion
 
 In this masterclass, you've learned how to deal with balena devices as a
 support agent. You should now be confident enough to:
+
 * Request access from a customer and access their device, including 'offline'
     devices on the same network as one that is 'online'.
 * Run diagnostics checks and understand their results.
