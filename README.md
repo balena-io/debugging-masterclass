@@ -615,7 +615,7 @@ them:
 * `NetworkManager.service` - The underlying Network Manager service, ensuring
     that configured connections are used for networking.
 * `os-config.service` - Retrieves settings and configs from the API endpoint,
-    including certificates, authorised keys, the VPN config, etc.
+    including certificates, authorized keys, the VPN config, etc.
 * `openvpn.service` - The VPN service itself, which connects to the balenaCloud
     VPN, allowing a device to come online (and to be SSHd to and have actions
     performed on it). Note that in balenaOS versions less than v2.10.0 this
@@ -774,7 +774,7 @@ In general,
 [debugging networking](https://github.com/balena-io/networking-masterclass/)
 symptoms also gets easier the more you experiment with making changes to
 networking interfaces and routes on a device. As such, it is well worth taking
-the balena Networking Masterclass to familiarise yourself with balena device
+the balena Networking Masterclass to familiarize yourself with balena device
 networking.
 
 The following sections describe some of the more common network failure
@@ -884,10 +884,10 @@ Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 Socket Buffers: 
 ```
 
 There's a bit to wade through here, but the first line shows the OpenVPN
-successfully finalising a connection to the balenaCloud VPN backend. However,
+successfully finalizing a connection to the balenaCloud VPN backend. However,
 we then see our manual restart of the `openvpn.service` unit file
 (`Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 SIGTERM[hard,] received, process exiting`)
-and then it starting up again. But whilst it initialises, you'll note that
+and then it starting up again. But whilst it initializes, you'll note that
 whilst trying to connect it found a problem in the verification stage:
 
 ```shell
@@ -924,7 +924,7 @@ root@f34c2e9:~# journalctl -f -u chronyd.service
 Nov 22 11:17:17 localhost chronyd[737]: 2019-11-22T11:17:17Z chronyd version 3.4 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -SECHASH +IPV6 -DEBUG)
 Nov 22 11:17:28 f34c2e9 chronyd[737]: 2019-11-22T11:17:28Z Selected source 85.199.214.100
 Mar 23 12:00:04 f34c2e9 chronyd[737]: 2017-03-23T12:00:04Z Backward time jump detected!
-Mar 23 12:00:04 f34c2e9 chronyd[737]: 2017-03-23T12:00:04Z Can't synchronise: no selectable sources
+Mar 23 12:00:04 f34c2e9 chronyd[737]: 2017-03-23T12:00:04Z Can't synchronize: no selectable sources
 Nov 22 11:34:43 f34c2e9 chronyd[737]: 2017-03-23T12:02:14Z Selected source 178.62.250.107
 Nov 22 11:34:43 f34c2e9 chronyd[737]: 2017-03-23T12:02:14Z System clock wrong by 84151949.073647 seconds, adjustment started
 Nov 22 11:34:43 f34c2e9 chronyd[737]: 2019-11-22T11:34:43Z System clock was stepped by 84151949.073647 seconds
@@ -1045,7 +1045,7 @@ NTP daemon. `chonyc` has many commands, the most useful are:
 
 * `sources` - A list of all the current NTP sources being used by the NTP
     daemon.
-* `reselect` - Forces the NTP daemon to reselect the best time synchronisation
+* `reselect` - Forces the NTP daemon to reselect the best time synchronization
     source.
 * `tracking` - Information about the system clock itself, including skew.
 * `ntpdata` - Detailed information on all the current NTP sources.
@@ -1256,7 +1256,7 @@ returned data to:
 2. Write the new OpenVPN configuration to the state partition.
 3. Write the correct root CA for the VPN to the state partition.
 4. Restarted the OpenVPN service.
-5. Updated the authorised keys.
+5. Updated the authorized keys.
 
 **Quick Note:** Customers can also specify their own keys to access devices
     (both development and production) in a couple of ways. The first is adding
@@ -1447,7 +1447,7 @@ lets through all the traffic required by balena, but is blocking other arbitrary
 ports, which might include the ports required by an application on the device.
 
 These are all points which a support engineer should be aware of when
-investigating a device that is showing abnormal behaviour which might be related
+investigating a device that is showing abnormal behavior which might be related
 to a network.
 
 There are some very simple tests that can be carried out to see if most of the
@@ -3176,7 +3176,7 @@ root@dee2945:/# dmesg
 [    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
 [    0.000007] sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
 [    0.000022] Switching to timer-based delay loop, resolution 52ns
-[    0.000266] Console: colour dummy device 80x30
+[    0.000266] Console: color dummy device 80x30
 [    0.000841] console [tty1] enabled
 [    0.000879] Calibrating delay loop (skipped), value calculated using timer frequency.. 38.40 BogoMIPS (lpj=192000)
 [    0.000920] pid_max: default: 32768 minimum: 301
