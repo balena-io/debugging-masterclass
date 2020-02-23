@@ -172,7 +172,7 @@ Once support access has been granted, an agent will be able to use the UUID of
 a device to gain access to it, using a URL of the form:
 https://dashboard.balena-cloud.com/devices/&lt;deviceUUID&gt;/summary
 
-The Dashboard will function in almost exactly in the same way as it would were
+The Dashboard will function in almost exactly the same way as it would were
 the device owned by the support agent viewing it. They may view logs and
 use the WebTerminal to access either the Host balenaOS or any service currently
 running.
@@ -455,7 +455,7 @@ The answer comes from the mechanism behind how SSH is tunneled through the VPN,
 and we can actually use another device (in the 'Online' state) on the same
 local network as an 'Offline' device to do this.
 
-Doing so is pretty simply, you need the UUIDs of both the gateway
+Doing so is pretty simple, you need the UUIDs of both the gateway
 ('Online') and target ('Offline') devices, as well as your username and, if
 possible, the IP address of the target device (by default, the last seen
 'Online' state IP address will be used if the IP is not passed). Once you
@@ -527,7 +527,7 @@ useful being:
 * `--unit=<unitFile>`/`-u <unitFile>` - Specifies the unit file to read journal
     entries for. Without this, all units entries are read.
 * `--pager-end`/`-e` - Jump straight to the final entries for a unit.
-* `--all`/`-a` - Should all entries, even if long or with unprintable
+* `--all`/`-a` - Show all entries, even if long or with unprintable
     characters. This is especially useful for displaying the service container
     logs from applications when applied to `balena.service`.
 
@@ -609,7 +609,7 @@ them:
 * `chronyd.service` - Responsible for NTP duties and syncing 'real' network
     time to the device. Note that balenaOS versions less than v2.13.0 used
     `systemd-timesyncd.service` as their NTP service, although inspecting it is
-    very similar to that of `chrony.service`.
+    very similar to that of `chronyd.service`.
 * `dnsmasq.service` - The local DNS service which is used for all host OS
     lookups (and is the repeater for application service containers by default).
 * `NetworkManager.service` - The underlying Network Manager service, ensuring
@@ -1066,9 +1066,9 @@ download of applications, reporting the device state, connection to the VPN,
 etc.
 
 DNS is provided by the `dnsmasq.service` unit, which uses a default
-configuration located at `/etc/dnsmasq.service` and a list of nameservices
+configuration located at `/etc/dnsmasq.conf` and a list of nameservices
 in `/etc/resolv.dnsmasq`. This itself is derived from the
-`/var/run/resolv/interface/NetworkManager` file.
+`/var/run/resolvconf/interface/NetworkManager` file.
 
 The DNSMasq service runs at local address `127.0.0.2`. This is used, because
 it allows customer application services to provide their own DNS if required
@@ -1839,7 +1839,7 @@ the `update-resin-supervisor` script. Here's an example where the version
 (v9.2.2) on balenaOS v2.38.0+rev1 is updated to v10.2.2:
 
 ```shell
-oot@8117443:~# balena images
+root@8117443:~# balena images
 REPOSITORY                                                       TAG                 IMAGE ID            CREATED             SIZE
 registry2.balena-cloud.com/v2/533a18828e15458e354a35afceb3de4a   <none>              b4362eb4725f        3 days ago          204MB
 registry2.balena-cloud.com/v2/875020ccfedb51bed8e206f82b1694dc   <none>              d496ab5c9b20        3 days ago          204MB
@@ -2947,7 +2947,7 @@ This is a new, container-only writeable file!
 
 As with the Supervisor, it's very rare to actually need to carry this out.
 However, for completeness, should you need to, this again is as simple as
-carrying out a `systemd` restart:
+carrying out a `systemd` restart with `systemctl restart balena.service`:
 
 ```shell
 Jan 17 09:58:51 dee2945 systemd[1]: Stopping Balena Application Container Engine...
@@ -3187,7 +3187,7 @@ root@dee2945:/# dmesg
 
 The rest of the output is truncated here. Note that the time output is in
 seconds. If you want to display a human readable time, use the `-T` switch.
-This will, however, stip the nanosecond accuracy and revert to chronological
+This will, however, strip the nanosecond accuracy and revert to chronological
 order with a minimum granularity of a second.
 
 Note that the 'Device Diagnostics' tab from the 'Diagnostics' section of a
@@ -3223,7 +3223,7 @@ A media partition that is full can cause issues such as the following:
 * Failure of services to start up (mostly those that need to store data that
     isn't in `tmpfs`)
 
-Determining how much space left on the media for a device can be achieved by
+Determining how much space is left on the media for a device can be achieved by
 logging into the host OS and running:
 
 ```shell
@@ -3249,9 +3249,9 @@ overlay                            488M   20K  488M   1% /var/lib
 The `-h` switch makes the figures returned 'human readable'. Without this switch
 the returned figures will be in block sizes (usually 1k or 512byte blocks).
 
-The two main mounts where full space are `/mnt/data` and `/mnt/state`. The
-former is the data partition where all application images, containers and
-volumes are stored. The latter is the state partition, where overlays for the
+The two main mounts where full space problems commonly occur are `/mnt/data` and 
+`/mnt/state`. The former is the data partition where all application images, containers
+and volumes are stored. The latter is the state partition, where overlays for the
 root FS (such as user defined network configuraions) and the permanent logs
 are stored.
 
@@ -3265,7 +3265,7 @@ should be noted that in the day-to-day operation of the Supervisor, it attempts
 to ensure that anything that is no longer used on the device *is* removed when
 not required. However, there are issues that sometimes occur that can cause this
 behavior to not work correctly. In these cases, a prune should help clean
-anything that should note be present:
+anything that should not be present:
 
 ```shell
 root@dee2945:/# balena system prune -a -f --volumes
@@ -3404,7 +3404,7 @@ and to clear these out:
 Many device types use storage media that has high wear levels. This includes
 devices such as the Raspberry Pi series, where SD cards are the usual storage
 media. Because we recommend very hard-wearing cards (the SanDisk Extreme Pro
-family are extremely resilient), we don't regular issues with customer devices
+family are extremely resilient), we don't regularly have issues with customer devices
 dying due to SD card failure. However, they do occur (and not just on SD cards,
 any type of flash memory based storage includes a shorter lifespan compared to
 media such as platter drives). Initially, media corruption and wearing exhibit
