@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.2
+## (2020-02-26)
+
+* Fix typos and update device healthchecks table [Scott Lowe]
+
 # v1.0.1
 ## (2020-02-24)
 
