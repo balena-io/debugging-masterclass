@@ -157,7 +157,7 @@ A user can grant access to support agents by selecting the device from the
 Dashboard, and then selecting the 'Actions' tab in the left-hand sidepanel.
 Scrolling down the Actions page will show a list of actions, with the 'Grant
 Support Access' option being the one required here. A user can select this, then
-detemine the amount of time that support agents are allowed access for. Once
+determine the amount of time that support agents are allowed access for. Once
 support has been granted, the Dashboard will look something like this:
 
 ![Granted Support Access](https://github.com/balena-io/debugging-masterclass/blob/master/resources/black-mountain-granted.png?raw=true)
@@ -223,13 +223,16 @@ see the following conditions:
 | check_balenaOS | Succeeded | Supported balenaOS 2.x detected |
 | check_under_voltage | Succeeded | No under-voltage events detected |
 | check_memory | Succeeded | 75% memory available |
+| check_temperature | Succeeded | No abnormal temperature detected |
 | check_container_engine | Succeeded | Container engine balena is running and has not restarted uncleanly
-| check_supervisor | Succeeded | Supervisor is running |
+| check_supervisor | Succeeded | Supervisor is running & healthy |
 | check_dns | Succeeded | First DNS server is 127.0.0.2 |
+| check_networking | Succeeded | No networking issues detected |
 | check_diskspace | Succeeded | df reports 99% free |
 | check_write_latency | Succeeded | No slow disk writes detected |
 | check_service_restarts | Succeeded | No services are restarting unexpectedly |
 | check_timesync | Succeeded | Time is synchronized |
+| check_os_rollback | Succeeded | No OS rollbacks detected
 
 This shows a healthy device, where there are no obvious faults. That's no fun,
 let's create one!
@@ -256,7 +259,7 @@ it shut down properly:
 root@7db55ce:~# ps | awk '!/awk/ && /balenad/ {print $1}' | xargs kill -9
 ```
 
-What this does is list the processes running, looks for the `balenad` executable
+What this does is list the processes running, look for the `balenad` executable
 (the balenaEngine itself) and then stop the engine with a `SIGKILL` signal,
 which will make it immediately terminate instead of shutting down correctly.
 In fact, we'll do it twice. Once you've waited about 30 seconds, run the command
@@ -327,7 +330,7 @@ Nov 15 10:35:28 7db55ce 8794d382f463[2873]: > node index.js
 Nov 15 10:35:28 7db55ce 8794d382f463[2873]:
 ```
 
-As you can see, this have now been specifically output for the two running
+As you can see, these have now been specifically output for the two running
 service containers.
 
 If you *only* want to see balenaEngine output and not from any of the service
@@ -342,7 +345,7 @@ There are many other health checks that can immediately expose a problem.
 For example, warnings on low free memory or disk space can expose problems which
 will exhibit themselves as application updates failing to download, or service
 containers restarting abnormally (especially if an application service runs
-unchecked and consumes memory until none if left). We'll also go through some
+unchecked and consumes memory until none is left). We'll also go through some
 of these scenarios later.
 
 #### 2.2 Device Diagnostics
@@ -733,7 +736,7 @@ Jan 13 11:05:20 dee2945 e374bbb9ddd4[765]: [16B blob data]
 Jan 13 11:05:20 dee2945 e374bbb9ddd4[765]: [1B blob data]
 ```
 
-If you're not examing the application's services then this output is fine, but
+If you're not examining the application's services then this output is fine, but
 usually enabling persistent logs allows us to examine what also might be
 happening in a service container that could cause an issue (for example, maybe
 the container is privileged and causing a reboot because it talks to the host
@@ -793,7 +796,7 @@ CLI: `chronyc`
 Network Time Protocol is important because it allows devices without RTCs
 (Real-Time Clocks) to retrieve the correct date and time from Internet based
 servers that run on an extremely fine granularity. At first glance, this may
-not seem significant, but devices such as the Rapsberry Pi do not include an
+not seem significant, but devices such as the Raspberry Pi do not include an
 RTC and so when balenaOS is first booted, it sets the time when the
 release of the OS was built. Clearly, this could be days, weeks, months or
 even years behind the current time. Because almost all the balena services
@@ -1396,7 +1399,8 @@ Another stumbling block is that if there are VPN issues then this usually means
 the VPN isn't working, which means the device is not able to go into
 an 'Online' state, and thus SSHing from the balena CLI or the Dashboard is not
 possible. In these cases, your best hope is that there is another balena device
-that is on the same network, to use as a gateway to the failing device.
+that is on the same network, to use as a gateway to the failing device (See: 
+[4. Accessing a Device using a Gateway Device](#4-accessing-a-device-using-a-gateway-device)).
 If every balena device on the network is failing to connect to the VPN, this
 usually indicates the network is being overly restrictive, which becomes a
 customer issue.
@@ -1405,7 +1409,7 @@ customer issue.
 
 Balena devices work on a variety of networks, but they do require the basic
 networking environment as listed in
-[5. Determining Networking Issues](#5-detemining-networking-issues).
+[6. Determining Networking Issues](#6-determining-networking-issues).
 
 Firewalls are a sensible precaution in any network, be they personal or
 corporate. A large number of firewalls are built to provide freedom for devices
@@ -1414,8 +1418,8 @@ a device *in* the network can create a connection and receive all data from
 the Internet based on that connection), but to refuse any incoming connection
 from the Internet, unless specifically allowed.
 
-On that note, firewalls can include blacklists and whitelists. By default,
-most industrial routers and firewalls blacklist everything by default,
+On that note, firewalls can include blacklists and whitelists.
+Most industrial routers and firewalls blacklist everything by default,
 requiring a set of whitelisted IPs and domain names where traffic can be
 sent/received from.
 
@@ -1731,7 +1735,7 @@ are:
     exiting correctly either due to a bug in the service container code or
     because it has correctly come to the end of its running process.
 * Staged releases - An application/device has been pinned to a particular
-    version, and a new push is not being dowloaded.
+    version, and a new push is not being downloaded.
 
 It's *always* worth considering how the system is configured, how releases were
 produced, how the application or device is configured and what the current
@@ -1800,9 +1804,9 @@ balenaEngine section for more details.
 
 If a restart is required, ensure that you have gathered as much information
 as possible before a restart, including pertinent logs and symptoms so that
-investigations can occur asynchronously to determine what occured and how it
+investigations can occur asynchronously to determine what occurred and how it
 may be mitigated in the future. Enabling permanent logging may also be of
-benefit in cases where symptoms are repeatedly occuring.
+benefit in cases where symptoms are repeatedly occurring.
 
 To restart the Supervisor, simply restart the `systemd` service:
 
@@ -1908,7 +1912,7 @@ into your device, run the following:
 root@28c8bf0:~# balena exec -ti resin_supervisor node
 ```
 
-This will get you into a Node interpretter in the Supervisor service
+This will get you into a Node interpreter in the Supervisor service
 container. From here, we can use the `sqlite3` NPM module used by
 the Supervisor to make requests to the database:
 
@@ -2003,7 +2007,7 @@ Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
 
 Occasionally, should the Supervisor get into a state where it is unable to
 determine which application images it should be downloading or running, it
-is neccesary to clear the database. This usually goes hand-in-hand with removing
+is necessary to clear the database. This usually goes hand-in-hand with removing
 the current containers and putting the Supervisor into a 'first boot' state,
 whilst keeping the Supervisor and application images. This can be achieved by
 carrying out the following:
@@ -2882,7 +2886,7 @@ And there's all of the directories in the base image for the image! You can
 find the diffs for subsequent layers in the same way.
 
 However, whilst this allows you to examine all the layers for an image, the
-situtation changes slightly when an image is used to create a container. At this
+situation changes slightly when an image is used to create a container. At this
 point, a container can also bind to volumes (persistent data directories across
 container restarts) and writeable layers that are used only for that container
 (which are *not* persistent across container restarts). Volumes are described in
@@ -3460,7 +3464,7 @@ support agent. You should now be confident enough to:
 * Understand the core balenaOS services that make up the system, including
     the ability to read journals from those services, as well as stopping,
     starting and restarting them.
-* Enable persistent logs, and then examine then when required.
+* Enable persistent logs, and then examine them when required.
 * Diagnose and handle a variety of network issues.
 * Understand and work with the `config.json` configuration file.
 * Understand the Supervisor's role, including key concepts.
