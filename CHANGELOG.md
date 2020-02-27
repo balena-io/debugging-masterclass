@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.3
+## (2020-02-27)
+
+* readme: Correct log storage from state to data [Heds Simons]
+
 # v1.0.2
 ## (2020-02-26)
 
