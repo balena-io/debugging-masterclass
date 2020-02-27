@@ -671,7 +671,7 @@ for the device selected. Because the enabling/disabling of persistent journals
 affects where they are stored, the device will reboot once selected to ensure
 that the settings are applied.
 
-Once persistent journals are enabled, they end up stored as part of the state
+Once persistent journals are enabled, they end up stored as part of the data
 partition on the device (either on SD card, eMMC, harddisk, etc.). This is
 located on-device at `/var/log/journal/<uuid>` where the UUID is variable.
 
@@ -1399,7 +1399,7 @@ Another stumbling block is that if there are VPN issues then this usually means
 the VPN isn't working, which means the device is not able to go into
 an 'Online' state, and thus SSHing from the balena CLI or the Dashboard is not
 possible. In these cases, your best hope is that there is another balena device
-that is on the same network, to use as a gateway to the failing device (See: 
+that is on the same network, to use as a gateway to the failing device (See:
 [4. Accessing a Device using a Gateway Device](#4-accessing-a-device-using-a-gateway-device)).
 If every balena device on the network is failing to connect to the VPN, this
 usually indicates the network is being overly restrictive, which becomes a
@@ -3253,7 +3253,7 @@ overlay                            488M   20K  488M   1% /var/lib
 The `-h` switch makes the figures returned 'human readable'. Without this switch
 the returned figures will be in block sizes (usually 1k or 512byte blocks).
 
-The two main mounts where full space problems commonly occur are `/mnt/data` and 
+The two main mounts where full space problems commonly occur are `/mnt/data` and
 `/mnt/state`. The former is the data partition where all application images, containers
 and volumes are stored. The latter is the state partition, where overlays for the
 root FS (such as user defined network configuraions) and the permanent logs
