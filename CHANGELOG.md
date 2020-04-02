@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.4
+## (2020-04-02)
+
+* Remove supervisor upgrade information [CameronDiver]
+
 # v1.0.3
 ## (2020-02-27)
 
