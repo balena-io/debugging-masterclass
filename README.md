@@ -474,14 +474,15 @@ $ ssh -t \
 Should this not work, it's possible that the IP address has changed (and if it
 has, you *will* need to specify the correct address). The easiest way to find
 the potentially correct IP address is to SSH into the gateway device and run the
-following script:
+following script (which should work for both legacy DropBear SSH daemons and
+those running on more recent balenaOS installations):
 
 ```shell
 ( prefix=192.168.1; \
     for i in {2..254}; \
     do \
         addr=$prefix.$i; \
-        curl -s -m 0.2 $addr:22222 | grep -q "SSH-2.0" && echo $addr BALENA DEVICE || echo $addr; \
+        curl -s -m 1 $addr:22222 | grep -q "SSH-2.0" && echo $addr BALENA DEVICE || echo $addr; \
      done \
 )
 ```
@@ -491,7 +492,10 @@ network before starting. This script will then go through the range `$prefix.2`
 to `$prefix.254`, and flag those devices it believes are potential balena
 devices. This should help you narrow down the address range to try connections
 to balena devices, substituting the IP address appropriately in the SSH
-connection command.
+connection command. All IP addresses will be printed by the script, but those
+that are potentially balena devices will show up with `BALENA DEVICE` next to
+them. If you have multiple potential UUIDs, you'll need to mix and match UUIDs
+and IP addresses until you find a matching combination.
 
 ### 5. Component Checklist
 
