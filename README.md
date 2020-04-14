@@ -441,6 +441,23 @@ destructive when supporting a customer:
     be an outcome in advance, and that they must explicitly give permission for
     a reboot to be carried out.
 
+Occasionally it becomes very useful to copy files off from a device, so that
+they can be shared with the team. This might be logfiles, or the Supervisor
+database, etc. **DO NOT COPY CUSTOMER DATA UNLESS THEY HAVE GIVEN YOU EXPLICIT
+PERMISSION TO DO SO FOR SUPPORT REASONS, AND EVEN THEN CHECK WITH SECURITY
+ENGINEERS TO DETERMINE WHERE THAT DATA CAN BE SECURELY STORED**
+
+A quick way of copying data from a device with a known UUID onto a local machine
+is to use SSH with your balena support username:
+```shell
+ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${USER}@ssh.balena-devices.com host -s ${UUID} 'cat ${PATH_TO_FILE}' > ${LOCAL_PATH}
+```
+You can copy data from your local machine onto a device by piping the file in
+instead:
+```shell
+ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${USER}@ssh.balena-devices.com host -s ${UUID} 'cat > ${PATH_TO_FILE}' < ${LOCAL_PATH}
+```
+
 #### 4. Accessing a Device using a Gateway Device
 
 It may not always be possible to access the device directly, especially if the
