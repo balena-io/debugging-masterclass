@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.5
+## (2020-04-15)
+
+* readme: Add a paragraph about remote file copying. [Heds Simons]
+
 # v1.0.4
 ## (2020-04-11)
 
