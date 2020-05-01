@@ -514,6 +514,17 @@ that are potentially balena devices will show up with `BALENA DEVICE` next to
 them. If you have multiple potential UUIDs, you'll need to mix and match UUIDs
 and IP addresses until you find a matching combination.
 
+You may also try using mDNS from the gateway device to locate the IP of the
+target based on its hostname. Simply ping the `.local` address and grab the IP
+that way:
+
+```shell
+root@8f45015:~# ping -c1 e655ba7.local
+PING e655ba7.local (192.168.1.19): 56 data bytes
+64 bytes from 192.168.1.19: seq=0 ttl=64 time=7.905 ms
+...
+```
+
 ### 5. Component Checklist
 
 The key to any support is context. As a support agent, you should have enough
