@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.7
+## (2020-05-01)
+
+* mention using mDNS to discover device IP during hostvia [Matthew McGinn]
+
 # v1.0.6
 ## (2020-04-20)
 
