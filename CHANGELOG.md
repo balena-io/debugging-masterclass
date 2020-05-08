@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.8
+## (2020-05-08)
+
+* Update CODEOWNERS [Gareth Davies]
+
 # v1.0.7
 ## (2020-05-01)
 
