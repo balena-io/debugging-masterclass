@@ -1526,6 +1526,27 @@ as all encrypted traffic (such as SSL) ends up as being shown to have come from
 the DPI and not from the endpoint requested (as the DPI has repackaged the
 traffic).
 
+To determine whether DPI applies to a device, the following commands may be used:
+
+```text
+$ curl https://api.balena-cloud.com/ping
+curl: (60) server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
+
+$ openssl s_client -connect api.balena-cloud.com:443
+CONNECTED(00000003)
+depth=1 C = IE, ST = Dublin, L = Dublin, O = Royal College Of Surgeons In Ireland, OU = IT, CN = RCSI-TLS-PROTECT
+verify error:num=20:unable to get local issuer certificate
+verify return:1
+depth=0 CN = balena.io
+verify return:1
+...
+```
+
+Compare the output of the `openssl` command on your laptop (where the `curl`
+command succeeds) with the output on the device (where the `curl` command fails).
+Completely different SSL certificate chains may be printed out, indicating that
+DPI is in place.
+
 Balena devices are able to accommodate this if it is known a DPI network is in
 use, by adding the `balenaRootCA` property to the `/mnt/boot/config.json` file,
 where the value is the DPI's root Certificate Authority (CA) that has been
