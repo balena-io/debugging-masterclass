@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.9
+## (2020-05-14)
+
+* Add 'openssl' command to detect Deep Packet Inspection (SSL intercept) [Paulo Castro]
+
 # v1.0.8
 ## (2020-05-08)
 
