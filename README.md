@@ -1934,7 +1934,7 @@ architectures, and so a valid tag on the specific version is required to be
 built for this to work (in this case `armv7hf` as can be seen by the tag).
 
 There is an alternate way of updating the Supervisor, via the HUP scripts
-[here](https://github.com/balena-os/resinhup/). You should read the
+[here](https://github.com/balena-os/balenahup/). You should read the
 documentation before carrying out any sort of update, but in essence
 it's possible to carry out HUP scenarios that aren't possible via the
 standard `update-resin-supervisor` script. This includes updating
