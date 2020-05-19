@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.10
+## (2020-05-18)
+
+* HUP: rename to balenahup [Matthew McGinn]
+
 # v1.0.9
 ## (2020-05-14)
 
