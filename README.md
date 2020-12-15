@@ -1076,7 +1076,7 @@ movement away from the real time due to drift) which will eventually cause
 issues.
 
 `chronyc` is a command-line utility that can be used to interoperate with the
-NTP daemon. `chonyc` has many commands, the most useful are:
+NTP daemon. `chronyc` has many commands, the most useful are:
 
 * `sources` - A list of all the current NTP sources being used by the NTP
     daemon.
