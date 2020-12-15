@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.11
+## (2020-12-15)
+
+* README: fix typo in chronyc [Kyle Harding]
+
 # v1.0.10
 ## (2020-05-18)
 
