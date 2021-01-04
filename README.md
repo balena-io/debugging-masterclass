@@ -1887,65 +1887,11 @@ the Supervisor on a device is outdated and is causing an issue. Usually the best
 way to achieve this is via a balenaOS update, either from the dashboard or via
 the command line on the device.
 
-Should a customer not wish to update the balenaOS version for some reason (or
-should there be an issue where a Supervisor release isn't yet in a new OS
-release but is required on a device), then this can be achieved by running
-the `update-resin-supervisor` script. Here's an example where the version
-(v9.2.2) on balenaOS v2.38.0+rev1 is updated to v10.2.2:
+If updating balenaOS is not desirable or a user prefers updating the Supervisor independently, this can easily be accomplished using the [self-service](https://www.balena.io/docs/reference/supervisor/supervisor-upgrades/) Supervisor upgrades. Alternatively, this can be programmatically done by using the Node.js SDK method [device.setSupervisorRelease](https://www.balena.io/docs/reference/sdk/node-sdk/#devicesetsupervisorreleaseuuidorid-supervisorversionorid-%E2%87%92-codepromisecode).
 
-```shell
-root@8117443:~# balena images
-REPOSITORY                                                       TAG                 IMAGE ID            CREATED             SIZE
-registry2.balena-cloud.com/v2/533a18828e15458e354a35afceb3de4a   <none>              b4362eb4725f        3 days ago          204MB
-registry2.balena-cloud.com/v2/875020ccfedb51bed8e206f82b1694dc   <none>              d496ab5c9b20        3 days ago          204MB
-balena/armv7hf-supervisor                                        v9.2.2              a16181c050f2        12 months ago       53.5MB
-root@8117443:~# update-resin-supervisor -t v10.2.2
-Getting image name and tag...
-No supervisor configuration found from API or required variables not set. Using arguments for image and tag.
-Set based on arguments image=balena/armv7hf-supervisor and tag=v10.2.2.
-Getting image id...
-Error: No such object: balena/armv7hf-supervisor:v10.2.2
-Stop supervisor...
-Pulling supervisor balena/armv7hf-supervisor:v10.2.2...
-v10.2.2: Pulling from balena/armv7hf-supervisor
-9876f0e6f2c9: Pull complete
-caa2e1d76000: Pull complete
-9d642e50fd65: Pull complete
-a575f4a66dd6: Pull complete
-b4d4863e8826: Pull complete
-9fb2abe4f9fb: Pull complete
-Total:  [==================================================>]  22.08MB/22.08MB
-Digest: sha256:12e63c0839a9c9fa00a29487271eb2efaf8716e4a8b4676aa195dd07d206b04f
-Status: Downloaded newer image for balena/armv7hf-supervisor:v10.2.2
-resin_supervisor
-Start supervisor...
-root@8117443:~#
-```
+You can additionally write a script to manage this for a fleet of devices in combination with other SDK functions such as [device.getAll](https://www.balena.io/docs/reference/sdk/node-sdk/#devicegetalloptions-%E2%87%92-codepromisecode).
 
-This has moved the Supervisor from v9.2.2 to version v10.2.2, including
-downloading the required update and then installing it, and removing the old
-version of the Supervisor.
-
-The `-t` tag, as can be seen, specifies which version of the Supervisor to
-update to. Note that the Supervisor is built for several different
-architectures, and so a valid tag on the specific version is required to be
-built for this to work (in this case `armv7hf` as can be seen by the tag).
-
-There is an alternate way of updating the Supervisor, via the HUP scripts
-[here](https://github.com/balena-os/balenahup/). You should read the
-documentation before carrying out any sort of update, but in essence
-it's possible to carry out HUP scenarios that aren't possible via the
-standard `update-resin-supervisor` script. This includes updating
-development OS version. The following example, will remotely update
-the Raspberry Pi device with UUID `123457890abcdef` on the production
-balenaCloud environment to version `v2.43.0+rev1.dev` of balenaOS:
-
-```shell
-./upgrade-ssh-2.x.sh -s balenadevice --hostos-version 2.43.0+rev1.dev --assume-supported --ignore-sanity-checks --force-slug raspberrypi3 -u 123457890abcdef
-```
-
-Extreme care should be taken when carrying out updates like this, as
-they are not common and should only be used in extreme circumstances.
+**Note:** In order to update the Supervisor release for a device, you must have edit permissions on the device (i.e., more than just support access).
 
 #### 8.3 The Supervisor Database
 
