@@ -443,9 +443,7 @@ destructive when supporting a customer:
 
 Occasionally it becomes very useful to copy files off from a device, so that
 they can be shared with the team. This might be logfiles, or the Supervisor
-database, etc. **DO NOT COPY CUSTOMER DATA UNLESS THEY HAVE GIVEN YOU EXPLICIT
-PERMISSION TO DO SO FOR SUPPORT REASONS, AND EVEN THEN CHECK WITH SECURITY
-ENGINEERS TO DETERMINE WHERE THAT DATA CAN BE SECURELY STORED**
+database, etc.
 
 A quick way of copying data from a device with a known UUID onto a local machine
 is to use SSH with your balena support username:
