@@ -2021,19 +2021,24 @@ You can get a list of all the tables used by the Supervisor by issuing:
 ```shell
 > db.all("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", console.log);
 Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
-> null [ { name: 'app' },
+> null [ 
+  { name: 'apiSecret' },
+  { name: 'app' },
   { name: 'config' },
   { name: 'containerLogs' },
+  { name: 'currentCommit' },
   { name: 'dependentApp' },
   { name: 'dependentAppTarget' },
   { name: 'dependentDevice' },
   { name: 'dependentDeviceTarget' },
   { name: 'deviceConfig' },
+  { name: 'engineSnapshot' },
   { name: 'image' },
   { name: 'knex_migrations' },
   { name: 'knex_migrations_lock' },
   { name: 'logsChannelSecret' },
-  { name: 'sqlite_sequence' } ]
+  { name: 'sqlite_sequence' } 
+]
 ```
 
 With these, you can then examine and modify data, if required. Note that there's
@@ -2043,17 +2048,18 @@ example, to examine the configuration used by the Supervisor:
 ```shell
 > db.all('SELECT * FROM config;', console.log);
 Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
-> null [ { key: 'localMode', value: 'false' },
-  { key: 'apiSecret',
-    value:
-     'abf888f3835aa562738961e81af328e95ebee361767277565f4b819b927212' },
+> null [
+  { key: 'localMode', value: 'false' },
   { key: 'initialConfigSaved', value: 'true' },
   { key: 'targetStateSet', value: 'true' },
-  { key: 'initialConfigReported',
-    value: 'https://api.balena-cloud.com' },
-  { key: 'name', value: 'rough-silence' },
-  { key: 'currentCommit',
-    value: '70de55adbd98dd6e77779447d2dbc5d5' } ]
+  {
+    key: 'initialConfigReported',
+    value: 'https://api.balena-cloud.com'
+  },
+  { key: 'name', value: 'DevEnv' },
+  { key: 'deltaVersion', value: '3' },
+  { key: 'delta', value: 'true' }
+]
 ```
 
 Occasionally, should the Supervisor get into a state where it is unable to
