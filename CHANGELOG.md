@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.13
+## (2021-03-19)
+
+* Update Supervisor Database section's tables and data examples [Christina Wang]
+
 # v1.0.12
 ## (2021-02-10)
 
