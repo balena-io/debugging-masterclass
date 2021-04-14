@@ -3492,7 +3492,7 @@ whether corruption may be an issue (but it certainly isn't guaranteed).
 SSH into your device and run the following:
 
 ```shell
-root@dee2945:/# grep -v "/var/cache/ldconfig/aux-cache" /resinos.fingerprint | md5sum --quiet -c -
+root@dee2945:/# grep -v "/var/cache/ldconfig/aux-cache" /balenaos.fingerprint | md5sum --quiet -c -
 root@dee2945:/#
 ```
 
