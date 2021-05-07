@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.15
+## (2021-05-06)
+
+* Added notes explaining device connectivity status (heartbeat/vpn only) [Miguel Casqueira]
+
 # v1.0.14
 ## (2021-04-29)
 
