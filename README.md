@@ -570,18 +570,18 @@ what's occuring. Here's it for the Supervisor, following journal entries in
 real time:
 
 ```shell
-root@11a12ec:~# journalctl --follow --unit=resin-supervisor
+root@11a12ec:~# journalctl --follow --unit=balena-supervisor --unit=resin-supervisor
 -- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
-Dec 03 15:36:06 11a12ec resin-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:36:40 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 6.900 ms
-Dec 03 15:41:41 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.939 ms
-Dec 03 15:46:06 11a12ec resin-supervisor[1184]: Attempting container log timestamp flush...
-Dec 03 15:46:06 11a12ec resin-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:46:42 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 15.989 ms
-Dec 03 15:51:42 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 8.643 ms
-Dec 03 15:56:06 11a12ec resin-supervisor[1184]: Attempting container log timestamp flush...
-Dec 03 15:56:06 11a12ec resin-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:56:43 11a12ec resin-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.830 ms
+Dec 03 15:36:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
+Dec 03 15:36:40 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 6.900 ms
+Dec 03 15:41:41 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.939 ms
+Dec 03 15:46:06 11a12ec balena-supervisor[1184]: Attempting container log timestamp flush...
+Dec 03 15:46:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
+Dec 03 15:46:42 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 15.989 ms
+Dec 03 15:51:42 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 8.643 ms
+Dec 03 15:56:06 11a12ec balena-supervisor[1184]: Attempting container log timestamp flush...
+Dec 03 15:56:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
+Dec 03 15:56:43 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.830 ms
 ```
 
 Any systemd service can be referenced in the same way, and there are some common
@@ -629,12 +629,12 @@ commands that can be used with services:
     running.
 
 This last command may sound a bit confusing but consider the following. Imagine
-that you need to dynamically change the `resin-supervisor.service` unit file
+that you need to dynamically change the `balena-supervisor.service` unit file
 to increase the healthcheck timeout on a very slow system. Once that change has
 been made, you'll want to restart the service. However, first, you need to
 reload the unit file as this has changed from the loaded version. To do this,
 you'll run `systemctl daemon-reload` and then
-`systemctl restart resin-supervisor.service` to restart the Supervisor.
+`systemctl restart balena-supervisor.service` to restart the Supervisor.
 
 In general, there are some core services that need to execute for a device to
 come online, connect to the balenaCloud VPN, download applications and then run
@@ -658,7 +658,7 @@ them:
 * `balena.service` - The balenaEngine service, the modified Docker daemon fork
     that allows the management and running of application service images,
     containers, volumes and networking.
-* `resin-supervisor.service` - The balena Supervisor service, responsible for
+* `balena-supervisor.service` - The balena Supervisor service, responsible for
     the management of applications, including downloading updates for and
     self-healing (via monitoring) of those applications, variables (application/
     device/fleet) and exposure of these services to applications via an
@@ -1020,22 +1020,22 @@ probably guessed, it's for the same reasons that the VPN connection doesn't
 work. Run the following on your device:
 
 ```shell
-journalctl -f -u resin-supervisor
+journalctl -f -u balena-supervisor -u resin-supervisor
 -- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
-Nov 22 11:48:09 f34c2e9 resin-supervisor[1830]: [debug]   Container log timestamp flush complete
-Nov 22 11:48:10 f34c2e9 resin-supervisor[1830]: [api]     GET /v1/healthy 200 - 9.561 ms
-Nov 22 11:53:11 f34c2e9 resin-supervisor[1830]: [api]     GET /v1/healthy 200 - 18.136 ms
-Mar 23 12:00:44 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:00 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:30 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:02:30 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:03:30 f34c2e9 resin-supervisor[1830]: [event]   Event: Update notification {}
-Mar 23 12:03:30 f34c2e9 resin-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
-Mar 23 12:03:31 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:04:23 f34c2e9 resin-supervisor[1830]: [debug]   Attempting container log timestamp flush...
-Mar 23 12:04:23 f34c2e9 resin-supervisor[1830]: [debug]   Container log timestamp flush complete
-Mar 23 12:04:26 f34c2e9 resin-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
-Mar 23 12:04:31 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Nov 22 11:48:09 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
+Nov 22 11:48:10 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 9.561 ms
+Nov 22 11:53:11 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 18.136 ms
+Mar 23 12:00:44 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:01:00 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:01:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:02:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [event]   Event: Update notification {}
+Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
+Mar 23 12:03:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Attempting container log timestamp flush...
+Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
+Mar 23 12:04:26 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
+Mar 23 12:04:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
 ```
 
 As you can see, the certificate is again not valid as the current device time
@@ -1045,23 +1045,23 @@ Supervisor will, after a short delay, update the application:
 
 ```shell
 root@f34c2e9:~# systemctl start chronyd.service
-root@f34c2e9:~# journalctl -f -u resin-supervisor
+root@f34c2e9:~# journalctl -f -u balena-supervisor -u resin-supervisor
 -- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
-Mar 23 12:01:00 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:30 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:02:30 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:03:30 f34c2e9 resin-supervisor[1830]: [event]   Event: Update notification {}
-Mar 23 12:03:30 f34c2e9 resin-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
-Mar 23 12:03:31 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:04:23 f34c2e9 resin-supervisor[1830]: [debug]   Attempting container log timestamp flush...
-Mar 23 12:04:23 f34c2e9 resin-supervisor[1830]: [debug]   Container log timestamp flush complete
-Mar 23 12:04:26 f34c2e9 resin-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
-Mar 23 12:04:31 f34c2e9 resin-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Nov 22 11:59:30 f34c2e9 resin-supervisor[1830]: [info]    Waiting for connectivity...
-Nov 22 11:59:50 f34c2e9 resin-supervisor[1830]: [info]    Internet Connectivity: OK
-Nov 22 12:02:17 f34c2e9 resin-supervisor[1830]: [info]    Applying target state
-Nov 22 12:02:18 f34c2e9 resin-supervisor[1830]: [debug]   Replacing container for service frontend because of config changes:
-Nov 22 12:02:18 f34c2e9 resin-supervisor[1830]: [debug]     Non-array fields:  {"added":{},"deleted":{"command":{},"entrypoint":{},"environment":{},"labels":{}},"updated":{"image":"registry2.balena-cloud.com/v2/83732ad30648d5f3e68188ed154ffdc2@sha256:8ec0ba1f96a51d936a83d8aa0ac1db2827a0458c2b6f7e3a5f814d6ad26b6d1f","workingDir":""}}
+Mar 23 12:01:00 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:01:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:02:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [event]   Event: Update notification {}
+Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
+Mar 23 12:03:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Attempting container log timestamp flush...
+Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
+Mar 23 12:04:26 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
+Mar 23 12:04:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+Nov 22 11:59:30 f34c2e9 balena-supervisor[1830]: [info]    Waiting for connectivity...
+Nov 22 11:59:50 f34c2e9 balena-supervisor[1830]: [info]    Internet Connectivity: OK
+Nov 22 12:02:17 f34c2e9 balena-supervisor[1830]: [info]    Applying target state
+Nov 22 12:02:18 f34c2e9 balena-supervisor[1830]: [debug]   Replacing container for service frontend because of config changes:
+Nov 22 12:02:18 f34c2e9 balena-supervisor[1830]: [debug]     Non-array fields:  {"added":{},"deleted":{"command":{},"entrypoint":{},"environment":{},"labels":{}},"updated":{"image":"registry2.balena-cloud.com/v2/83732ad30648d5f3e68188ed154ffdc2@sha256:8ec0ba1f96a51d936a83d8aa0ac1db2827a0458c2b6f7e3a5f814d6ad26b6d1f","workingDir":""}}
 ...
 ```
 
@@ -1179,29 +1179,29 @@ and has just the one nameserver to use, `1.2.3.4`.
 Now let's look at the Supervisor:
 
 ```shell
-root@51cc514:~# systemctl status resin-supervisor
-● resin-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/resin-supervisor.service; enabled; vendor preset: enabled)
+root@51cc514:~# systemctl status balena-supervisor
+● balena-supervisor.service - Resin supervisor
+   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
    Active: active (running) since Wed 2019-12-04 17:47:07 UTC; 7min ago
   Process: 1328 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 1310 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=0/SUCCESS)
+  Process: 1310 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
  Main PID: 1330 (start-resin-sup)
    Memory: 7.8M
-   CGroup: /system.slice/resin-supervisor.service
-           ├─1330 /bin/sh /usr/bin/start-resin-supervisor
-           ├─1337 /proc/self/exe --healthcheck /usr/lib/resin-supervisor/resin-supervisor-healthcheck --pid 1330
-           └─1420 balena start --attach resin_supervisor
+   CGroup: /system.slice/balena-supervisor.service
+           ├─1330 /bin/sh /usr/bin/start-balena-supervisor
+           ├─1337 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 1330
+           └─1420 balena start --attach balena_supervisor
 
-Dec 04 17:48:44 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:10 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:52 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:53 51cc514 resin-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
-Dec 04 17:51:02 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:52:03 51cc514 resin-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
-Dec 04 17:52:10 51cc514 resin-supervisor[1330]: Supervisor API: GET /v1/healthy 200 - 19.034 ms
-Dec 04 17:52:12 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:53:22 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:54:32 51cc514 resin-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:48:44 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:49:10 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:49:52 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:49:53 51cc514 balena-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
+Dec 04 17:51:02 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:52:03 51cc514 balena-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
+Dec 04 17:52:10 51cc514 balena-supervisor[1330]: Supervisor API: GET /v1/healthy 200 - 19.034 ms
+Dec 04 17:52:12 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:53:22 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Dec 04 17:54:32 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
 ```
 
 As you can see, the Supervisor is not at all happy, unable to connect to the API
@@ -1268,8 +1268,8 @@ Dec 05 10:10:28 8117443 systemd[1]: Started OS configuration update service.
 Dec 05 10:10:28 8117443 os-config[841]: Fetching service configuration from https://api.balena-cloud.com/os/v1/config...
 Dec 05 10:10:28 8117443 os-config[841]: https://api.balena-cloud.com/os/v1/config: error trying to connect: failed to lookup address information: Temporary failure in name resolution
 Dec 05 10:10:33 8117443 os-config[841]: Service configuration retrieved
-Dec 05 10:10:33 8117443 os-config[841]: Stopping resin-supervisor.service...
-Dec 05 10:10:33 8117443 os-config[841]: Awaiting resin-supervisor.service to exit...
+Dec 05 10:10:33 8117443 os-config[841]: Stopping balena-supervisor.service...
+Dec 05 10:10:33 8117443 os-config[841]: Awaiting balena-supervisor.service to exit...
 Dec 05 10:10:34 8117443 os-config[841]: Stopping prepare-openvpn.service...
 Dec 05 10:10:34 8117443 os-config[841]: Stopping openvpn.service...
 Dec 05 10:10:34 8117443 os-config[841]: Awaiting prepare-openvpn.service to exit...
@@ -1279,7 +1279,7 @@ Dec 05 10:10:34 8117443 os-config[841]: /etc/openvpn/openvpn.conf updated
 Dec 05 10:10:34 8117443 os-config[841]: Starting prepare-openvpn.service...
 Dec 05 10:10:34 8117443 os-config[841]: Starting openvpn.service...
 Dec 05 10:10:34 8117443 os-config[841]: /home/root/.ssh/authorized_keys_remote updated
-Dec 05 10:10:34 8117443 os-config[841]: Starting resin-supervisor.service...
+Dec 05 10:10:34 8117443 os-config[841]: Starting balena-supervisor.service...
 ```
 
 You can see that, once registered, the `os-config` service requested the
@@ -1723,7 +1723,7 @@ which includes all the properties applicable.
 
 ### 8. Working with the Supervisor
 
-Service: `resin-supervisor.service`
+Service: `balena-supervisor.service`
 
 The balena Supervisor is the service that carries out the management of the
 application on a device, including determining when to download updates,
@@ -1744,33 +1744,33 @@ different to updating an application, see 'Updating the Supervisor').
 Assuming you're still logged into your development device, run the following:
 
 ```shell
-root@8117443:~# systemctl status resin-supervisor.service
-● resin-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/resin-supervisor.service; enabled; vendor preset: enabled)
+root@8117443:~# systemctl status balena-supervisor.service
+● balena-supervisor.service - Resin supervisor
+   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
    Active: active (running) since Mon 2019-12-16 15:49:07 UTC; 16h ago
   Process: 1349 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 1333 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=0/SUCCESS)
+  Process: 1333 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
  Main PID: 1357 (start-resin-sup)
    Memory: 7.7M
-   CGroup: /system.slice/resin-supervisor.service
-           ├─1357 /bin/sh /usr/bin/start-resin-supervisor
-           ├─1359 /proc/self/exe --healthcheck /usr/lib/resin-supervisor/resin-supervisor-healthcheck --pid 1357
-           └─1448 balena start --attach resin_supervisor
+   CGroup: /system.slice/balena-supervisor.service
+           ├─1357 /bin/sh /usr/bin/start-balena-supervisor
+           ├─1359 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 1357
+           └─1448 balena start --attach balena_supervisor
 
-Dec 17 07:29:18 8117443 resin-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:31:56 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 7.055 ms
-Dec 17 07:36:57 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.894 ms
-Dec 17 07:39:18 8117443 resin-supervisor[1357]: Attempting container log timestamp flush...
-Dec 17 07:39:18 8117443 resin-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:41:58 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.367 ms
-Dec 17 07:46:58 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.452 ms
-Dec 17 07:49:18 8117443 resin-supervisor[1357]: Attempting container log timestamp flush...
-Dec 17 07:49:18 8117443 resin-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:51:59 8117443 resin-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.994 ms
+Dec 17 07:29:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
+Dec 17 07:31:56 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 7.055 ms
+Dec 17 07:36:57 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.894 ms
+Dec 17 07:39:18 8117443 balena-supervisor[1357]: Attempting container log timestamp flush...
+Dec 17 07:39:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
+Dec 17 07:41:58 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.367 ms
+Dec 17 07:46:58 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.452 ms
+Dec 17 07:49:18 8117443 balena-supervisor[1357]: Attempting container log timestamp flush...
+Dec 17 07:49:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
+Dec 17 07:51:59 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.994 ms
 ```
 
 You can see the Supervisor is just another `systemd` service
-(`resin-supervisor.service)`, and that it is  started and run by balenaEngine.
+(`balena-supervisor.service)`, and that it is  started and run by balenaEngine.
 
 Supervisor issues, due to their nature, vary quite significantly. It's also
 commonly used to misattribute issues to. As the Supervisor is verbose about its
@@ -1800,25 +1800,25 @@ ensures that the Supervisor is present by using balenaEngine to find the
 Supervisor image. If the image isn't present, or balenaEngine doesn't respond,
 then the Supervisor is restarted. The default period for this check is 180
 seconds at the time of writing, but inspect the
-`/lib/systemd/system/resin-supervisor.service` file on-device to see what
+`/lib/systemd/system/balena-supervisor.service` file on-device to see what
 it is for the device you're SSHd into. For example, using our example device:
 
 ```shell
-root@14350bd:~# cat /lib/systemd/system/resin-supervisor.service
+root@14350bd:~# cat /lib/systemd/system/balena-supervisor.service
 [Unit]
 Description=Resin supervisor
 Requires=\
     resin\x2ddata.mount \
     balena-device-uuid.service \
     os-config-devicekey.service \
-    bind-etc-resin-supervisor.service
+    bind-etc-balena-supervisor.service
 After=\
     balena.service \
     resin\x2ddata.mount \
     balena-device-uuid.service \
     os-config-devicekey.service \
     bind-etc-systemd-system-resin.target.wants.service \
-    bind-etc-resin-supervisor.service \
+    bind-etc-balena-supervisor.service \
     chronyd.service
 Wants=balena.service
 
@@ -1827,13 +1827,13 @@ Type=simple
 Restart=always
 RestartSec=10s
 WatchdogSec=180
-SyslogIdentifier=resin-supervisor
-EnvironmentFile=/etc/resin-supervisor/supervisor.conf
+SyslogIdentifier=balena-supervisor
+EnvironmentFile=/etc/balena-supervisor/supervisor.conf
 EnvironmentFile=-/tmp/update-supervisor.conf
-ExecStartPre=-/usr/bin/balena stop resin_supervisor
+ExecStartPre=-/usr/bin/balena stop balena_supervisor
 ExecStartPre=/bin/systemctl is-active balena.service
-ExecStart=/usr/bin/healthdog --healthcheck=/usr/lib/resin-supervisor/resin-supervisor-healthcheck /usr/bin/start-resin-supervisor
-ExecStop=-/usr/bin/balena stop resin_supervisor
+ExecStart=/usr/bin/healthdog --healthcheck=/usr/lib/balena-supervisor/balena-supervisor-healthcheck /usr/bin/start-balena-supervisor
+ExecStop=-/usr/bin/balena stop balena_supervisor
 
 [Install]
 WantedBy=multi-user.target
@@ -1863,20 +1863,20 @@ benefit in cases where symptoms are repeatedly occurring.
 To restart the Supervisor, simply restart the `systemd` service:
 
 ```shell
-root@8117443:~# systemctl restart resin-supervisor.service
-systroot@8117443:~# systemctl status resin-supervisor.service
-● resin-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/resin-supervisor.service; enabled; vendor preset: enabled)
+root@8117443:~# systemctl restart balena-supervisor.service
+systroot@8117443:~# systemctl status balena-supervisor.service
+● balena-supervisor.service - Resin supervisor
+   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
    Active: active (running) since Wed 2019-12-18 15:00:19 UTC; 1min 42s ago
-  Process: 16605 ExecStop=/usr/bin/balena stop resin_supervisor (code=exited, status=0/SUCCESS)
+  Process: 16605 ExecStop=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
   Process: 16657 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 16649 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=0/SUCCESS)
+  Process: 16649 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
  Main PID: 16658 (start-resin-sup)
    Memory: 7.4M
-   CGroup: /system.slice/resin-supervisor.service
-           ├─16658 /bin/sh /usr/bin/start-resin-supervisor
-           ├─16659 /proc/self/exe --healthcheck /usr/lib/resin-supervisor/resin-supervisor-healthcheck --pid 16658
-           └─16731 balena start --attach resin_supervisor
+   CGroup: /system.slice/balena-supervisor.service
+           ├─16658 /bin/sh /usr/bin/start-balena-supervisor
+           ├─16659 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 16658
+           └─16731 balena start --attach balena_supervisor
 ...
 ```
 
@@ -1902,12 +1902,12 @@ application should be in, and which images, containers, volumes and networks
 to apply to it).
 
 This database is located at
-`/mnt/data/resin-data/resin-supervisor/database.sqlite` and can be accessed
+`/mnt/data/resin-data/balena-supervisor/database.sqlite` and can be accessed
 inside the Supervisor, most easily by running Node. Assuming you're logged
 into your device, run the following:
 
 ```shell
-root@28c8bf0:~# balena exec -ti resin_supervisor node
+root@28c8bf0:~# balena exec -ti balena_supervisor node
 ```
 
 This will get you into a Node interpreter in the Supervisor service
@@ -2017,12 +2017,12 @@ whilst keeping the Supervisor and application images. This can be achieved by
 carrying out the following:
 
 ```shell
-root@dee2945:~# systemctl stop resin-supervisor.service update-resin-supervisor.timer
+root@dee2945:~# systemctl stop balena-supervisor.service update-balena-supervisor.timer
 root@dee2945:~# balena rm -f $(balena ps -aq)
 0780f5a88e52
 18c0557ad6cc
 88d1051bcc3f
-root@dee2945:~# rm /mnt/data/resin-data/resin-supervisor/database.sqlite
+root@dee2945:~# rm /mnt/data/resin-data/balena-supervisor/database.sqlite
 ```
 
 This:
@@ -2036,7 +2036,7 @@ the Supervisor image).
 You can now restart the Supervisor:
 
 ```shell
-root@dee2945:~# systemctl start update-resin-supervisor.timer resin-supervisor.service
+root@dee2945:~# systemctl start update-balena-supervisor.timer balena-supervisor.service
 ```
 
 (If you deleted all the images, this will first download the Supervisor image
@@ -2906,7 +2906,7 @@ root@dee2945:~# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                 PORTS               NAMES
 3ce646179335        8353bf5a40d9                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               frontend_1862610_1219773
 5c36f880c4b3        95fb9c5f84d2                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               backend_1862611_1219773
-515ad785c072        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             2 days ago          Up 2 hours (healthy)                       resin_supervisor
+515ad785c072        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             2 days ago          Up 2 hours (healthy)                       balena_supervisor
 ```
 
 You should see something similar. Let's pick the `backend` service, which in
@@ -3343,7 +3343,7 @@ to determine the relevant volume:
 root@dee2945:/# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
 f596a2ac8d19        b1b05d58f2a7                        "/usr/bin/entry.sh n…"   18 seconds ago      Up 14 seconds                               main_1849012_1215051
-62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 24 hours (healthy)                       resin_supervisor
+62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 24 hours (healthy)                       balena_supervisor
 root@dee2945:/# balena inspect main_1849012_1215051 | grep /var/lib/docker/volumes
                 "Source": "/var/lib/docker/volumes/1544229_resin-data/_data",
 ```
@@ -3387,7 +3387,7 @@ root@dee2945:/# balena ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
 75727d0a4bea        eeb7acdade4c                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 4 minutes                                backend_1849057_1215070
 2c4881a3a3cc        238fe0dacd83                        "/usr/bin/entry.sh n…"   19 minutes ago      Up 19 minutes                               frontend_1849056_1215070
-62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 25 hours (healthy)                       resin_supervisor
+62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 25 hours (healthy)                       balena_supervisor
 root@dee2945:/# balena inspect backend_1849057_1215070 | grep /var/lib/docker/volumes/
                 "Source": "/var/lib/docker/volumes/1544229_backend-data/_data",
 ```
@@ -3400,8 +3400,8 @@ suffixes.
 Knowing this, it becomes fairly simple to stop services that have filled volumes
 and to clear these out:
 
-1. Stop the Supervisor and start timer (`resin-supervisor.service` and
-    `update-resin-supervisor.timer`).
+1. Stop the Supervisor and start timer (`balena-supervisor.service` and
+    `update-balena-supervisor.timer`).
 2. Determine the relevant data directories for the volumes filling the data
     partition.
 3. Clean them appropriately.
