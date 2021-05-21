@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.16
+## (2021-05-10)
+
+* Rename resin-supervisor to balena-supervisor [Kyle Harding]
+
 # v1.0.15
 ## (2021-05-06)
 
