@@ -169,6 +169,9 @@ the same process (selecting 'Actions' and then 'Grant Support Access'). Granting
 access to an application automatically grants access to all of its associated
 devices.
 
+Support access can also be granted via the CLI: `balena support enable -d <uuid>`
+for devices, and `balena support enable -a <appName>` for applications.
+
 Once support access has been granted, an agent will be able to use the UUID of
 a device to gain access to it, using a URL of the form:
 https://dashboard.balena-cloud.com/devices/&lt;deviceUUID&gt;/summary
