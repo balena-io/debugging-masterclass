@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.17
+## (2021-06-30)
+
+* Delete .github directory [dfunckt]
+
 # v1.0.16
 ## (2021-05-10)
 
