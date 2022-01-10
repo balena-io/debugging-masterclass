@@ -216,8 +216,8 @@ and Supervisor state.
 #### 2.1 Device Health Checks
 
 Select the 'Device Health Checks' tab in the Diagnostics page, and then click
-'Run checks'. A set of health checks will be run on the device, and you should
-see the following conditions:
+'Run checks'. A set of [health checks](https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md)
+will be run on the device, and you should see the following conditions:
 
 | Check | Status | Notes |
 | --- | --- | --- |
