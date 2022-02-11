@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.20
+## (2022-02-11)
+
+* Fixed the scan command to respond to http0.9 [Ryan]
+
 # v1.0.19
 ## (2022-01-10)
 
