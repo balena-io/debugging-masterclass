@@ -498,7 +498,7 @@ those running on more recent balenaOS installations):
     for i in {2..254}; \
     do \
         addr=$prefix.$i; \
-        curl -s -m 1 $addr:22222 | grep -q "SSH-2.0" && echo $addr BALENA DEVICE || echo $addr; \
+        curl -s -m 1 $addr:22222 --http0.9 | grep -q "SSH-2.0" && echo $addr BALENA DEVICE || echo $addr; \
      done \
 )
 ```
