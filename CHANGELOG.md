@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.19
+## (2022-01-10)
+
+* Add link to description of health checks [Ken Bannister]
+
 # v1.0.18
 ## (2021-11-08)
 
