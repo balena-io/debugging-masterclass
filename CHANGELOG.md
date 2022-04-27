@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.21
+## (2022-04-27)
+
+* patch: Add info about granting support access via CLI [srlowe]
+
 # v1.0.20
 ## (2022-02-11)
 
