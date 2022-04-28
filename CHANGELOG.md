@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.22
+## (2022-04-28)
+
+* patch: Rename application to release, fleet or app [Tomás Migone]
+
 # v1.0.21
 ## (2022-04-27)
 
