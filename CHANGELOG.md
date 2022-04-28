@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.23
+## (2022-04-28)
+
+* patch: Point to updated persistent logging section [Vipul Gupta (@vipulgupta2048)]
+
 # v1.0.22
 ## (2022-04-28)
 
