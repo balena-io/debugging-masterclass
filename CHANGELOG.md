@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.24
+## (2022-08-24)
+
+* Update masterclass's content and code snippets [Ryan H]
+
 # v1.0.23
 ## (2022-04-28)
 
