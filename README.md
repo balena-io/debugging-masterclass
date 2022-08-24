@@ -1,7 +1,7 @@
 # Balena Device Debugging Masterclass
 
-* **Masterclass Type:** Core
-* **Maximum Expected Time To Complete:** 3 hours
+- **Masterclass Type:** Core
+- **Maximum Expected Time To Complete:** 3-5 hours
 
 ## Prerequisite Classes
 
@@ -9,9 +9,9 @@ This masterclass builds upon knowledge that has been taught in previous classes.
 To gain the most from this masterclass, we recommend that you first undertake
 the following masterclasses:
 
-* [Balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
-* [BalenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
-* [Balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) *NOT YET AVAILABLE*
+- [Balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
+- [BalenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
+- [Balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) _NOT YET AVAILABLE_
 
 ## Introduction
 
@@ -38,45 +38,47 @@ being exhibited.
 
 In this masterclass, you will learn how to:
 
-* Gain access to a customer device, when permission has been granted
-* Retrieve initial diagnostics for the device
-* Identify and solve common networking problems
-* Work with the Supervisor
-* Work with balenaEngine
-* Examine the Kernel logs
-* Understand media-based issues (such as SD card corruption)
-* Understand how Heartbeat/VPN Only status affects your devices
+- Gain access to a customer device, when permission has been granted
+- Retrieve initial diagnostics for the device
+- Identify and solve common networking problems
+- Work with the Supervisor
+- Work with balenaEngine
+- Examine the Kernel logs
+- Understand media-based issues (such as SD card corruption)
+- Understand how heartbeat and the VPN only status affects your devices
 
 **Note:** Whilst this masterclass is intended for new engineers about to start
-    support duties at balena, it is also intended to act as an item of interest
-    to customers who wish to know more about how we initially go about debugging
-    a device (and includes information that customers themselves could use
-    to give a support agent more information). We recommend, however, ensuring
-    balena support is *always* contacted should you have an issue with a device
-    that is not working correctly.
+support duties at balena, it is also intended to act as an item of interest
+to customers who wish to know more about how we initially go about debugging
+a device (and includes information that customers themselves could use
+to give a support agent more information). We recommend, however, ensuring
+balena support is _always_ contacted should you have an issue with a device
+that is not working correctly.
+
+**Note:** The balena VPN service was renamed to cloudlink in 2022 in customer facing documentation.
 
 ## Hardware and Software Requirements
 
 It is assumed that the reader has access to the following:
 
-* A local copy of this repository [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass). This copy can be obtained by either method:
-    * `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
-    * Download ZIP file (from 'Clone or download'->'Download ZIP') and then unzip it to a suitable directory
-* A balena supported device, such as a [balenaFin
+- A local copy of this repository [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass). This copy can be obtained by either method:
+  - `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
+  - Download ZIP file (from 'Clone or download'->'Download ZIP') and then unzip it to a suitable directory
+- A balena supported device, such as a [balenaFin
   1.1](https://store.balena.io/products/balenafin-developer-kit-v1-1-cm3-l), [Raspberry Pi
   3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) or [Intel
   NUC](https://www.intel.co.uk/content/www/uk/en/products/boards-kits/nuc.html). If you don't have a device, you can emulate an Intel NUC by
   installing VirtualBox and following [this guide](https://www.balena.io/blog/no-hardware-use-virtualbox/)
-* A suitable shell environment for command execution (such as `bash`)
-* A [balenaCloud](https://www.balena.io/) account
-* A familiarity with [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
-* An installed instance of the [balena CLI](https://github.com/balena-io/balena-cli/)
+- A suitable shell environment for command execution (such as `bash`)
+- A [balenaCloud](https://www.balena.io/) account
+- A familiarity with [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
+- An installed instance of the [balena CLI](https://github.com/balena-io/balena-cli/)
 
 ## Exercises
 
 The following exercises assume access to a device that has been provisioned.
 As per the other masterclasses in this series we're going to assume that's a
-balenaFin, however you can simply alter the device type as appropriate in the
+Raspberry Pi 4, however you can simply alter the device type as appropriate in the
 following instructions. The balena CLI is going to be used instead of the
 WebTerminal in the balenaCloud Dashboard for accessing the device, but all of
 the exercises could be completed using the WebTerminal if preferred.
@@ -85,20 +87,20 @@ First login to your balena account via `balena login`, and then create a new
 fleet:
 
 ```shell
-$ balena fleet create --type fincm3 DebugApp
-Fleet created: unicorn/debugapp (fincm3, id 1853079)
+$ balena fleet create DebugFleet --type raspberrypi4-64 --organization ryanh
+Fleet created: slug "ryanh/debugfleet", device type "raspberrypi4-64"
 ```
 
-Now provision a device, either by downloading a *development* image from the
-Dashboard, or by flashing via the command line (note that currently,
-balenaEtcher must be running to enable discovery of the balenaFin from balena
-CLI):
+Now provision a device by downloading and flashing a _development_ image from the
+Dashboard (via Etcher), or by flashing via the command line.
 
 ```shell
-$ balena os download fincm3 --version 2.80.3+rev1.dev --output balena-debug.img
-Getting device operating system for fincm3
-The image was downloaded successfully
+$ balena os download raspberrypi4-64 --version "2022.7.0.dev" --output balena-debug.img
+Getting device operating system for raspberrypi4-64
+balenaOS image version 2022.7.0 downloaded successfully
 ```
+
+**Note:** Above, we used a [balenaOS Extended Support Release (ESR)](https://www.balena.io/docs/reference/OS/extended-support-release/). These ESRs are currently available for many device types, but only on paid plans and balena team member accounts. If you are going through this masterclass on a free plan, just pick the latest release available and the remainder of the guide is still applicable.
 
 Carry out any configuration generation required, should you be using a Wifi
 AP and inject the configuration into the image (see
@@ -106,28 +108,29 @@ AP and inject the configuration into the image (see
 for more details), or use a configuration for an ethernet connection:
 
 ```shell
-$ balena os configure balena-debug.img --app DebugApp --config-network=ethernet
+$ balena os configure balena-debug.img --fleet DebugFleet --config-network=ethernet
 Configuring operating system image
 $ balena util available-drives
-DEVICE     SIZE      DESCRIPTION
-/dev/disk4 63.6 GB   Compute Module
-$ balena os initialize balena-debug.img --type fincm3 --drive /dev/disk4 --yes
+DEVICE     SIZE    DESCRIPTION
+/dev/disk2 31.9 GB TS-RDF5 SD Transcend Media
+
+$ balena os initialize balena-debug.img --type raspberrypi4-64 --drive /dev/disk2 --yes
 Initializing device
 
 Note: Initializing the device may ask for administrative permissions
 because we need to access the raw devices directly.
-Going to erase /dev/disk4.
+Going to erase /dev/disk2.
 Admin privileges required: you may be asked for your computer password to continue.
 Writing Device OS [========================] 100% eta 0s
 Validating Device OS [========================] 100% eta 0s
-You can safely remove /dev/disk4 now
+You can safely remove /dev/disk2 now
 ```
 
-You should now have a device that will appear as part of the DebugApp fleet:
+You should now have a device that will appear as part of the DebugFleet fleet:
 
 ```shell
-$ balena devices | grep DebugApp
-1744728 7db55ce black-mountain    fincm3       DebugApp         Idle   true      10.3.7             balenaOS 2.80.3+rev1 https://dashboard.balena-cloud.com/devices/7db55ce99e9c135dbc69974a7abbe511/summary
+$ balena devices | grep debugfleet
+7830516 9294512 average-fire  raspberrypi4-64   debugfleet       Idle   true      14.0.8             balenaOS 2022.7.0 https://dashboard.balena-cloud.com/devices/92945128a17b352b155c2ae799791389/summary
 ```
 
 For convenience, export a variable to point to the root of this masterclass
@@ -141,7 +144,7 @@ Finally, push the code in the `multicontainer-app` directory to the fleet:
 
 ```shell
 $ cd $BALENA_DEBUGGING_MASTERCLASS/multicontainer-app
-$ balena push DebugApp
+$ balena push DebugFleet
 ```
 
 ### 1. Accessing a User Device
@@ -149,13 +152,13 @@ $ balena push DebugApp
 Any device owned by a customer automatically allows access by that user via
 either the WebTerminal (in the device's Dashboard page), or the balena CLI
 via `balena ssh <uuid>`. However, for a support agent to gain access to a device
-that isn't owned by them, a user or collaborator that does have access must
+that isn't owned by them, a user that does have access must
 grant it explicitly.
 
 #### 1.1 Granting Support Access to a Support Agent
 
 A user can grant access to support agents by selecting the device from the
-Dashboard, and then selecting the 'Actions' tab in the left-hand sidepanel.
+Dashboard, and then selecting the 'Actions' tab in the sidebar.
 Scrolling down the Actions page will show a list of actions, with the 'Grant
 Support Access' option being the one required here. A user can select this, then
 determine the amount of time that support agents are allowed access for.
@@ -184,8 +187,10 @@ using `balena ssh <uuid> [serviceName]`.
 #### 1.2 Access Restrictions
 
 There are limits on what a support agent may do with a device they have
-been granted access to. This includes the alteration of variables and 
-configurations (both fleet and device).
+been granted access to. This includes the alteration of variables and
+configurations (both fleet and device), the ability to reboot the device,
+apply balenaOS upgrades, pin releases, etc. This is not a comprehensive list
+and may be subject to further changes.
 
 Whilst this sounds like a limitation, it ensures that a device being
 investigated for an issue cannot be unnecessarily altered or modified. Support
@@ -207,46 +212,44 @@ helps greatly in a support post-mortem should one be required.
 Currently, diagnosis is only available via the Dashboard.
 
 Let's take a look at the device provisioned earlier that should now be
-running the code pushed to the DebugApp. Bring up the balenaCloud Dashboard
-page and select 'Diagnostics (Experimental)' from the left-hand panel.
+running the code pushed to the DebugFleet. Bring up the balenaCloud Dashboard
+page and select 'Diagnostics' from the left-hand panel.
 
-Diagnostics are split into three separate sections: health checks, diagnostics
-and Supervisor state.
+Diagnostics are split into three separate sections: Device health checks, Device diagnostics and Supervisor state.
 
 #### 2.1 Device Health Checks
 
 Select the 'Device Health Checks' tab in the Diagnostics page, and then click
-'Run checks'. A set of [health checks](https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md)
+'Run checks'. This may take a couple of minutes. A set of [health checks](https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md)
 will be run on the device, and you should see the following conditions:
 
-| Check | Status | Notes |
-| --- | --- | --- |
-| check_balenaOS | Succeeded | Supported balenaOS 2.x detected |
-| check_under_voltage | Succeeded | No under-voltage events detected |
-| check_memory | Succeeded | 75% memory available |
-| check_temperature | Succeeded | No abnormal temperature detected |
-| check_container_engine | Succeeded | Container engine balena is running and has not restarted uncleanly
-| check_supervisor | Succeeded | Supervisor is running & healthy |
-| check_dns | Succeeded | First DNS server is 127.0.0.2 |
-| check_networking | Succeeded | No networking issues detected |
-| check_diskspace | Succeeded | df reports 99% free |
-| check_write_latency | Succeeded | No slow disk writes detected |
-| check_service_restarts | Succeeded | No services are restarting unexpectedly |
-| check_timesync | Succeeded | Time is synchronized |
-| check_os_rollback | Succeeded | No OS rollbacks detected
+| Check                  | Status    | Notes                                        |
+| ---------------------- | --------- | -------------------------------------------- |
+| check_balenaOS         | Succeeded | Supported balenaOS 2.x detected              |
+| check_container_engine | Succeeded | No container_engine issues detected          |
+| check_localdisk        | Succeeded | No localdisk issues detected                 |
+| check_memory           | Succeeded | 82% memory available                         |
+| check_networking       | Succeeded | No networking issues detected                |
+| check_os_rollback      | Succeeded | No OS rollbacks detected                     |
+| check_supervisor       | Succeeded | Supervisor is running & healthy              |
+| check_temperature      | Succeeded | No temperature issues detected               |
+| check_timesync         | Succeeded | Time is synchronized                         |
+| check_under_voltage    | Succeeded | No under-voltage events detected             |
+| check_service_backend  | Succeeded | User service 'backend' is running & healthy  |
+| check_service_frontend | Succeeded | User service 'frontend' is running & healthy |
 
 This shows a healthy device, where there are no obvious faults. That's no fun,
 let's create one!
 
-SSH into your device, via `balena ssh`, using the appropriate UUID. We want to
+SSH into your device, via `balena ssh <UUID>`, using the appropriate UUID. We want to
 SSH into the host OS, as that's where we'll wreak havoc:
 
 ```shell
-$ balena ssh 7db55ce99e9c135dbc69974a7abbe511
+$ balena ssh 9294512
 =============================================================
     Welcome to balenaOS
 =============================================================
-root@7db55ce:~#
+root@9294512:~#
 ```
 
 We're going to do a couple of things that will show up as problems. Something
@@ -257,7 +260,7 @@ First of all, we're going to kill the balenaEngine maliciously without letting
 it shut down properly:
 
 ```shell
-root@7db55ce:~# ps | awk '!/awk/ && /balenad/ {print $1}' | xargs kill -9
+root@9294512:~# ps aux | awk '!/awk/ && /balenad/ {print $2}' | xargs kill -9
 ```
 
 What this does is list the processes running, look for the `balenad` executable
@@ -267,12 +270,15 @@ In fact, we'll do it twice. Once you've waited about 30 seconds, run the command
 again.
 
 Now we'll look at the health checks again. Click 'Run checks' again in the
-Dashboard. After a few seconds, you'll see the 'check_container_engine`
+Dashboard. After a couple minutes, you'll see the 'check_container_engine`
 section has changed:
 
-| Check | Status | Notes |
-| --- | --- | --- |
-| check_container_engine | Failed |Container engine balena is up, but has 2 unclean restarts and may be crashlooping (most recent start time: Thu 2019-11-14 17:38:24 UTC) |
+| Check                  | Status | Notes                                                                                                                                               |
+| ---------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| check_container_engine | Failed | Some container_engine issues detected:                                                                                                              |
+|                        |        | test_container_engine_running_now Container engine balena is NOT running                                                                            |
+|                        |        | test_container_engine_restarts Container engine balena has 2 restarts and may be crashlooping (most recent start time: Thu 2022-08-18 11:14:32 UTC) |
+|                        |        | test_container_engine_responding Error querying container engine:                                                                                   |
 
 Unclean restarts usually mean that the engine crashed abnormally with an issue.
 This usually happens when something catastrophic occurs between the Supervisor
@@ -281,73 +287,48 @@ Let's take a look at the journal for balenaEngine (`balena.service`) on the
 device:
 
 ```shell
-root@7db55ce:~# journalctl --no-pager -n 400 -u balena.service
+root@9294512:~# journalctl --no-pager -n 400 -u balena.service
 ```
 
-You'll see a *lot* of output, as the logs don't just show the balenaEngine
+You'll see a _lot_ of output, as the logs don't just show the balenaEngine
 output but the output from the Supervisor as well. However, if you search
-through the output, you'll find several lines like the following:
+through the output, you'll see a line like the following:
 
 ```shell
-Nov 15 10:33:04 7db55ce 36025a63fdf2[779]: [api]     GET /v1/healthy 200 - 12.070 ms
-Nov 15 10:35:17 7db55ce systemd[1]: balena.service: Main process exited, code=killed, status=9/KILL
-Nov 15 10:35:17 7db55ce systemd[1]: balena.service: Failed with result 'signal'.
-Nov 15 10:35:18 7db55ce balenad[2873]: time="2019-11-15T10:35:18.148843059Z" level=warning msg="Running experimental build"
-Nov 15 10:35:18 7db55ce balenad[2873]: time="2019-11-15T10:35:18.157035456Z" level=info msg="libcontainerd: started new balena-engine-containerd process" pid=2891
+Aug 18 11:14:32 9294512 systemd[1]: balena.service: Main process exited, code=killed, status=9/KILL
 ```
 
 As you can see, the `balena.service` was killed with a `SIGKILL` instruction.
-The next lines show the service restarting, as the service is configured to
-restart whenever it exits. If you continue searching, you'll see another similar
-set of logs where we killed it a second time.
 
-You might also notice some lines that look like:
+You can also see the two times that our services were attempted to start after the engine was killed and restarted automatically by running:
 
 ```shell
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [1B blob data]
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [36B blob data]
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [16B blob data]
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: [1B blob data]
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [1B blob data]
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [35B blob data]
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [16B blob data]
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: [1B blob data]
-```
-
-This `blob data` is in fact logs from running service containers that are not
-the Supervisor (as the Supervisor is always logged in the clear). You can
-read this data by using the `-a` switch when viewing the logs for balenaEngine:
-
-```shell
-root@7db55ce:~# journalctl --no-pager -a -n 400 -u balena.service
+root@7db55ce:~# journalctl --no-pager -n 400 -u balena.service | grep frontend -A 5
 ...
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]:
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: > frontend@1.0.0 start /usr/src/app
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]: > node index.js
-Nov 15 10:35:27 7db55ce ecb3a4b3a079[2873]:
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]:
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: > backend@1.0.0 start /usr/src/app
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]: > node index.js
-Nov 15 10:35:28 7db55ce 8794d382f463[2873]:
+Aug 18 11:15:05 9294512 89fe7a71a40d[6061]: > frontend@1.0.0 start /usr/src/app
+Aug 18 11:15:05 9294512 89fe7a71a40d[6061]: > node index.js
+Aug 18 11:15:05 9294512 89fe7a71a40d[6061]:
+Aug 18 11:15:06 9294512 422820756f15[6061]:
+Aug 18 11:15:06 9294512 422820756f15[6061]: > backend@1.0.0 start /usr/src/app
+Aug 18 11:15:06 9294512 422820756f15[6061]: > node index.js
 ```
 
 As you can see, these have now been specifically output for the two running
 service containers.
 
-If you *only* want to see balenaEngine output and not from any of the service
+If you _only_ want to see balenaEngine output and not from any of the service
 containers it is running, use `journalctl -u balena.service -t balenad`. The
 `-t` is the shortened form of `--identifier=<id>`, which in this case ensures
 that only messages from the `balenad` syslog identifier are shown.
 
-We'll discuss balenaEngine/Supervisor crashes and restarts later in the
-masterclass.
+We'll discuss issues with balenaEngine and the Supervisor later in this masterclass.
 
 There are many other health checks that can immediately expose a problem.
 For example, warnings on low free memory or disk space can expose problems which
 will exhibit themselves as release updates failing to download, or service
 containers restarting abnormally (especially if a service runs
 unchecked and consumes memory until none is left). We'll also go through some
-of these scenarios later.
+of these scenarios later in this masterclass.
 
 #### 2.2 Device Diagnostics
 
@@ -363,16 +344,16 @@ that have been run. The section `--- COMMANDS ---` shows a list of all of the
 commands that are run to produce the diagnostics report. These commands cover
 a wide range of functionality, but are comprised of 5 main areas:
 
-* BALENA - The balenaEngine and latest journals
-* HARDWARE - All aspects of HW, including CPU, memory and device tree info
-    as well as statistics on device nodes, USB devices and disk space
-* NETWORK - Covering everything from the current interface configurations
-    to test pings/curls of remote hosts, the state of DNSmasq, OpenVPN and
-    the current iptables configuration
-* OS - This includes the current device configuration, the kernel log,
-    the boot journal and the state of any HUP that may have been attempted
-* SUPERVISOR - The current state and logs for the Supervisor
-* TIME - The current date, state of the time and uptime for the device
+- BALENA - The balenaEngine and latest journals
+- HARDWARE - All aspects of HW, including CPU, memory and device tree info
+  as well as statistics on device nodes, USB devices and disk space
+- NETWORK - Covering everything from the current interface configurations
+  to test pings/curls of remote hosts, the state of DNSmasq, OpenVPN and
+  the current iptables configuration
+- OS - This includes the current device configuration, the kernel log,
+  the boot journal and the state of any HUP that may have been attempted
+- SUPERVISOR - The current state and logs for the Supervisor
+- TIME - The current date, state of the time and uptime for the device
 
 Examination of this output will help to determine if something is not working
 correctly. Whilst we won't go into this here, the following exercises will all
@@ -385,33 +366,25 @@ Now click the 'Supervisor State' tab on the 'Diagnostics' page.
 This does not require execution, and immediately queries the Supervisor to
 determine its current configuration. This output is shown in two panels:
 
-* Current Supervisor State - This is the current status of the Supervisor,
-    including the address and port it can be reached on, the versions pertaining
-    to it and the current status (note that this only works should
-    the VPN be operational and connected to the balenaCloud backend).
-* Target Supervisor State - This is the target state for the Supervisor, based
-    upon the release the device is associated with (usually
-    this is the latest release, unless otherwise pinned). This
-    includes all of the services, and any configuration set for each service,
-    for the fleet, as well as configuration (such as boot and device tree
-    settings).
+- Supervisor status - This is the current status of the Supervisor, including the address and port it can be reached on, the versions pertaining to it and the current status (note that this only works should the VPN be operational and connected to the balenaCloud backend).
+- Target supervisor state - This is the target state for the Supervisor, based upon the release the device is associated with (usually this is the latest release, unless otherwise pinned). This includes all of the services, and any configuration set for each service, for the fleet, as well as configuration (such as boot and device tree settings).
 
-The Supervisor state should always be available; if it isn't, this
+The Supervisor status should always be available; if it isn't, this
 is an initial indication that something is wrong (including the Supervisor
 itself failing to run).
 
-The Current State is useful for ensuring that versions of the Supervisor/OS
-and access to the API is as-expected (or has been changed, should access
+The Supervisor status is useful for ensuring that versions of the Supervisor/OS
+and access to the API is as expected (or has been changed, should access
 be required).
 
-The Target State is extremely useful for ensuring that a release is running
+The Target supervisor state is extremely useful for ensuring that a release is running
 correctly upon a device (as the `docker-compose` manifest for the release
 can be read from the fleet's 'Release' page in the Dashboard), as well
 as ensuring it's the commit that's expected.
 
 ### 3. Device Access Responsibilities
 
-When accessing a customer's device you have a number  of responsibilities, both
+When accessing a customer's device you have a number of responsibilities, both
 technically and ethically. A customer assumes that the support agent has a level
 of understanding and competence, and as such support agents should ensure that
 these levels are met successfully.
@@ -419,28 +392,28 @@ these levels are met successfully.
 There are some key points which should be followed to ensure that we are never
 destructive when supporting a customer:
 
-* Always ask permission before carrying out non-read actions. This includes
-    situations such as stopping/restarting/starting services which are otherwise
-    functional (such as the Supervisor). This is *especially* important in cases
-    where this would stop otherwise functioning services (such as stopping
-    balenaEngine).
-* Ensure that the customer is appraised of any non-trivial non-read actions that
-    you are going to take before you carry those actions out on-device. If they
-    have given you permission to do 'whatever it takes' to get the device
-    running again, you should still pre-empt your actions by communicating this
-    clearly.
-* During the course of carrying out non-read actions on a device, should the
-    customer be required to answer a query before being able to proceed, make it
-    clear to them what you have already carried out, and that you need a
-    response before continuing. Additionally ensure that any incoming agents
-    that may need to access the device have all of your notes and actions up
-    to this point, so they can take over in your stead.
-* *Never* reboot a device without permission, especially in cases where it
-    appears that there is a chance that the device will not recover (which may
-    be the case in situations where the networking is a non-optimal state). It
-    is imperative in these cases that the customer is made aware that this could
-    be an outcome in advance, and that they must explicitly give permission for
-    a reboot to be carried out.
+- Always ask permission before carrying out non-read actions. This includes
+  situations such as stopping/restarting/starting services which are otherwise
+  functional (such as the Supervisor). This is _especially_ important in cases
+  where this would stop otherwise functioning services (such as stopping
+  balenaEngine).
+- Ensure that the customer is appraised of any non-trivial non-read actions that
+  you are going to take before you carry those actions out on-device. If they
+  have given you permission to do 'whatever it takes' to get the device
+  running again, you should still pre-empt your actions by communicating this
+  clearly.
+- During the course of carrying out non-read actions on a device, should the
+  customer be required to answer a query before being able to proceed, make it
+  clear to them what you have already carried out, and that you need a
+  response before continuing. Additionally ensure that any incoming agents
+  that may need to access the device have all of your notes and actions up
+  to this point, so they can take over in your stead.
+- _Never_ reboot a device without permission, especially in cases where it
+  appears that there is a chance that the device will not recover (which may
+  be the case in situations where the networking is a non-optimal state). It
+  is imperative in these cases that the customer is made aware that this could
+  be an outcome in advance, and that they must explicitly give permission for
+  a reboot to be carried out.
 
 Occasionally it becomes very useful to copy files off from a device, so that
 they can be shared with the team. This might be logfiles, or the Supervisor
@@ -448,11 +421,14 @@ database, etc.
 
 A quick way of copying data from a device with a known UUID onto a local machine
 is to use SSH with your balena support username:
+
 ```shell
 ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${USER}@ssh.balena-devices.com host -s ${UUID} 'cat ${PATH_TO_FILE}' > ${LOCAL_PATH}
 ```
+
 You can copy data from your local machine onto a device by piping the file in
 instead:
+
 ```shell
 ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${USER}@ssh.balena-devices.com host -s ${UUID} 'cat > ${PATH_TO_FILE}' < ${LOCAL_PATH}
 ```
@@ -460,7 +436,7 @@ ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 #### 4. Accessing a Device using a Gateway Device
 
 It may not always be possible to access the device directly, especially if the
-VPN component isn't working.
+the VPN component isn't working.
 
 In the examples, we're able to stay connected to the device when the OpenVPN
 service isn't running because we're using a development image, and development
@@ -488,7 +464,7 @@ $ ssh -t \
 ```
 
 Should this not work, it's possible that the IP address has changed (and if it
-has, you *will* need to specify the correct address). The easiest way to find
+has, you _will_ need to specify the correct address). The easiest way to find
 the potentially correct IP address is to SSH into the gateway device and run the
 following script (which should work for both legacy DropBear SSH daemons and
 those running on more recent balenaOS installations):
@@ -518,9 +494,13 @@ target based on its hostname. Simply ping the `.local` address and grab the IP
 that way:
 
 ```shell
-root@8f45015:~# ping -c1 e655ba7.local
-PING e655ba7.local (192.168.1.19): 56 data bytes
-64 bytes from 192.168.1.19: seq=0 ttl=64 time=7.905 ms
+root@9294512:~# ping -c1 $(hostname).local
+PING 9294512.local (172.17.0.1): 56 data bytes
+64 bytes from 172.17.0.1: seq=0 ttl=64 time=0.400 ms
+
+--- 9294512.local ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 0.400/0.400/0.400 ms
 ...
 ```
 
@@ -556,77 +536,74 @@ Possibly the most important command is `journalctl`, which allows you to read
 the service's journal entries. This takes a variety of switches, the most
 useful being:
 
-* `--follow`/`-f` - Continues displaying journal entries until the command is halted
-    (eg. with Ctrl-C)
-* `--unit=<unitFile>`/`-u <unitFile>` - Specifies the unit file to read journal
-    entries for. Without this, all units entries are read.
-* `--pager-end`/`-e` - Jump straight to the final entries for a unit.
-* `--all`/`-a` - Show all entries, even if long or with unprintable
-    characters. This is especially useful for displaying the service container
-    logs from user containers when applied to `balena.service`.
+- `--follow`/`-f` - Continues displaying journal entries until the command is halted
+  (eg. with Ctrl-C)
+- `--unit=<unitFile>`/`-u <unitFile>` - Specifies the unit file to read journal
+  entries for. Without this, all units entries are read.
+- `--pager-end`/`-e` - Jump straight to the final entries for a unit.
+- `--all`/`-a` - Show all entries, even if long or with unprintable
+  characters. This is especially useful for displaying the service container
+  logs from user containers when applied to `balena.service`.
 
 A typical example of using `journalctl` might be following a service to see
 what's occuring. Here's it for the Supervisor, following journal entries in
 real time:
 
 ```shell
-root@11a12ec:~# journalctl --follow --unit=balena-supervisor --unit=resin-supervisor
--- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
-Dec 03 15:36:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:36:40 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 6.900 ms
-Dec 03 15:41:41 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.939 ms
-Dec 03 15:46:06 11a12ec balena-supervisor[1184]: Attempting container log timestamp flush...
-Dec 03 15:46:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:46:42 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 15.989 ms
-Dec 03 15:51:42 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 8.643 ms
-Dec 03 15:56:06 11a12ec balena-supervisor[1184]: Attempting container log timestamp flush...
-Dec 03 15:56:06 11a12ec balena-supervisor[1184]: Container log timestamp flush complete
-Dec 03 15:56:43 11a12ec balena-supervisor[1184]: Supervisor API: GET /v1/healthy 200 - 7.830 ms
+root@9294512:~# journalctl --follow --unit=balena-supervisor
+-- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
+Aug 18 16:56:55 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:57:05 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:58:17 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:58:27 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:58:37 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:58:48 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:58:58 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:59:19 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 16:59:40 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 18 17:00:00 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
 ```
 
 Any systemd service can be referenced in the same way, and there are some common
 commands that can be used with services:
 
-* `systemctl status <serviceName>` - Will show the status of a service. This
-    includes whether it is currently loaded and/or enabled, if it is currently
-    active (running) and when it was started, its PID, how much memory it is
-    notionally (and beware here, this isn't always the amount of physical
-    memory) using, the command used to run it and finally the last set of
-    entries in its journal log. Here's example output from the OpenVPN service:
+- `systemctl status <serviceName>` - Will show the status of a service. This
+  includes whether it is currently loaded and/or enabled, if it is currently
+  active (running) and when it was started, its PID, how much memory it is
+  notionally (and beware here, this isn't always the amount of physical
+  memory) using, the command used to run it and finally the last set of
+  entries in its journal log. Here's example output from the OpenVPN service:
 
-    ```shell
-    root@11a12ec:~# systemctl status openvpn.service
-    ● openvpn.service - OpenVPN
-    Loaded: loaded (/lib/systemd/system/openvpn.service; enabled; vendor preset: enabled)
-    Active: active (running) since Tue 2019-12-03 11:46:10 UTC; 12min ago
-    Main PID: 1448 (openvpn)
-    Memory: 1.3M
-    CGroup: /system.slice/openvpn.service
-            └─1448 /usr/sbin/openvpn --writepid /var/run/openvpn/openvpn.pid --cd /etc/openvpn/ --config /etc/openvpn/openvpn.conf --connect-retry 5 120
+  ```shell
+  root@9294512:~# journalctl --follow --unit=balena-supervisor
+  -- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
+  Aug 18 16:56:55 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:57:05 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:58:17 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:58:27 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:58:37 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:58:48 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:58:58 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:59:19 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 16:59:40 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 17:00:00 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 17:00:11 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 17:00:31 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 17:00:42 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+  Aug 18 17:00:49 9294512 balena-supervisor[6890]: [api]     GET /v1/healthy 200 - 3.272 ms
+  ```
 
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 /sbin/ip link set dev resin-vpn up mtu 1500
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 /sbin/ip addr add dev resin-vpn local 10.240.53.172 peer 52.4.252.97
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 /etc/openvpn-misc/upscript.sh resin-vpn 1500 1555 10.240.53.172 52.4.252.97 init
-    Dec 03 11:46:13 11a12ec openvpn[1448]: resin-ntp-config: Found config.json in /mnt/boot/config.json .
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 /sbin/ip route add 52.4.252.97/32 via 52.4.252.97
-    Dec 03 11:46:13 11a12ec openvpn[1448]: ip: RTNETLINK answers: File exists
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 ERROR: Linux route add command failed: external program exited with error status: 2
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 GID set to openvpn
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 UID set to openvpn
-    Dec 03 11:46:13 11a12ec openvpn[1448]: Tue Dec  3 11:46:13 2019 Initialization Sequence Completed
-    ```
-
-* `systemctl start <serviceName>` - Will start a non-running service. Note that
-    this will *not* restart a service that is already running.
-* `systemctl stop <serviceName>` - Will stop a running service. If the service
-    is not running, this command will not do anything.
-* `systemctl restart <serviceName>` - Will restart a running service. If the
-    service is not running, this will start it.
-* `systemctl daemon-reload` - Will essentially run through the startup process
-    systemd carries out at initialisation, but without restarting services or
-    units. This allows the rebuild of the system dependency graph, and should be
-    carried out if any of the unit files are changed whilst the system is
-    running.
+- `systemctl start <serviceName>` - Will start a non-running service. Note that
+  this will _not_ restart a service that is already running.
+- `systemctl stop <serviceName>` - Will stop a running service. If the service
+  is not running, this command will not do anything.
+- `systemctl restart <serviceName>` - Will restart a running service. If the
+  service is not running, this will start it.
+- `systemctl daemon-reload` - Will essentially run through the startup process
+  systemd carries out at initialisation, but without restarting services or
+  units. This allows the rebuild of the system dependency graph, and should be
+  carried out if any of the unit files are changed whilst the system is
+  running.
 
 This last command may sound a bit confusing but consider the following. Imagine
 that you need to dynamically change the `balena-supervisor.service` unit file
@@ -640,40 +617,40 @@ In general, there are some core services that need to execute for a device to
 come online, connect to the balenaCloud VPN, download releases and then run
 them:
 
-* `chronyd.service` - Responsible for NTP duties and syncing 'real' network
-    time to the device. Note that balenaOS versions less than v2.13.0 used
-    `systemd-timesyncd.service` as their NTP service, although inspecting it is
-    very similar to that of `chronyd.service`.
-* `dnsmasq.service` - The local DNS service which is used for all host OS
-    lookups (and is the repeater for user service containers by default).
-* `NetworkManager.service` - The underlying Network Manager service, ensuring
-    that configured connections are used for networking.
-* `os-config.service` - Retrieves settings and configs from the API endpoint,
-    including certificates, authorized keys, the VPN config, etc.
-* `openvpn.service` - The VPN service itself, which connects to the balenaCloud
-    VPN, allowing a device to come online (and to be SSHd to and have actions
-    performed on it). Note that in balenaOS versions less than v2.10.0 this
-    was called `openvpn-resin.service`, but the method for inspecting and
-    dealing with the service is the same.
-* `balena.service` - The balenaEngine service, the modified Docker daemon fork
-    that allows the management and running of service images,
-    containers, volumes and networking.
-* `balena-supervisor.service` - The {{ $names.company.short }} Supervisor service, 
-    responsible for the management of releases, including downloading updates of the app and 
-    self-healing (via monitoring), variables (fleet/device), and exposure of these 
-    services to containers via an API endpoint.
-* `dbus.service` - The DBus daemon socket can be used by services if the 
-    `io.balena.features.dbus` label is applied. This exposes the DBus daemon 
-    socket in the container which allows the service to control several 
-    host OS features, including the Network Manager.
+- `chronyd.service` - Responsible for NTP duties and syncing 'real' network
+  time to the device. Note that balenaOS versions less than v2.13.0 used
+  `systemd-timesyncd.service` as their NTP service, although inspecting it is
+  very similar to that of `chronyd.service`.
+- `dnsmasq.service` - The local DNS service which is used for all host OS
+  lookups (and is the repeater for user service containers by default).
+- `NetworkManager.service` - The underlying Network Manager service, ensuring
+  that configured connections are used for networking.
+- `os-config.service` - Retrieves settings and configs from the API endpoint,
+  including certificates, authorized keys, the VPN config, etc.
+- `openvpn.service` - The VPN service itself, which connects to the balenaCloud
+  VPN, allowing a device to come online (and to be SSHd to and have actions
+  performed on it). Note that in balenaOS versions less than v2.10.0 this
+  was called `openvpn-resin.service`, but the method for inspecting and
+  dealing with the service is the same.
+- `balena.service` - The balenaEngine service, the modified Docker daemon fork
+  that allows the management and running of service images,
+  containers, volumes and networking.
+- `balena-supervisor.service` - The {{ $names.company.short }} Supervisor service,
+  responsible for the management of releases, including downloading updates of the app and
+  self-healing (via monitoring), variables (fleet/device), and exposure of these
+  services to containers via an API endpoint.
+- `dbus.service` - The DBus daemon socket can be used by services if the
+  `io.balena.features.dbus` label is applied. This exposes the DBus daemon
+  socket in the container which allows the service to control several
+  host OS features, including the Network Manager.
 
 Additionally, there are some utility services that, whilst not required
 for a barebones operation, are also useful:
 
-* `ModemManager.service` - Deals with non-Ethernet or Wifi devices, such as
-    LTE/GSM modems.
-* `avahi-daemon.service` - Used to broadcast the device's local hostname
-    (useful in development mode, responds to `balena scan`).
+- `ModemManager.service` - Deals with non-Ethernet or Wifi devices, such as
+  LTE/GSM modems.
+- `avahi-daemon.service` - Used to broadcast the device's local hostname
+  (useful in development mode, responds to `balena scan`).
 
 We'll go into several of these services in the following sections, but generally
 these are the first points to examine if a system is not behaving as it should,
@@ -690,22 +667,22 @@ Updated on information for device logs and persistent logging can be found in th
 ### 6. Determining Networking Issues
 
 There are some common networking issues that can stop several major components
-(the VPN, Supervisor, balenaEngine) from working correctly.
+(VPN, Supervisor, balenaEngine) from working correctly.
 
 The current list of core networking requirements are
 [here](https://www.balena.io/docs/reference/OS/network/2.x/#network-requirements)
 and in brief, include:
 
-* Access to TCP port 443 (for VPN, API, etc.), and UDP ports 123 and 53 for
-    NTP and DNS respectively.
-* Access to the `*.balena-cloud.com`, `*.docker.com` and `*.docker.io`
-    wildcarded domains.
-* Access to the `*.resinio.pool.ntp.org` NTP pools.
-* Access to 8.8.8.8 and 8.8.4.4 for DNS resolution (although this is
-    configurable via the `dnsServers` setting in `config.json`).
+- Access to TCP port 443 (for VPN, API, etc.), and UDP ports 123 and 53 for
+  NTP and DNS respectively.
+- Access to the `*.balena-cloud.com`, `*.docker.com` and `*.docker.io`
+  wildcarded domains.
+- Access to the `*.resinio.pool.ntp.org` NTP pools.
+- Access to 8.8.8.8 and 8.8.4.4 for DNS resolution (although this is
+  configurable via the `dnsServers` setting in `config.json`).
 
 Additionally, services running on the device themselves may have networking requirements
-which may not be met. For example, a service may need to send data to a server, but the 
+which may not be met. For example, a service may need to send data to a server, but the
 server is offline and unreachable, and maybe the service isn't designed to handle these failures.
 
 In general,
@@ -743,16 +720,16 @@ presented will appear to be date invalid when compared to the system clock.
 Depending on how skewed the device date is from the real date, this can manifest
 as several different issues:
 
-* Refusal to connect to the balenaCloud VPN
-* Refusal to download configuration from the API
-* Refusal by the Supervisor to download the latest release
+- Refusal to connect to the balenaCloud VPN
+- Refusal to download configuration from the API
+- Refusal by the Supervisor to download the latest release
 
-Examining the status of the `chrony` service can show these symptoms, along
+Examining the status of the `chronyd` service can show these symptoms, along
 with the simple `date` command:
 
 ```shell
-root@11a12ec:/# date
-Tue Dec  3 17:27:33 UTC 2019
+root@9294512:~# date
+Fri Aug 19 09:11:43 UTC 2022
 ```
 
 If the date reported by the device differs to the current date and time, then
@@ -763,11 +740,12 @@ for it to come online before SSHing into it.
 
 Ensure you know the local IP address of the debug device (or use `balena scan`
 to find the hostname of your device), and SSH into it like this (where
-`192.168.1.173` is the IP address of your device, or `<host>.local` name):
+`10.0.0.197` is the IP address of your device, or `<host>.local` name):
 
 ```shell
-$ balena ssh 192.168.1.173
-root@f34c2e9:~#
+$ balena ssh 10.0.0.197
+Last login: Fri Aug 19 09:09:37 2022
+root@9294512:~#
 ```
 
 Your device should be connected, bring up the Dashboard page for the device.
@@ -776,62 +754,46 @@ It should be 'Online' and running the pushed release code.
 We'll demonstrate an NTP failure by making some manual changes to the date:
 
 ```shell
-root@f34c2e9:~# date -s "23 MAR 2017 12:00:00"
+root@9294512:~# date -s "23 MAR 2017 12:00:00"
 Thu Mar 23 12:00:00 UTC 2017
-root@f34c2e9:~# systemctl restart openvpn
+root@9294512:~# systemctl restart openvpn
 ```
 
-Almost immediately, you'll see that the device status moves to 'Offline'. So,
-why has this happened? Let's take a look in the OpenVPN logs:
+Almost immediately, you'll see that the device status moves to 'Online (Heartbeat only)'. So,
+why has this happened? Wait until the device comes back online, then ssh back in and take a look in the OpenVPN logs:
 
 ```shell
-root@f34c2e9:~# journalctl -f -n 200 -u openvpn.service
-Nov 22 11:17:28 f34c2e9 openvpn[786]: Fri Nov 22 11:17:28 2019 Initialization Sequence Completed
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 event_wait : Interrupted system call (code=4)
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 Closing TUN/TAP interface
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 /sbin/ip addr del dev resin-vpn local 10.240.54.178 peer 52.4.252.97
-Mar 23 12:00:08 f34c2e9 openvpn[786]: ip: RTNETLINK answers: Operation not permitted
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 Linux ip addr del failed: external program exited with error status: 2
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 /etc/openvpn-misc/downscript.sh resin-vpn 1500 1555 10.240.54.178 52.4.252.97 init
-Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 SIGTERM[hard,] received, process exiting
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 WARNING: file '/var/volatile/vpn-auth' is group or others accessible
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 OpenVPN 2.4.3 arm-poky-linux-gnueabi [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [MH/PKTINFO] [AEAD] built on Aug 29 2019
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 library versions: OpenSSL 1.1.1b  26 Feb 2019, LZO 2.10
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 TCP/UDP: Preserving recently used remote address: [AF_INET]18.232.192.190:443
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 Socket Buffers: R=[87380->87380] S=[16384->16384]
-Mar 23 12:00:08 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:08 2017 Attempting to establish TCP connection with [AF_INET]18.232.192.190:443 [nonblock]
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TCP connection established with [AF_INET]18.232.192.190:443
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TCP_CLIENT link local: (not bound)
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TCP_CLIENT link remote: [AF_INET]18.232.192.190:443
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 NOTE: UID/GID downgrade will be delayed because of --client, --pull, or --up-delay
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TLS: Initial packet from [AF_INET]18.232.192.190:443, sid=b6c2ec0b c8148cab
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY ERROR: depth=0, error=certificate is not yet valid: CN=vpn.balena-cloud.com
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 OpenSSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TLS_ERROR: BIO read tls_read_plaintext error
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TLS Error: TLS object -> incoming plaintext read error
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 TLS Error: TLS handshake failed
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 Fatal TLS error (check_tls_errors_co), restarting
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 SIGUSR1[soft,tls-error] received, process restarting
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 Restart pause, 5 second(s)
-Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 TCP/UDP: Preserving recently used remote address: [AF_INET]34.237.229.125:443
-Mar 23 12:00:14 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:14 2017 Socket Buffers: R=[87380->87380] S=[16384->16384]
+root@9294512:~# journalctl --follow -n 300 -u openvpn.service
+-- Journal begins at Thu 2017-03-23 12:00:02 UTC. --
+Mar 23 12:00:24 9294512 openvpn[135086]: Thu Mar 23 12:00:24 2017 Attempting to establish TCP connection with [AF_INET]34.226.166.12:443 [nonblock]
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TCP connection established with [AF_INET]34.226.166.12:443
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TCP_CLIENT link local: (not bound)
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TCP_CLIENT link remote: [AF_INET]34.226.166.12:443
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TLS: Initial packet from [AF_INET]34.226.166.12:443, sid=416e63eb ed87172e
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 VERIFY ERROR: depth=1, error=certificate is not yet valid: C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=open-balena-vpn-rootCA
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 OpenSSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TLS_ERROR: BIO read tls_read_plaintext error
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TLS Error: TLS object -> incoming plaintext read error
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 TLS Error: TLS handshake failed
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 Fatal TLS error (check_tls_errors_co), restarting
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 SIGUSR1[soft,tls-error] received, process restarting
+Mar 23 12:00:25 9294512 openvpn[135086]: Thu Mar 23 12:00:25 2017 Restart pause, 5 second(s)
+Mar 23 12:00:30 9294512 openvpn[135086]: Thu Mar 23 12:00:30 2017 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
+Mar 23 12:00:30 9294512 openvpn[135086]: Thu Mar 23 12:00:30 2017 TCP/UDP: Preserving recently used remote address: [AF_INET]3.225.166.106:443
+Mar 23 12:00:30 9294512 openvpn[135086]: Thu Mar 23 12:00:30 2017 Socket Buffers: R=[131072->131072] S=[16384->16384]
 ```
 
 There's a bit to wade through here, but the first line shows the OpenVPN
 successfully finalizing a connection to the balenaCloud VPN backend. However,
 we then see our manual restart of the `openvpn.service` unit file
-(`Mar 23 12:00:08 f34c2e9 openvpn[786]: Thu Mar 23 12:00:08 2017 SIGTERM[hard,] received, process exiting`)
+(`Mar 23 12:00:06 9294512 openvpn[2639]: Thu Mar 23 12:00:06 2017 SIGTERM[hard,] received, process exiting`)
 and then it starting up again. But whilst it initializes, you'll note that
 whilst trying to connect it found a problem in the verification stage:
 
 ```shell
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 VERIFY ERROR: depth=0, error=certificate is not yet valid: CN=vpn.balena-cloud.com
-Mar 23 12:00:09 f34c2e9 openvpn[2787]: Thu Mar 23 12:00:09 2017 OpenSSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed
+Aug 18 10:51:45 9294512 openvpn[2639]: Thu Aug 18 10:51:45 2022 VERIFY OK: depth=0, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=vpn.balena-cloud.com
+Mar 23 12:00:07 9294512 openvpn[135086]: Thu Mar 23 12:00:07 2017 VERIFY ERROR: depth=1, error=certificate is not yet valid: C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=open-balena-vpn-rootCA
+Mar 23 12:00:07 9294512 openvpn[135086]: Thu Mar 23 12:00:07 2017 OpenSSL: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed
 ```
 
 The certificate that it fetched from the balenaCloud VPN service is not yet
@@ -841,14 +803,12 @@ if the current time falls outside of that window then any connection using them
 is invalid. In this case, because we've set the time back to 2017, the date
 doesn't fall within that window and the connection is aborted by the client.
 
-However, after reading the above, if you look at the Dashboard, you'll now
-see that the device has actually reconnected to the network again and its status
-is 'Online'. But if the date is incorrect, why has the device reconnected?
+But if the date is incorrect, why has the device reconnected?
 Run the following on the device:
 
 ```shell
-root@f34c2e9:~# date
-Fri Nov 22 11:41:54 UTC 2019
+root@9294512:~# date
+Fri Aug 19 09:25:45 UTC 2022
 ```
 
 So the date's actually now correct. This is because the NTP service
@@ -857,41 +817,40 @@ set time on the device, and the time from one of it's sources. Let's look at
 the journal for it:
 
 ```shell
-root@f34c2e9:~# journalctl -f -u chronyd.service
--- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
-Nov 22 11:17:17 localhost chronyd[737]: 2019-11-22T11:17:17Z chronyd version 3.4 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -SECHASH +IPV6 -DEBUG)
-Nov 22 11:17:28 f34c2e9 chronyd[737]: 2019-11-22T11:17:28Z Selected source 85.199.214.100
-Mar 23 12:00:04 f34c2e9 chronyd[737]: 2017-03-23T12:00:04Z Backward time jump detected!
-Mar 23 12:00:04 f34c2e9 chronyd[737]: 2017-03-23T12:00:04Z Can't synchronize: no selectable sources
-Nov 22 11:34:43 f34c2e9 chronyd[737]: 2017-03-23T12:02:14Z Selected source 178.62.250.107
-Nov 22 11:34:43 f34c2e9 chronyd[737]: 2017-03-23T12:02:14Z System clock wrong by 84151949.073647 seconds, adjustment started
-Nov 22 11:34:43 f34c2e9 chronyd[737]: 2019-11-22T11:34:43Z System clock was stepped by 84151949.073647 seconds
-Nov 22 11:35:50 f34c2e9 chronyd[737]: 2019-11-22T11:35:50Z Selected source 85.199.214.100
+root@9294512:~# journalctl --no-pager -u chronyd.service
+Aug 18 10:51:01 9294512 healthdog[2011]: 2022-08-18T10:51:01Z chronyd version 4.0 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -NTS -SECHASH +IPV6 -DEBUG)
+Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Backward time jump detected!
+Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Can't synchronise: no selectable sources
+Mar 23 12:01:19 9294512 healthdog[135156]: [chrony-healthcheck][INFO] No online NTP sources - forcing poll
+Mar 23 12:01:19 9294512 healthdog[2011]: 2017-03-23T12:01:19Z System clock was stepped by -0.000000 seconds
+Mar 23 12:01:25 9294512 healthdog[2011]: 2017-03-23T12:01:25Z Selected source 198.199.14.101 (0.resinio.pool.ntp.org)
+Mar 23 12:01:25 9294512 healthdog[2011]: 2017-03-23T12:01:25Z System clock wrong by 170630052.229025 seconds
+Aug 19 09:15:37 9294512 healthdog[2011]: 2022-08-19T09:15:37Z System clock was stepped by 170630052.229025 seconds
 ```
 
 As you can see, it selected a source and set the time back to the correct
-current time. This had a knock on effect, in that the OpenVPN service
+current time. This had a knock on effect, in that the openvpn service (VPN/cloudlink)
 reattempted to connect to the backend:
 
 ```shell
-root@f34c2e9:~# journalctl -f -n 100 -u openvpn
-Mar 23 12:02:06 f34c2e9 openvpn[2787]: Thu Mar 23 12:02:06 2017 Fatal TLS error (check_tls_errors_co), restarting
-Mar 23 12:02:06 f34c2e9 openvpn[2787]: Thu Mar 23 12:02:06 2017 SIGUSR1[soft,tls-error] received, process restarting
-Mar 23 12:02:06 f34c2e9 openvpn[2787]: Thu Mar 23 12:02:06 2017 Restart pause, 40 second(s)
-Nov 22 11:35:15 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:15 2019 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Nov 22 11:35:15 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:15 2019 TCP/UDP: Preserving recently used remote address: [AF_INET]34.237.229.125:443
-Nov 22 11:35:15 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:15 2019 Socket Buffers: R=[87380->87380] S=[16384->16384]
-Nov 22 11:35:15 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:15 2019 Attempting to establish TCP connection with [AF_INET]34.237.229.125:443 [nonblock]
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 TCP connection established with [AF_INET]34.237.229.125:443
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 TCP_CLIENT link local: (not bound)
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 TCP_CLIENT link remote: [AF_INET]34.237.229.125:443
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 TLS: Initial packet from [AF_INET]34.237.229.125:443, sid=d9a5be84 d8e04a9e
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY KU OK
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 Validating certificate extended key usage
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY EKU OK
-Nov 22 11:35:16 f34c2e9 openvpn[2787]: Fri Nov 22 11:35:16 2019 VERIFY OK: depth=0, CN=vpn.balena-cloud.com
+root@9294512:~# journalctl -f -n 100 -u openvpn
+Mar 23 12:01:21 9294512 openvpn[135086]: Thu Mar 23 12:01:21 2017 Fatal TLS error (check_tls_errors_co), restarting
+Mar 23 12:01:21 9294512 openvpn[135086]: Thu Mar 23 12:01:21 2017 SIGUSR1[soft,tls-error] received, process restarting
+Mar 23 12:01:21 9294512 openvpn[135086]: Thu Mar 23 12:01:21 2017 Restart pause, 5 second(s)
+Aug 19 09:15:39 9294512 openvpn[135086]: Fri Aug 19 09:15:39 2022 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
+Aug 19 09:15:39 9294512 openvpn[135086]: Fri Aug 19 09:15:39 2022 TCP/UDP: Preserving recently used remote address: [AF_INET6]2600:1f18:6600:7f02:bda3:7af0:e21:425b:443
+Aug 19 09:15:39 9294512 openvpn[135086]: Fri Aug 19 09:15:39 2022 Socket Buffers: R=[131072->131072] S=[16384->16384]
+Aug 19 09:15:39 9294512 openvpn[135086]: Fri Aug 19 09:15:39 2022 Attempting to establish TCP connection with [AF_INET6]2600:1f18:6600:7f02:bda3:7af0:e21:425b:443 [nonblock]
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 TCP connection established with [AF_INET6]2600:1f18:6600:7f02:bda3:7af0:e21:425b:443
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 TCP_CLIENT link local: (not bound)
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 TCP_CLIENT link remote: [AF_INET6]2600:1f18:6600:7f02:bda3:7af0:e21:425b:443
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 TLS: Initial packet from [AF_INET6]2600:1f18:6600:7f02:bda3:7af0:e21:425b:443, sid=b355e635 6170b76f
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 VERIFY OK: depth=1, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=open-balena-vpn-rootCA
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 VERIFY KU OK
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 Validating certificate extended key usage
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 VERIFY EKU OK
+Aug 19 09:15:40 9294512 openvpn[135086]: Fri Aug 19 09:15:40 2022 VERIFY OK: depth=0, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=vpn.balena-cloud.com
 ```
 
 This time the connection has been verified and the device has come online. This
@@ -906,15 +865,15 @@ stop the chrony service completely (so it can't correctly resync the time) and
 change the date again:
 
 ```shell
-root@f34c2e9:~# systemctl stop chronyd.service
-root@f34c2e9:~# date -s "23 MAR 2017 12:00:00"
+root@9294512:~# systemctl stop chronyd.service
+root@9294512:~# date -s "23 MAR 2017 12:00:00"
 ```
 
-Now from your development machine, repush the source code from the
+Now from your development machine, again push the source code from the
 `multicontainer-app` directory:
 
 ```shell
-$ balena push DebugApp
+$ balena push DebugFleet
 ```
 
 Once the build has completed, the device should try and download the updated
@@ -924,22 +883,14 @@ probably guessed, it's for the same reasons that the VPN connection doesn't
 work. Run the following on your device:
 
 ```shell
-journalctl -f -u balena-supervisor -u resin-supervisor
--- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
-Nov 22 11:48:09 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
-Nov 22 11:48:10 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 9.561 ms
-Nov 22 11:53:11 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 18.136 ms
-Mar 23 12:00:44 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:00 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:02:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [event]   Event: Update notification {}
-Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
-Mar 23 12:03:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Attempting container log timestamp flush...
-Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
-Mar 23 12:04:26 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
-Mar 23 12:04:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
+root@9294512:~# journalctl -n 100 --no-pager -u balena-supervisor
+-- Journal begins at Thu 2017-03-23 12:00:00 UTC, ends at Fri 2022-08-19 09:33:22 UTC. --
+Aug 19 07:25:20 9294512 balena-supervisor[6890]: [debug]   Attempting container log timestamp flush...
+Aug 19 07:25:20 9294512 balena-supervisor[6890]: [debug]   Container log timestamp flush complete
+Aug 19 07:27:06 9294512 balena-supervisor[6890]: [api]     GET /v1/healthy 200 - 3.025 ms
+Mar 23 12:00:02 9294512 balena-supervisor[6890]: [info]    Retrying current state report in 15 seconds
+Mar 23 12:00:02 9294512 balena-supervisor[6890]: [event]   Event: Device state report failure {"error":"certificate is not yet valid"}
+Mar 23 12:00:06 9294512 balena-supervisor[6890]: [info]    VPN connection is not active.
 ```
 
 As you can see, the certificate is again not valid as the current device time
@@ -948,29 +899,29 @@ latest release. If we restart chrony, this will be rectified and the
 Supervisor will, after a short delay, start the update:
 
 ```shell
-root@f34c2e9:~# systemctl start chronyd.service
-root@f34c2e9:~# journalctl -f -u balena-supervisor -u resin-supervisor
--- Logs begin at Thu 2017-03-23 12:00:04 UTC. --
-Mar 23 12:01:00 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:01:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:02:30 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [event]   Event: Update notification {}
-Mar 23 12:03:30 f34c2e9 balena-supervisor[1830]: [api]     POST /v1/update 204 - 26.804 ms
-Mar 23 12:03:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Attempting container log timestamp flush...
-Mar 23 12:04:23 f34c2e9 balena-supervisor[1830]: [debug]   Container log timestamp flush complete
-Mar 23 12:04:26 f34c2e9 balena-supervisor[1830]: [api]     GET /v1/healthy 200 - 10.975 ms
-Mar 23 12:04:31 f34c2e9 balena-supervisor[1830]: [error]   Failed to get target state for device: Error: certificate is not yet valid
-Nov 22 11:59:30 f34c2e9 balena-supervisor[1830]: [info]    Waiting for connectivity...
-Nov 22 11:59:50 f34c2e9 balena-supervisor[1830]: [info]    Internet Connectivity: OK
-Nov 22 12:02:17 f34c2e9 balena-supervisor[1830]: [info]    Applying target state
-Nov 22 12:02:18 f34c2e9 balena-supervisor[1830]: [debug]   Replacing container for service frontend because of config changes:
-Nov 22 12:02:18 f34c2e9 balena-supervisor[1830]: [debug]     Non-array fields:  {"added":{},"deleted":{"command":{},"entrypoint":{},"environment":{},"labels":{}},"updated":{"image":"registry2.balena-cloud.com/v2/83732ad30648d5f3e68188ed154ffdc2@sha256:8ec0ba1f96a51d936a83d8aa0ac1db2827a0458c2b6f7e3a5f814d6ad26b6d1f","workingDir":""}}
+root@9294512:~# systemctl start chronyd.service
+root@9294512:~# journalctl -f -u balena-supervisor
+-- Journal begins at Thu 2017-03-23 12:00:20 UTC. --
+
+
+Mar 23 12:04:08 9294512 balena-supervisor[6890]: [info]    Retrying current state report in 240 seconds
+Mar 23 12:04:08 9294512 balena-supervisor[6890]: [event]   Event: Device state report failure {"error":"certificate is not yet valid"}
+Aug 19 09:55:20 9294512 balena-supervisor[6890]: [debug]   Attempting container log timestamp flush...
+Aug 19 09:55:20 9294512 balena-supervisor[6890]: [debug]   Container log timestamp flush complete
+Aug 19 09:55:41 9294512 balena-supervisor[6890]: [api]     GET /v1/device 200 - 24.495 ms
+Aug 19 09:55:55 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 19 09:56:48 9294512 balena-supervisor[6890]: [info]    Applying target state
+Aug 19 09:56:49 9294512 balena-supervisor[6890]: [event]   Event: Image removal {"image":{"name":"registry2.balena-cloud.com/v2/876c57f4b5dde80de9b0d01e325bcbfe@sha256:6ebc43e800b347004ec6945806b12d4111a2450f63544366c9961fab0caac2cd","appId":1958513,"serviceId":1706634,"serviceName":"backend","imageId":5298767,"releaseId":2265189,"dependent":0,"appUuid":"85e44a78a40a4d78ae1243caca2424dc","commit":"4101191493a1ffc54bec9101e045bacf"}}
+Aug 19 09:56:49 9294512 balena-supervisor[6890]: [event]   Event: Image removal {"image":{"name":"registry2.balena-cloud.com/v2/e40d992f529b1567b0f2cc63f9fa877a@sha256:45c002b1bb325c1b93ff333a82ff401c9ba55ca7d00118b31a1c992f6fc5a4a4","appId":1958513,"serviceId":1706633,"serviceName":"frontend","imageId":5298766,"releaseId":2265189,"dependent":0,"appUuid":"85e44a78a40a4d78ae1243caca2424dc","commit":"4101191493a1ffc54bec9101e045bacf"}}
+Aug 19 09:56:50 9294512 balena-supervisor[6890]: [debug]   Finished applying target state
+Aug 19 09:56:50 9294512 balena-supervisor[6890]: [success] Device state apply success
+Aug 19 09:56:58 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
+Aug 19 09:57:20 9294512 balena-supervisor[6890]: [api]     GET /v1/healthy 200 - 4.198 ms
 ...
 ```
 
 This shows the importance of a working service such as timesetting, and how this
-can affect the system as a whole. As a note, be aware that not *every* device
+can affect the system as a whole. As a note, be aware that not _every_ device
 relies completely on NTP. Some devices, such as an Intel NUC, also have battery
 backed services including an RTC, which means that even if NTP is not working
 the time may look at first glance as though it's correct. However, if NTP is
@@ -981,12 +932,12 @@ issues.
 `chronyc` is a command-line utility that can be used to interoperate with the
 NTP daemon. `chronyc` has many commands, the most useful are:
 
-* `sources` - A list of all the current NTP sources being used by the NTP
-    daemon.
-* `reselect` - Forces the NTP daemon to reselect the best time synchronization
-    source.
-* `tracking` - Information about the system clock itself, including skew.
-* `ntpdata` - Detailed information on all the current NTP sources.
+- `sources` - A list of all the current NTP sources being used by the NTP
+  daemon.
+- `reselect` - Forces the NTP daemon to reselect the best time synchronization
+  source.
+- `tracking` - Information about the system clock itself, including skew.
+- `ntpdata` - Detailed information on all the current NTP sources.
 
 #### 6.2 DNS Issues
 
@@ -1013,21 +964,22 @@ it allows customer services to provide their own DNS if required
 and therefore does not clash with them.
 
 By default, the external name servers used are the Google primary and secondary
-at `8.8.8.8` and  `8.8.4.4`. However, these can be overridden by modifying the
+at `8.8.8.8` and `8.8.4.4`. However, these can be overridden by modifying the
 `/mnt/boot/config.json` file and adding a `dnsServers` property, with a comma
 separated list of the IP addresses of the nameservers to use (see
 [the docs](https://github.com/balena-os/meta-balena#dnsservers) for more
 information).
 
-SSH into your device:
+SSH into your device using it's local IP address:
 
 ```shell
-$ balena ssh 192.168.1.173
-The authenticity of host '[192.168.1.173]:22222 ([192.168.1.173]:22222)' can't be established.
-ECDSA key fingerprint is SHA256:xr1DjpoK8Ga6J318INrxP7bQbtALX8+//QlzoASbgWY.
-Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added '[192.168.1.173]:22222' (ECDSA) to the list of known hosts.
-root@f34c2e9:~#
+$ balena ssh 10.0.0.197
+```
+
+or using it's UUID:
+
+```shell
+$ balena ssh 9294512
 ```
 
 We're going to modify the DNS servers to point at one that doesn't exist,
@@ -1035,11 +987,11 @@ just to show what happens. SSH into your device as above, then run the
 following:
 
 ```shell
-root@51cc514:~# jq '.dnsServers = "1.2.3.4"' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
-root@51cc514:~# mount -o remount,rw /
-root@51cc514:~# mv /etc/resolv.dnsmasq /etc/resolv.dnsmasq.moved
-root@51cc514:~# sync
-root@51cc514:~# reboot
+root@9294512:~# jq '.dnsServers = "1.2.3.4"' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
+root@9294512:~# mount -o remount,rw /
+root@9294512:~# mv /etc/resolv.dnsmasq /etc/resolv.dnsmasq.moved
+root@9294512:~# sync
+root@9294512:~# reboot
 ```
 
 This will move the default DNSMasq resolver config file, so that it's not
@@ -1049,32 +1001,30 @@ right address to make connections. Note that usually, remounting the root FS
 as writeable is a very risky move, and should not be carried out without good
 reason!
 
-After a while, once the device has rebooted, SSH back into the device, and look
+After a while, once the device has rebooted, SSH back into the device using the local IP address, and look
 at the `dnsmasq.service` unit:
 
 ```shell
-root@51cc514:~# systemctl status dnsmasq
-Warning: The unit file, source configuration file or drop-ins of dnsmasq.service changed on disk. Run 'systemctl daemon-reload' to reload units.
+root@9294512:~# systemctl status dnsmasq
 ● dnsmasq.service - DNS forwarder and DHCP server
-   Loaded: loaded (/lib/systemd/system/dnsmasq.service; enabled; vendor preset: enabled)
-  Drop-In: /etc/systemd/system/dnsmasq.service.d
-           └─dnsmasq.conf
-   Active: active (running) since Wed 2019-12-04 17:46:56 UTC; 2min 38s ago
-  Process: 758 ExecStartPre=/usr/bin/dnsmasq --test (code=exited, status=0/SUCCESS)
- Main PID: 762 (dnsmasq)
-   Memory: 672.0K
-   CGroup: /system.slice/dnsmasq.service
-           └─762 /usr/bin/dnsmasq -x /run/dnsmasq.pid -a 127.0.0.2,10.114.102.1 -7 /etc/dnsmasq.d/ -r /etc/resolv.dnsmasq -z --servers-file=/run/dnsmasq.servers -k --log->
+     Loaded: loaded (/lib/systemd/system/dnsmasq.service; enabled; vendor preset: enabled)
+    Drop-In: /etc/systemd/system/dnsmasq.service.d
+             └─dnsmasq.conf
+     Active: active (running) since Fri 2022-08-19 10:11:53 UTC; 35s ago
+    Process: 1791 ExecStartPre=/usr/bin/dnsmasq --test (code=exited, status=0/SUCCESS)
+   Main PID: 1792 (dnsmasq)
+      Tasks: 1 (limit: 1878)
+     Memory: 344.0K
+     CGroup: /system.slice/dnsmasq.service
+             └─1792 /usr/bin/dnsmasq -x /run/dnsmasq.pid -a 127.0.0.2,10.114.102.1 -7 /etc/dnsmasq.d/ -r /etc/resolv.dnsmasq -z --servers-file=/run/dnsmasq.servers -k --lo>
 
-Dec 04 17:46:56 51cc514 systemd[1]: Starting DNS forwarder and DHCP server...
-Dec 04 17:46:56 51cc514 dnsmasq[758]: dnsmasq: syntax check OK.
-Dec 04 17:46:56 51cc514 systemd[1]: Started DNS forwarder and DHCP server.
-Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: started, version 2.78 cachesize 150
-Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: compile time options: IPv6 GNU-getopt DBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack ipset auth no-DNSSEC lo>
-Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: DBus support enabled: connected to system bus
-Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: read /etc/hosts - 6 addresses
-Dec 04 17:46:56 51cc514 dnsmasq[762]: dnsmasq[762]: using nameserver 1.2.3.4#53
-Dec 04 17:47:01 51cc514 dnsmasq[762]: dnsmasq[762]: failed to access /etc/resolv.dnsmasq: No such file or directory
+Aug 19 10:11:53 9294512 dnsmasq[1791]: dnsmasq: syntax check OK.
+Aug 19 10:11:53 9294512 dnsmasq[1792]: dnsmasq[1792]: started, version 2.84rc2 cachesize 150
+Aug 19 10:11:53 9294512 dnsmasq[1792]: dnsmasq[1792]: compile time options: IPv6 GNU-getopt DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack ipset auth no->
+Aug 19 10:11:53 9294512 dnsmasq[1792]: dnsmasq[1792]: DBus support enabled: connected to system bus
+Aug 19 10:11:53 9294512 dnsmasq[1792]: dnsmasq[1792]: read /etc/hosts - 6 addresses
+Aug 19 10:11:53 9294512 dnsmasq[1792]: dnsmasq[1792]: using nameserver 1.2.3.4#53
+Aug 19 10:12:06 9294512 dnsmasq[1792]: dnsmasq[1792]: failed to access /etc/resolv.dnsmasq: No such file or directory
 ```
 
 As you can see, it's tried, and failed to get the `/etc/resolv.dnsmasq` file
@@ -1083,29 +1033,31 @@ and has just the one nameserver to use, `1.2.3.4`.
 Now let's look at the Supervisor:
 
 ```shell
-root@51cc514:~# systemctl status balena-supervisor
-● balena-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
-   Active: active (running) since Wed 2019-12-04 17:47:07 UTC; 7min ago
-  Process: 1328 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 1310 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
- Main PID: 1330 (start-resin-sup)
-   Memory: 7.8M
-   CGroup: /system.slice/balena-supervisor.service
-           ├─1330 /bin/sh /usr/bin/start-balena-supervisor
-           ├─1337 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 1330
-           └─1420 balena start --attach balena_supervisor
+root@9294512:~# systemctl status balena-supervisor
+● balena-supervisor.service - Balena supervisor
+     Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2022-08-19 10:12:12 UTC; 1min 5s ago
+    Process: 2213 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=1/FAILURE)
+    Process: 2239 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
+    Process: 2258 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
+   Main PID: 2259 (start-balena-su)
+      Tasks: 11 (limit: 1878)
+     Memory: 12.4M
+     CGroup: /system.slice/balena-supervisor.service
+             ├─2259 /bin/sh /usr/bin/start-balena-supervisor
+             ├─2261 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 2259
+             └─2405 balena start --attach balena_supervisor
 
-Dec 04 17:48:44 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:10 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:52 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:49:53 51cc514 balena-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
-Dec 04 17:51:02 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:52:03 51cc514 balena-supervisor[1330]: Failed to get target state for device: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com api.balena-cloud.com:443
-Dec 04 17:52:10 51cc514 balena-supervisor[1330]: Supervisor API: GET /v1/healthy 200 - 19.034 ms
-Dec 04 17:52:12 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:53:22 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
-Dec 04 17:54:32 51cc514 balena-supervisor[1330]: Event: Device state report failure {"error":{"message":""}}
+Aug 19 10:12:19 9294512 balena-supervisor[2405]: [info]    Waiting for connectivity...
+Aug 19 10:12:19 9294512 balena-supervisor[2405]: [debug]   Starting current state report
+Aug 19 10:12:19 9294512 balena-supervisor[2405]: [debug]   Starting target state poll
+Aug 19 10:12:19 9294512 balena-supervisor[2405]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a --follow -o json _SYSTEMD_UNIT=balena.service
+Aug 19 10:12:20 9294512 balena-supervisor[2405]: [debug]   Finished applying target state
+Aug 19 10:12:20 9294512 balena-supervisor[2405]: [success] Device state apply success
+Aug 19 10:12:34 9294512 balena-supervisor[2405]: [error]   LogBackend: unexpected error: Error: getaddrinfo EAI_AGAIN api.balena-cloud.com
+Aug 19 10:12:34 9294512 balena-supervisor[2405]: [error]         at GetAddrInfoReqWrap.onlookupall [as oncomplete] (dns.js:76:26)
+Aug 19 10:12:49 9294512 balena-supervisor[2405]: [info]    Retrying current state report in 15 seconds
+Aug 19 10:12:49 9294512 balena-supervisor[2405]: [event]   Event: Device state report failure {"error":"getaddrinfo EAI_AGAIN api.balena-cloud.com"}
 ```
 
 As you can see, the Supervisor is not at all happy, unable to connect to the API
@@ -1121,9 +1073,9 @@ working is to try to get to a known service on the internet, including
 balenaCloud and Google:
 
 ```shell
-root@51cc514:~# curl https://google.com
+root@9294512:~# curl https://google.com
 curl: (6) Could not resolve host: google.com
-root@51cc514:~# curl https://api.balena-cloud.com/ping
+root@9294512:~# curl https://api.balena-cloud.com/ping
 curl: (6) Could not resolve host: api.balena-cloud.com
 ```
 
@@ -1138,11 +1090,11 @@ server, but because the traffic for port 53 (the DNS port) is being firewalled
 For now, we're going to put the DNS service back how it should be:
 
 ```shell
-root@51cc514:/etc# mount -o remount,rw /
-root@51cc514:/etc# mv resolv.dnsmasq.moved resolv.dnsmasq
-root@51cc514:/etc# jq -M 'del(.dnsServers)' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
-root@51cc514:/etc# sync
-root@51cc514:/etc# reboot
+root@9294512:~# mount -o remount,rw /
+root@9294512:~# mv /etc/resolv.dnsmasq.moved /etc/resolv.dnsmasq
+root@9294512:~# jq -M 'del(.dnsServers)' /mnt/boot/config.json > /mnt/data/config.json && mv /mnt/data/config.json /mnt/boot/config.json
+root@9294512:~# sync
+root@9294512:~# reboot
 ```
 
 This will put the device back into its previously working DNS state, and it
@@ -1166,24 +1118,25 @@ have a look at the journal output from a device that's been freshly provisioned
 and started for the first time:
 
 ```shell
-root@8117443:~# journalctl -f -n 300 -u os-config
--- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
-Dec 05 10:10:28 8117443 systemd[1]: Started OS configuration update service.
-Dec 05 10:10:28 8117443 os-config[841]: Fetching service configuration from https://api.balena-cloud.com/os/v1/config...
-Dec 05 10:10:28 8117443 os-config[841]: https://api.balena-cloud.com/os/v1/config: error trying to connect: failed to lookup address information: Temporary failure in name resolution
-Dec 05 10:10:33 8117443 os-config[841]: Service configuration retrieved
-Dec 05 10:10:33 8117443 os-config[841]: Stopping balena-supervisor.service...
-Dec 05 10:10:33 8117443 os-config[841]: Awaiting balena-supervisor.service to exit...
-Dec 05 10:10:34 8117443 os-config[841]: Stopping prepare-openvpn.service...
-Dec 05 10:10:34 8117443 os-config[841]: Stopping openvpn.service...
-Dec 05 10:10:34 8117443 os-config[841]: Awaiting prepare-openvpn.service to exit...
-Dec 05 10:10:34 8117443 os-config[841]: Awaiting openvpn.service to exit...
-Dec 05 10:10:34 8117443 os-config[841]: /etc/openvpn/ca.crt updated
-Dec 05 10:10:34 8117443 os-config[841]: /etc/openvpn/openvpn.conf updated
-Dec 05 10:10:34 8117443 os-config[841]: Starting prepare-openvpn.service...
-Dec 05 10:10:34 8117443 os-config[841]: Starting openvpn.service...
-Dec 05 10:10:34 8117443 os-config[841]: /home/root/.ssh/authorized_keys_remote updated
-Dec 05 10:10:34 8117443 os-config[841]: Starting balena-supervisor.service...
+root@f220105:~# journalctl -f -n 300 -u os-config
+-- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
+Aug 06 14:41:03 localhost os-config[1610]: Fetching service configuration from https://api.balena-cloud.com/os/v1/config...
+Aug 06 14:41:03 localhost os-config[1610]: https://api.balena-cloud.com/os/v1/config: error trying to connect: failed to lookup address information: Name or service not known
+Aug 06 14:41:09 f220105 os-config[1610]: https://api.balena-cloud.com/os/v1/config: error trying to connect: error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed:../openssl-1.1.1l/ssl/statem/statem_clnt.c:1914: (certificate is not yet valid)
+Aug 19 10:24:11 f220105 os-config[1610]: Service configuration retrieved
+Aug 19 10:24:11 f220105 os-config[1610]: Stopping balena-supervisor.service...
+Aug 19 10:24:11 f220105 os-config[1610]: Awaiting balena-supervisor.service to exit...
+Aug 19 10:24:11 f220105 os-config[1610]: Stopping prepare-openvpn.service...
+Aug 19 10:24:11 f220105 os-config[1610]: Stopping openvpn.service...
+Aug 19 10:24:11 f220105 os-config[1610]: Awaiting prepare-openvpn.service to exit...
+Aug 19 10:24:11 f220105 os-config[1610]: Awaiting openvpn.service to exit...
+Aug 19 10:24:11 f220105 os-config[1610]: /etc/openvpn/ca.crt updated
+Aug 19 10:24:11 f220105 os-config[1610]: /etc/openvpn/openvpn.conf updated
+Aug 19 10:24:11 f220105 os-config[1610]: Starting prepare-openvpn.service...
+Aug 19 10:24:11 f220105 os-config[1610]: Starting openvpn.service...
+Aug 19 10:24:11 f220105 os-config[1610]: /home/root/.ssh/authorized_keys_remote updated
+Aug 19 10:24:11 f220105 os-config[1610]: Starting balena-supervisor.service...
+...
 ```
 
 You can see that, once registered, the `os-config` service requested the
@@ -1197,10 +1150,10 @@ returned data to:
 5. Updated the authorized keys.
 
 **Quick Note:** Customers can also specify their own keys to access devices
-    (both development and production) in a couple of ways. The first is adding
-    an `os.sshKeys[]` property, which is an array of public keys, to the
-    `/mnt/boot/config.json` file. There is also upcoming support for user
-    custom keys being added to the API backend.
+(both development and production) in a couple of ways. The first is adding
+an `os.sshKeys[]` property, which is an array of public keys, to the
+`/mnt/boot/config.json` file. There is also upcoming support for user
+custom keys being added to the API backend.
 
 As you can see, the OpenVPN configuration and Certificate Authority certificate
 is fetched from the API and not baked in. This allows balena to update their
@@ -1208,7 +1161,7 @@ certificates, configurations and keys on the fly, ensuring we can tailor the
 VPN for the best possible experience and security. However, this does require
 that the API endpoint is available to periodically refresh the config.
 
-So, what happens if the API *isn't* available? If this occurs on first boot,
+So, what happens if the API _isn't_ available? If this occurs on first boot,
 then the device wouldn't be able to register, so there wouldn't be a
 configuration to fetch for it.
 
@@ -1221,72 +1174,56 @@ Let's now look at the current OpenVPN journal entries on your device. SSH into
 the device:
 
 ```shell
-$ balena ssh 192.168.1.173
-root@8117443:~# journalctl -f -n 200 -u openvpn.service
--- Logs begin at Thu 2019-06-13 13:21:34 UTC. --
-Dec 05 10:42:57 8117443 systemd[1]: Started OpenVPN.
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 WARNING: file '/var/volatile/vpn-auth' is group or others accessible
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 OpenVPN 2.4.3 arm-poky-linux-gnueabi [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [MH/PKTINFO] [AEAD] built on Apr 24 2019
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 library versions: OpenSSL 1.1.1a  20 Nov 2018, LZO 2.10
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 RESOLVE: Cannot resolve host address: vpn.balena-cloud.com:443 (Temporary failure in name resolution)
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 RESOLVE: Cannot resolve host address: vpn.balena-cloud.com:443 (Temporary failure in name resolution)
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 Could not determine IPv4/IPv6 protocol
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 NOTE: UID/GID downgrade will be delayed because of --client, --pull, or --up-delay
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 SIGUSR1[soft,init_instance] received, process restarting
-Dec 05 10:42:57 8117443 openvpn[755]: Thu Dec  5 10:42:57 2019 Restart pause, 5 second(s)
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 RESOLVE: Cannot resolve host address: vpn.balena-cloud.com:443 (Temporary failure in name resolution)
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 RESOLVE: Cannot resolve host address: vpn.balena-cloud.com:443 (Temporary failure in name resolution)
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 Could not determine IPv4/IPv6 protocol
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 SIGUSR1[soft,init_instance] received, process restarting
-Dec 05 10:43:02 8117443 openvpn[755]: Thu Dec  5 10:43:02 2019 Restart pause, 5 second(s)
-Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
-Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 TCP/UDP: Preserving recently used remote address: [AF_INET]18.232.192.190:443
-Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 Socket Buffers: R=[87380->87380] S=[16384->16384]
-Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 Attempting to establish TCP connection with [AF_INET]18.232.192.190:443 [nonblock]
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP connection established with [AF_INET]18.232.192.190:443
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP_CLIENT link local: (not bound)
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP_CLIENT link remote: [AF_INET]18.232.192.190:443
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TLS: Initial packet from [AF_INET]18.232.192.190:443, sid=78485d82 8553c618
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY KU OK
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 Validating certificate extended key usage
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY EKU OK
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY OK: depth=0, CN=vpn.balena-cloud.com
-Dec 05 10:43:09 8117443 openvpn[755]: Thu Dec  5 10:43:09 2019 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, 2048 bit RSA
-Dec 05 10:43:09 8117443 openvpn[755]: Thu Dec  5 10:43:09 2019 [vpn.balena-cloud.com] Peer Connection Initiated with [AF_INET]18.232.192.190:443
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 SENT CONTROL [vpn.balena-cloud.com]: 'PUSH_REQUEST' (status=1)
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 PUSH: Received control message: 'PUSH_REPLY,sndbuf 0,rcvbuf 0,route 52.4.252.97,ping 10,ping-restart 60,socket-flags TCP_NODELAY,ifconfig 10.240.49.239 52.4.252.97,peer-id 0,cipher AES-256-GCM'
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: timers and/or timeouts modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: --sndbuf/--rcvbuf options modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Socket Buffers: R=[341760->341760] S=[44800->44800]
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: --socket-flags option modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Socket flags: TCP_NODELAY=1 succeeded
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: --ifconfig/up options modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: route options modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: peer-id set
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: adjusting link_mtu to 1627
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 OPTIONS IMPORT: data channel crypto options modified
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Data Channel: using negotiated cipher 'AES-256-GCM'
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Data Channel Encrypt: Cipher 'AES-256-GCM' initialized with 256 bit key
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Data Channel Decrypt: Cipher 'AES-256-GCM' initialized with 256 bit key
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 ROUTE_GATEWAY 192.168.1.1/255.255.255.0 IFACE=eth0 HWADDR=b8:27:eb:a1:10:56
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 TUN/TAP device resin-vpn opened
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 TUN/TAP TX queue length set to 100
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 do_ifconfig, tt->did_ifconfig_ipv6_setup=0
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 /sbin/ip link set dev resin-vpn up mtu 1500
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 /sbin/ip addr add dev resin-vpn local 10.240.49.239 peer 52.4.252.97
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 /etc/openvpn-misc/upscript.sh resin-vpn 1500 1555 10.240.49.239 52.4.252.97 init
-Dec 05 10:43:10 8117443 openvpn[755]: resin-ntp-config: Found config.json in /mnt/boot/config.json .
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 /sbin/ip route add 52.4.252.97/32 via 52.4.252.97
-Dec 05 10:43:10 8117443 openvpn[755]: ip: RTNETLINK answers: File exists
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 ERROR: Linux route add command failed: external program exited with error status: 2
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 GID set to openvpn
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 UID set to openvpn
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Initialization Sequence Completed
+$ balena ssh 10.0.0.197
+root@f220105:~# journalctl -f -n 200 -u openvpn.service
+-- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 OpenVPN 2.4.7 aarch64-poky-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [MH/PKTINFO] [AEAD] built on Feb 20 2019
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 library versions: OpenSSL 1.1.1l  24 Aug 2021, LZO 2.10
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 NOTE: the current --script-security setting may allow this configuration to call user-defined scripts
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 TCP/UDP: Preserving recently used remote address: [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 Socket Buffers: R=[131072->131072] S=[16384->16384]
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 Attempting to establish TCP connection with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443 [nonblock]
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP connection established with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP_CLIENT link local: (not bound)
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP_CLIENT link remote: [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 NOTE: UID/GID downgrade will be delayed because of --client, --pull, or --up-delay
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TLS: Initial packet from [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443, sid=f63c5c5a 9d0382c8
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY OK: depth=1, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=open-balena-vpn-rootCA
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY KU OK
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 Validating certificate extended key usage
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY EKU OK
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY OK: depth=0, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=vpn.balena-cloud.com
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, 2048 bit RSA
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 [vpn.balena-cloud.com] Peer Connection Initiated with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 SENT CONTROL [vpn.balena-cloud.com]: 'PUSH_REQUEST' (status=1)
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 PUSH: Received control message: 'PUSH_REPLY,sndbuf 0,rcvbuf 0,route 52.4.252.97,ping 10,ping-restart 60,socket-flags TCP_NODELAY,ifconfig 10.242.111.185 52.4.252.97,peer-id 0,cipher AES-128-GCM'
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: timers and/or timeouts modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: --sndbuf/--rcvbuf options modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Socket Buffers: R=[131072->131072] S=[87040->87040]
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: --socket-flags option modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Socket flags: TCP_NODELAY=1 succeeded
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: --ifconfig/up options modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: route options modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: peer-id set
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: adjusting link_mtu to 1627
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 OPTIONS IMPORT: data channel crypto options modified
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Data Channel: using negotiated cipher 'AES-128-GCM'
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Outgoing Data Channel: Cipher 'AES-128-GCM' initialized with 128 bit key
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Incoming Data Channel: Cipher 'AES-128-GCM' initialized with 128 bit key
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 ROUTE_GATEWAY 10.0.0.1/255.255.255.0 IFACE=eth0 HWADDR=dc:a6:32:9e:18:dd
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 TUN/TAP device resin-vpn opened
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 TUN/TAP TX queue length set to 100
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 /sbin/ip link set dev resin-vpn up mtu 1500
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 /sbin/ip addr add dev resin-vpn local 10.242.111.185 peer 52.4.252.97
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 /etc/openvpn-misc/upscript.sh resin-vpn 1500 1555 10.242.111.185 52.4.252.97 init
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 /sbin/ip route add 52.4.252.97/32 via 52.4.252.97
+Aug 19 10:24:55 f220105 openvpn[2656]: ip: RTNETLINK answers: File exists
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 ERROR: Linux route add command failed: external program exited with error status: 2
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 GID set to openvpn
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 UID set to openvpn
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Initialization Sequence Completed
 ```
 
 There's a lot to take in here, but there are some key lines here that show
@@ -1294,25 +1231,25 @@ that the VPN has negotiated with the backend and is connected and routing
 traffic:
 
 ```shell
-Dec 05 10:43:07 8117443 openvpn[755]: Thu Dec  5 10:43:07 2019 Attempting to establish TCP connection with [AF_INET]18.232.192.190:443 [nonblock]
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP connection established with [AF_INET]18.232.192.190:443
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP_CLIENT link local: (not bound)
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TCP_CLIENT link remote: [AF_INET]18.232.192.190:443
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 TLS: Initial packet from [AF_INET]18.232.192.190:443, sid=78485d82 8553c618
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY OK: depth=1, C=AU, ST=Some-State, O=Internet Widgits Pty Ltd
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY KU OK
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 Validating certificate extended key usage
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY EKU OK
-Dec 05 10:43:08 8117443 openvpn[755]: Thu Dec  5 10:43:08 2019 VERIFY OK: depth=0, CN=vpn.balena-cloud.com
-Dec 05 10:43:09 8117443 openvpn[755]: Thu Dec  5 10:43:09 2019 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, 2048 bit RSA
-Dec 05 10:43:09 8117443 openvpn[755]: Thu Dec  5 10:43:09 2019 [vpn.balena-cloud.com] Peer Connection Initiated with [AF_INET]18.232.192.190:443
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 SENT CONTROL [vpn.balena-cloud.com]: 'PUSH_REQUEST' (status=1)
+Aug 19 10:24:53 f220105 openvpn[2632]: Fri Aug 19 10:24:53 2022 Attempting to establish TCP connection with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443 [nonblock]
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP connection established with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP_CLIENT link local: (not bound)
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TCP_CLIENT link remote: [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 TLS: Initial packet from [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443, sid=f63c5c5a 9d0382c8
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 WARNING: this configuration may cache passwords in memory -- use the auth-nocache option to prevent this
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY OK: depth=1, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=open-balena-vpn-rootCA
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY KU OK
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 Validating certificate extended key usage
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY EKU OK
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 VERIFY OK: depth=0, C=US, ST=WA, L=Seattle, O=balena.io, OU=balenaCloud, CN=vpn.balena-cloud.com
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, 2048 bit RSA
+Aug 19 10:24:54 f220105 openvpn[2632]: Fri Aug 19 10:24:54 2022 [vpn.balena-cloud.com] Peer Connection Initiated with [AF_INET6]2600:1f18:6600:7f01:dc24:54f2:d95f:abc0:443
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 SENT CONTROL [vpn.balena-cloud.com]: 'PUSH_REQUEST' (status=1)
 ...
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 GID set to openvpn
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 UID set to openvpn
-Dec 05 10:43:10 8117443 openvpn[755]: Thu Dec  5 10:43:10 2019 Initialization Sequence Completed
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 GID set to openvpn
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 UID set to openvpn
+Aug 19 10:24:55 f220105 openvpn[2632]: Fri Aug 19 10:24:55 2022 Initialization Sequence Completed
 ```
 
 The first part of the journal shows that the device has initiated contact with
@@ -1349,17 +1286,17 @@ networking environment as listed in
 Firewalls are a sensible precaution in any network, be they personal or
 corporate. A large number of firewalls are built to provide freedom for devices
 to initiate connections to an outgoing connection on the wider Internet (where
-a device *in* the network can create a connection and receive all data from
+a device _in_ the network can create a connection and receive all data from
 the Internet based on that connection), but to refuse any incoming connection
 from the Internet, unless specifically allowed.
 
-On that note, firewalls can include blacklists and whitelists.
-Most industrial routers and firewalls blacklist everything by default,
-requiring a set of whitelisted IPs and domain names where traffic can be
+On that note, firewalls can include blocklists and allowlists.
+Most industrial routers and firewalls blocklist everything by default,
+requiring a set of allowlist IPs and domain names where traffic can be
 sent/received from.
 
 However, firewalling on some networks can be very aggressive, where without
-any whitelisting all outgoing and incoming traffic is blocked. Usually, what
+any allowlisting all outgoing and incoming traffic is blocked. Usually, what
 occurs is that a set list of known ports are allowed to outgoing traffic (and
 incoming traffic on those connections), but no other traffic is allowed.
 This is usually tailored by SREs/IT professionals to follow the 'normal' use
@@ -1392,18 +1329,18 @@ to a network.
 There are some very simple tests that can be carried out to see if most of the
 network requirements are satisfied:
 
-* `curl` to the API (`curl https://api.balena-cloud.com/ping`) and VPN
-    (`curl https://vpn.balena-cloud.com/ping`) endpoints to see if a connection
-    is attempted (in the latter case, you'll get an error, but shouldn't get
-    a 'Not found' or 'Timeout' error)
-* Check `chronyd.service` to see when it last updated
-* Ensure that DNS is working (again a `curl` to the API endpoint will show if
-    name resolution is working or not)
-* Ensure that the registry endpoint is not blocked. This will exhibit as the
-    Supervisor being unable to instruct balenaEngine to pull a release's
-    service images. A manual attempt at `balena pull <imageDetails>` should
-    allow you to see whether any connection is made, or whether it timeouts/
-    disconnects.
+- `curl` to the API (`curl https://api.balena-cloud.com/ping`) and VPN
+  (`curl https://cloudlink.balena-cloud.com/ping` or `curl https://vpn.balena-cloud.com/ping`) endpoints to see if a connection
+  is attempted (in the latter case, you'll get an error, but shouldn't get
+  a 'Not found' or 'Timeout' error)
+- Check `chronyd.service` to see when it last updated
+- Ensure that DNS is working (again a `curl` to the API endpoint will show if
+  name resolution is working or not)
+- Ensure that the registry endpoint is not blocked. This will exhibit as the
+  Supervisor being unable to instruct balenaEngine to pull a release's
+  service images. A manual attempt at `balena pull <imageDetails>` should
+  allow you to see whether any connection is made, or whether it timeouts/
+  disconnects.
 
 ##### 6.4.1 Deep Packet Inspection
 
@@ -1431,7 +1368,7 @@ traffic).
 
 To determine whether DPI applies to a device, the following commands may be used:
 
-```text
+```shell
 $ curl https://api.balena-cloud.com/ping
 curl: (60) server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
 
@@ -1458,13 +1395,13 @@ to the customer who will be operating their devices on the DPI network.
 
 ### 7. Working with the `config.json` File
 
-***IMPORTANT:*** Making changes to a device's configuration in-situ can
+**_IMPORTANT:_** Making changes to a device's configuration in-situ can
 be extremely hazardous. This can potentially result in a device that, at best,
 does not behave consistently and at worst needs its media removed and the
 configuration reset before being replaced in the device. Do not change
 configuration settings unless you know how to, and are assured that the changes
 you've made are correct. If you do make a mistake, ensure that you do not
-exit the device's SSH connection until the configuration *is* correct. Doing so
+exit the device's SSH connection until the configuration _is_ correct. Doing so
 may result in the device becoming inaccessible.
 
 A balenaOS image, by default, does not include any configuration information
@@ -1486,12 +1423,35 @@ On-device, the boot partition is mounted at `/mnt/boot/`. Assuming you're still
 logged into your debug device, run the following:
 
 ```shell
-root@dee2945:~# ls /mnt/boot/
-bcm2708-rpi-0-w.dtb	bcm2710-rpi-3-b-plus.dtb	  bootcode.bin	    dt-blob.bin		kernel7.img	     splash
-bcm2708-rpi-b-plus.dtb	bcm2710-rpi-3-b.dtb		  cmdline.txt	    fixup.dat		os-release	     start.elf
-bcm2708-rpi-b.dtb	bcm2710-rpi-cm3.dtb		  config.json	    fixup_cd.dat	overlays	     start_cd.elf
-bcm2708-rpi-cm.dtb	bcm2835-bootfiles-20181112.stamp  config.txt	    fixup_x.dat		resin-image	     start_x.elf
-bcm2709-rpi-2-b.dtb	boot.scr			  device-type.json  image-version-info	resinos.fingerprint  system-connections
+root@f220105:~# ls -lah /mnt/boot
+total 6.6M
+drwxr-xr-x 6 root root 2.0K Jan  1  1970 .
+drwxr-xr-x 7 root root 1.0K Mar  9  2018 ..
+drwxr-xr-x 2 root root  512 Aug 19 06:23 .fseventsd
+-rwxr-xr-x 1 root root   24 Jul  8 19:55 balena-image
+-rwxr-xr-x 1 root root  17K Jul  8 19:55 balenaos.fingerprint
+-rwxr-xr-x 1 root root  51K Jul  8 19:55 bcm2711-rpi-4-b.dtb
+-rwxr-xr-x 1 root root  51K Jul  8 19:55 bcm2711-rpi-400.dtb
+-rwxr-xr-x 1 root root  51K Jul  8 19:55 bcm2711-rpi-cm4.dtb
+-rwxr-xr-x 1 root root  516 Jul  8 19:55 boot.scr
+-rwxr-xr-x 1 root root  137 Jul  8 19:55 cmdline.txt
+-rwxr-xr-x 1 root root  622 Aug 19 10:24 config.json
+-rwxr-xr-x 1 root root  36K Jul  8 19:55 config.txt
+-rwxr-xr-x 1 root root 2.1K Jul  8 19:55 device-type.json
+-rwxr-xr-x 1 root root    0 Jul  8 19:55 extra_uEnv.txt
+-rwxr-xr-x 1 root root 5.3K Jul  8 19:55 fixup4.dat
+-rwxr-xr-x 1 root root 3.1K Jul  8 19:55 fixup4cd.dat
+-rwxr-xr-x 1 root root 8.2K Jul  8 19:55 fixup4x.dat
+-rwxr-xr-x 1 root root   44 Jul  8 19:55 image-version-info
+-rwxr-xr-x 1 root root 578K Jul  8 19:55 kernel8.img
+-rwxr-xr-x 1 root root  160 Jul  8 19:55 os-release
+drwxr-xr-x 2 root root  22K Jul  8 19:55 overlays
+-rwxr-xr-x 1 root root    0 Jul  8 19:55 rpi-bootfiles-20220120.stamp
+drwxr-xr-x 2 root root  512 Aug 19 10:24 splash
+-rwxr-xr-x 1 root root 2.2M Jul  8 19:55 start4.elf
+-rwxr-xr-x 1 root root 782K Jul  8 19:55 start4cd.elf
+-rwxr-xr-x 1 root root 2.9M Jul  8 19:55 start4x.elf
+drwxr-xr-x 2 root root  512 Jul  8 19:55 system-connections
 ```
 
 As you can see, all the boot required files exist in the root, including
@@ -1501,16 +1461,14 @@ read this data.
 
 **Important note:** There is an occasional misunderstanding that the directory
 `/resin-boot` when on-device is the correct directory to modify files in.
-This is *not* the case, and in fact this directory is a pre-built directory
-that exists as part of the root FS partition, and *not* the mounted boot
+This is _not_ the case, and in fact this directory is a pre-built directory
+that exists as part of the root FS partition, and _not_ the mounted boot
 partition. Let's verify this:
 
 ```shell
-root@dee2945:~# cat /resin-boot/config.json
+root@f220105:~# cat /resin-boot/config.json
 {
-  "deviceType": "fincm3",
-  "hostname": "balena",
-  "localMode": true,
+  "deviceType": "raspberrypi4-64",
   "persistentLogging": false
 }
 ```
@@ -1522,34 +1480,31 @@ see that all the required information for the device to be associated with its
 fleet exists:
 
 ```shell
-root@dee2945:~# cat /mnt/boot/config.json | jq
+root@f220105:~# cat /mnt/boot/config.json | jq
 {
   "apiEndpoint": "https://api.balena-cloud.com",
   "appUpdatePollInterval": 900000,
-  "applicationId": "1234567",
-  "applicationName": "DebugApp",
+  "applicationId": "1958513",
   "deltaEndpoint": "https://delta.balena-cloud.com",
-  "deviceApiKey": "1234566edab91fe8cc9ed6b27ff81215",
+  "developmentMode": "true",
+  "deviceApiKey": "KEY",
   "deviceApiKeys": {
-    "api.balena-cloud.com": "1234566edab91fe8cc9ed6b27ff81215"
+    "api.balena-cloud.com": "KEY"
   },
-  "deviceType": "fincm3",
+  "deviceType": "raspberrypi4-64",
   "listenPort": "48484",
-  "mixpanelToken": "123456ea64cb6cd8bbc96af72345d70d",
-  "pubnubPublishKey": "",
-  "pubnubSubscribeKey": "",
+  "mixpanelToken": "9ef939ea64cb6cd8bbc96af72345d70d",
   "registryEndpoint": "registry2.balena-cloud.com",
-  "userId": "1234",
-  "username": "captaincaveman",
-  "vpnEndpoint": "vpn.balena-cloud.com",
+  "userId": "234385",
+  "vpnEndpoint": "cloudlink.balena-cloud.com",
   "vpnPort": "443",
-  "uuid": "1234565a13195b0d209ad88574447bf3",
-  "registered_at": 1578331919919,
-  "deviceId": 1234564
+  "uuid": "f220105b5a8aa79b6359d2df76a73954",
+  "registered_at": 1660904681747,
+  "deviceId": 7842821
 }
 ```
 
-__Note__: Key naming in `config.json` stil adheres to the "legacy" convention of 
+**Note**: Key naming in `config.json` still adheres to the "legacy" convention of
 balenaCloud applications instead of fleets. For details, refer to the [blog post](https://www.balena.io/blog/the-road-to-multi-app-transitioning-balenacloud-applications-to-fleets/).
 
 There's a fairly easy way to remember which is the right place, the root FS
@@ -1558,12 +1513,7 @@ read-only.
 
 For the configuration itself, as you can see we used `jq` to prettify the
 output of the `config.json`. If we hadn't used it, you'd see the raw
-file, which is essentially just a very long string:
-
-```shell
-root@dee2945:~# cat /mnt/boot/config.json
-{"apiEndpoint": "https://api.balena-cloud.com","appUpdatePollInterval": 900000,"applicationId": "1234567","applicationName": "DebugApp","deltaEndpoint": "https://delta.balena-cloud.com","deviceApiKey": "1234566edab91fe8cc9ed6b27ff81215","deviceApiKeys": {  "api.balena-cloud.com": "1234566edab91fe8cc9ed6b27ff81215"},"deviceType": "fincm3","listenPort": "48484","mixpanelToken": "123456ea64cb6cd8bbc96af72345d70d","pubnubPublishKey": "","pubnubSubscribeKey": "","registryEndpoint": "registry2.balena-cloud.com","userId": "1234","username": "captaincaveman","vpnEndpoint": "vpn.balena-cloud.com","vpnPort": "443","uuid": "1234565a13195b0d209ad88574447bf3","registered_at": 1578331919919,"deviceId": 1234564}
-```
+file, which is essentially just a very long string.
 
 This is difficult to read, so you should familiarize yourself with `jq` to parse
 the file and also to make changes. `jq` will not make changes to the same file
@@ -1575,35 +1525,32 @@ As an example, we're going to change the hostname from the short UUID of the
 device to something else, `debug-device`:
 
 ```shell
-root@2f69955:~# cd /mnt/boot/
-root@04916bf:/mnt/boot# cp config.json config.json.backup && cat config.json.backup | jq ".hostname=\"debug-device\"" -c > config.json
-root@04916bf:/mnt/boot# cat config.json | jq
+root@f220105:~# cd /mnt/boot/
+root@f220105:/mnt/boot# cp config.json config.json.backup && cat config.json.backup | jq ".hostname=\"debug-device\"" -c > config.json
+root@f220105:/mnt/boot# cat config.json | jq
 {
   "apiEndpoint": "https://api.balena-cloud.com",
   "appUpdatePollInterval": 900000,
-  "applicationId": "1544229",
-  "applicationName": "DebugApp",
+  "applicationId": "1958513",
   "deltaEndpoint": "https://delta.balena-cloud.com",
-  "deviceApiKey": "970f4b87b92fa891480b808521411cea",
+  "developmentMode": "true",
+  "deviceApiKey": "006e82c27eabcd579ce310687b937cd5",
   "deviceApiKeys": {
-    "api.balena-cloud.com": "970f4b87b92fa891480b808521411cea"
+    "api.balena-cloud.com": "006e82c27eabcd579ce310687b937cd5"
   },
-  "deviceType": "raspberrypi3",
+  "deviceType": "raspberrypi4-64",
   "listenPort": "48484",
   "mixpanelToken": "9ef939ea64cb6cd8bbc96af72345d70d",
-  "pubnubPublishKey": "",
-  "pubnubSubscribeKey": "",
   "registryEndpoint": "registry2.balena-cloud.com",
-  "userId": "9505",
-  "username": "heds",
-  "vpnEndpoint": "vpn.balena-cloud.com",
+  "userId": "234385",
+  "vpnEndpoint": "cloudlink.balena-cloud.com",
   "vpnPort": "443",
-  "uuid": "04916bff5023a7f8927816fb7476b3f6",
-  "registered_at": 1579690512283,
-  "deviceId": 1787904,
+  "uuid": "f220105b5a8aa79b6359d2df76a73954",
+  "registered_at": 1660904681747,
+  "deviceId": 7842821,
   "hostname": "debug-device"
 }
-root@04916bf:/mnt/boot# reboot
+root@f220105:/mnt/boot# reboot
 ```
 
 The reboot is required as the hostname change will not be picked up until the
@@ -1617,7 +1564,7 @@ root@debug-device:~#
 Whilst making the changes, the new configuration is written to the `config.json`
 file, whilst we have a backup of the original (`config.json.backup`).
 
-Remember, should you need to change anything, *always* keep a copy of the
+Remember, should you need to change anything, _always_ keep a copy of the
 original configuration so you can restore it before you exit the device
 (or if another support agent needs to view it/restore it at a later date).
 
@@ -1648,33 +1595,35 @@ different to updating user containers, see 'Updating the Supervisor').
 Assuming you're still logged into your development device, run the following:
 
 ```shell
-root@8117443:~# systemctl status balena-supervisor.service
-● balena-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
-   Active: active (running) since Mon 2019-12-16 15:49:07 UTC; 16h ago
-  Process: 1349 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 1333 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
- Main PID: 1357 (start-resin-sup)
-   Memory: 7.7M
-   CGroup: /system.slice/balena-supervisor.service
-           ├─1357 /bin/sh /usr/bin/start-balena-supervisor
-           ├─1359 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 1357
-           └─1448 balena start --attach balena_supervisor
+root@debug-device:~# systemctl status balena-supervisor
+● balena-supervisor.service - Balena supervisor
+     Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2022-08-19 18:08:59 UTC; 41s ago
+    Process: 2296 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=1/FAILURE)
+    Process: 2311 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
+    Process: 2325 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
+   Main PID: 2326 (start-balena-su)
+      Tasks: 10 (limit: 1878)
+     Memory: 11.9M
+     CGroup: /system.slice/balena-supervisor.service
+             ├─2326 /bin/sh /usr/bin/start-balena-supervisor
+             ├─2329 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 2326
+             └─2486 balena start --attach balena_supervisor
 
-Dec 17 07:29:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:31:56 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 7.055 ms
-Dec 17 07:36:57 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.894 ms
-Dec 17 07:39:18 8117443 balena-supervisor[1357]: Attempting container log timestamp flush...
-Dec 17 07:39:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:41:58 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.367 ms
-Dec 17 07:46:58 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 9.452 ms
-Dec 17 07:49:18 8117443 balena-supervisor[1357]: Attempting container log timestamp flush...
-Dec 17 07:49:18 8117443 balena-supervisor[1357]: Container log timestamp flush complete
-Dec 17 07:51:59 8117443 balena-supervisor[1357]: Supervisor API: GET /v1/healthy 200 - 5.994 ms
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [debug]   Starting target state poll
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a --follow -o json >
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [debug]   Finished applying target state
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [success] Device state apply success
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [info]    Applying target state
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [info]    Reported current state to the cloud
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [debug]   Finished applying target state
+Aug 19 18:09:07 debug-device balena-supervisor[2486]: [success] Device state apply success
+Aug 19 18:09:17 debug-device balena-supervisor[2486]: [info]    Internet Connectivity: OK
+Aug 19 18:09:18 debug-device balena-supervisor[2486]: [info]    Reported current state to the cloud
 ```
 
 You can see the Supervisor is just another `systemd` service
-(`balena-supervisor.service)`, and that it is  started and run by balenaEngine.
+(`balena-supervisor.service)`, and that it is started and run by balenaEngine.
 
 Supervisor issues, due to their nature, vary quite significantly. It's also
 commonly used to misattribute issues to. As the Supervisor is verbose about its
@@ -1682,18 +1631,18 @@ state and actions (such as the download of images), it tends to be suspected of
 problems when in fact there are usually other underlying issues. A few examples
 are:
 
-* Networking problems - In the case of the Supervisor reporting failed downloads
-    or attempting to retrieve the same images repeatedly (where in fact instable
-    networking is usually the cause).
-* Service container restarts - The default policy for service containers is to
-    restart if they exit, and this sometimes is misunderstood. If a container's
-    restarting, it's worth ensuring it's not because the container itself is
-    exiting correctly either due to a bug in the service container code or
-    because it has correctly come to the end of its running process.
-* Staged releases - A fleet/device has been pinned to a particular
-    version, and a new push is not being downloaded.
+- Networking problems - In the case of the Supervisor reporting failed downloads
+  or attempting to retrieve the same images repeatedly (where in fact instable
+  networking is usually the cause).
+- Service container restarts - The default policy for service containers is to
+  restart if they exit, and this sometimes is misunderstood. If a container's
+  restarting, it's worth ensuring it's not because the container itself is
+  exiting correctly either due to a bug in the service container code or
+  because it has correctly come to the end of its running process.
+- Staged releases - A fleet/device has been pinned to a particular
+  version, and a new push is not being downloaded.
 
-It's *always* worth considering how the system is configured, how releases were
+It's _always_ worth considering how the system is configured, how releases were
 produced, how the fleet or device is configured and what the current
 networking state is when investigating Supervisor issues, to ensure that there
 isn't something else amiss that the Supervisor is merely exposing via logging.
@@ -1708,14 +1657,17 @@ seconds at the time of writing, but inspect the
 it is for the device you're SSHd into. For example, using our example device:
 
 ```shell
-root@14350bd:~# cat /lib/systemd/system/balena-supervisor.service
+root@debug-device:~# cat /lib/systemd/system/balena-supervisor.service
 [Unit]
-Description=Resin supervisor
+Description=Balena supervisor
 Requires=\
     resin\x2ddata.mount \
     balena-device-uuid.service \
     os-config-devicekey.service \
-    bind-etc-balena-supervisor.service
+    bind-etc-balena-supervisor.service \
+    extract-balena-ca.service
+Wants=\
+    migrate-supervisor-state.service
 After=\
     balena.service \
     resin\x2ddata.mount \
@@ -1723,8 +1675,10 @@ After=\
     os-config-devicekey.service \
     bind-etc-systemd-system-resin.target.wants.service \
     bind-etc-balena-supervisor.service \
-    chronyd.service
+    migrate-supervisor-state.service \
+    extract-balena-ca.service
 Wants=balena.service
+ConditionPathExists=/etc/balena-supervisor/supervisor.conf
 
 [Service]
 Type=simple
@@ -1734,6 +1688,7 @@ WatchdogSec=180
 SyslogIdentifier=balena-supervisor
 EnvironmentFile=/etc/balena-supervisor/supervisor.conf
 EnvironmentFile=-/tmp/update-supervisor.conf
+ExecStartPre=-/usr/bin/balena stop resin_supervisor
 ExecStartPre=-/usr/bin/balena stop balena_supervisor
 ExecStartPre=/bin/systemctl is-active balena.service
 ExecStart=/usr/bin/healthdog --healthcheck=/usr/lib/balena-supervisor/balena-supervisor-healthcheck /usr/bin/start-balena-supervisor
@@ -1741,11 +1696,12 @@ ExecStop=-/usr/bin/balena stop balena_supervisor
 
 [Install]
 WantedBy=multi-user.target
+Alias=resin-supervisor.service
 ```
 
 #### 8.1 Restarting the Supervisor
 
-It's actually incredibly rare to actually *need* a Supervisor restart. The
+It's actually incredibly rare to actually _need_ a Supervisor restart. The
 Supervisor will attempt to recover from issues that occur automatically, without
 the requirement for a restart. If you've got to a point where you believe that
 a restart is required, double check with the other agent on-duty, and if
@@ -1767,21 +1723,32 @@ benefit in cases where symptoms are repeatedly occurring.
 To restart the Supervisor, simply restart the `systemd` service:
 
 ```shell
-root@8117443:~# systemctl restart balena-supervisor.service
-systroot@8117443:~# systemctl status balena-supervisor.service
-● balena-supervisor.service - Resin supervisor
-   Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
-   Active: active (running) since Wed 2019-12-18 15:00:19 UTC; 1min 42s ago
-  Process: 16605 ExecStop=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
-  Process: 16657 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
-  Process: 16649 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
- Main PID: 16658 (start-resin-sup)
-   Memory: 7.4M
-   CGroup: /system.slice/balena-supervisor.service
-           ├─16658 /bin/sh /usr/bin/start-balena-supervisor
-           ├─16659 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 16658
-           └─16731 balena start --attach balena_supervisor
-...
+root@debug-device:~# systemctl restart balena-supervisor.service
+root@debug-device:~# systemctl status balena-supervisor.service
+● balena-supervisor.service - Balena supervisor
+     Loaded: loaded (/lib/systemd/system/balena-supervisor.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2022-08-19 18:13:28 UTC; 10s ago
+    Process: 3013 ExecStartPre=/usr/bin/balena stop resin_supervisor (code=exited, status=1/FAILURE)
+    Process: 3021 ExecStartPre=/usr/bin/balena stop balena_supervisor (code=exited, status=0/SUCCESS)
+    Process: 3030 ExecStartPre=/bin/systemctl is-active balena.service (code=exited, status=0/SUCCESS)
+   Main PID: 3031 (start-balena-su)
+      Tasks: 11 (limit: 1878)
+     Memory: 11.8M
+     CGroup: /system.slice/balena-supervisor.service
+             ├─3031 /bin/sh /usr/bin/start-balena-supervisor
+             ├─3032 /proc/self/exe --healthcheck /usr/lib/balena-supervisor/balena-supervisor-healthcheck --pid 3031
+             └─3089 balena start --attach balena_supervisor
+
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [info]    Waiting for connectivity...
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [debug]   Starting current state report
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [debug]   Starting target state poll
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a --follow -o json >
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [debug]   Finished applying target state
+Aug 19 18:13:33 debug-device balena-supervisor[3089]: [success] Device state apply success
+Aug 19 18:13:34 debug-device balena-supervisor[3089]: [info]    Applying target state
+Aug 19 18:13:34 debug-device balena-supervisor[3089]: [info]    Reported current state to the cloud
+Aug 19 18:13:34 debug-device balena-supervisor[3089]: [debug]   Finished applying target state
+Aug 19 18:13:34 debug-device balena-supervisor[3089]: [success] Device state apply success
 ```
 
 #### 8.2 Updating the Supervisor
@@ -1811,7 +1778,7 @@ inside the Supervisor, most easily by running Node. Assuming you're logged
 into your device, run the following:
 
 ```shell
-root@28c8bf0:~# balena exec -ti balena_supervisor node
+root@debug-device:~# balena exec -ti balena_supervisor node
 ```
 
 This will get you into a Node interpreter in the Supervisor service
@@ -1820,7 +1787,8 @@ the Supervisor to make requests to the database:
 
 ```shell
 > sqlite3 = require('sqlite3');
-{ Database: [Function: Database],
+{
+  Database: [Function: Database],
   Statement: [Function: Statement],
   Backup: [Function: Backup],
   OPEN_READONLY: 1,
@@ -1830,10 +1798,9 @@ the Supervisor to make requests to the database:
   OPEN_URI: 64,
   OPEN_SHAREDCACHE: 131072,
   OPEN_PRIVATECACHE: 262144,
-  VERSION: '3.28.0',
-  SOURCE_ID:
-   '2019-04-16 19:49:53 884b4b7e502b4e991677b53971277adfaf0a04a284f8e483e2553d0f83156b50',
-  VERSION_NUMBER: 3028000,
+  VERSION: '3.30.1',
+  SOURCE_ID: '2019-10-10 20:19:45 18db032d058f1436ce3dea84081f4ee5a0f2259ad97301d43c426bc7f3df1b0b',
+  VERSION_NUMBER: 3030001,
   OK: 0,
   ERROR: 1,
   INTERNAL: 2,
@@ -1862,9 +1829,14 @@ the Supervisor to make requests to the database:
   RANGE: 25,
   NOTADB: 26,
   cached: { Database: [Function: Database], objects: {} },
-  verbose: [Function] }
+  verbose: [Function]
+}
 > db = new sqlite3.Database('/data/database.sqlite');
-Database { open: false, filename: '/data/database.sqlite', mode: 65542 }
+Database {
+  open: false,
+  filename: '/data/database.sqlite',
+  mode: 65542
+}
 ```
 
 You can get a list of all the tables used by the Supervisor by issuing:
@@ -1902,14 +1874,14 @@ Database { open: true, filename: '/data/database.sqlite', mode: 65542 }
 > null [
   { key: 'localMode', value: 'false' },
   { key: 'initialConfigSaved', value: 'true' },
-  { key: 'targetStateSet', value: 'true' },
   {
     key: 'initialConfigReported',
     value: 'https://api.balena-cloud.com'
   },
-  { key: 'name', value: 'DevEnv' },
-  { key: 'deltaVersion', value: '3' },
-  { key: 'delta', value: 'true' }
+  { key: 'name', value: 'shy-rain' },
+  { key: 'targetStateSet', value: 'true' },
+  { key: 'delta', value: 'true' },
+  { key: 'deltaVersion', value: '3' }
 ]
 ```
 
@@ -1921,30 +1893,30 @@ whilst keeping the Supervisor and release images. This can be achieved by
 carrying out the following:
 
 ```shell
-root@dee2945:~# systemctl stop balena-supervisor.service update-balena-supervisor.timer
-root@dee2945:~# balena rm -f $(balena ps -aq)
-0780f5a88e52
-18c0557ad6cc
-88d1051bcc3f
-root@dee2945:~# rm /mnt/data/resin-data/balena-supervisor/database.sqlite
+root@debug-device:~# systemctl stop balena-supervisor.service update-balena-supervisor.timer
+root@debug-device:~# balena rm -f $(balena ps -aq)
+1db1d281a548
+6c5cde1581e5
+2a9f6e83578a
+root@debug-device:~# rm /mnt/data/resin-data/balena-supervisor/database.sqlite
 ```
 
 This:
 
-* Stops the Supervisor (and the timer that will attempt to restart it).
-* Removes all current services containers (including the Supervisor).
-* Removes the Supervisor database.
-(If for some reason the images also need to be removed, run
-`balena rmi -f $(balena images -q)` which will remove all images *including*
-the Supervisor image).
-You can now restart the Supervisor:
+- Stops the Supervisor (and the timer that will attempt to restart it).
+- Removes all current services containers (including the Supervisor).
+- Removes the Supervisor database.
+  (If for some reason the images also need to be removed, run
+  `balena rmi -f $(balena images -q)` which will remove all images _including_
+  the Supervisor image).
+  You can now restart the Supervisor:
 
 ```shell
-root@dee2945:~# systemctl start update-balena-supervisor.timer balena-supervisor.service
+root@debug-device:~# systemctl start update-balena-supervisor.timer balena-supervisor.service
 ```
 
-(If you deleted all the images, this will first download the Supervisor image
-again before restarting it).
+If you deleted all the images, this will first download the Supervisor image
+again before restarting it.
 At this point, the Supervisor will start up as if the device has just been
 provisioned (though it will already be registered), and the release will
 be freshly downloaded (if the images were removed) before starting the service
@@ -1972,28 +1944,18 @@ tempting to attribute them to balenaEngine instead of the actual underlying
 issue. A couple of examples
 of issues which are misattributed to :
 
-* Failure to download release service updates - usually because there is an
-    underlying network problem, or possibly issues with free space
-* Failure to start service containers - most commonly customer services exit
-    abnormally (or don't have appropriate error checking) although a full
-    data partition can also occur, as can corrupt images
+- Failure to download release service updates - usually because there is an
+  underlying network problem, or possibly issues with free space
+- Failure to start service containers - most commonly customer services exit
+  abnormally (or don't have appropriate error checking) although a full
+  data partition can also occur, as can corrupt images
 
 Reading the journal for balenaEngine is similar to all other `systemd` services.
 Log into your device and then execute the following:
 
 ```shell
-root@dee2945:~# journalctl --follow --unit balena.service
--- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
-Jan 15 14:31:48 dee2945 515ad785c072[765]: Container log timestamp flush complete
-Jan 15 14:35:31 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 9.741 ms
-Jan 15 14:40:32 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 6.365 ms
-Jan 15 14:41:48 dee2945 515ad785c072[765]: Attempting container log timestamp flush...
-Jan 15 14:41:48 dee2945 515ad785c072[765]: Container log timestamp flush complete
-Jan 15 14:45:33 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 5.639 ms
-Jan 15 14:50:34 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 6.897 ms
-Jan 15 14:51:48 dee2945 515ad785c072[765]: Attempting container log timestamp flush...
-Jan 15 14:51:48 dee2945 515ad785c072[765]: Container log timestamp flush complete
-Jan 15 14:55:35 dee2945 515ad785c072[765]: Supervisor API: GET /v1/healthy 200 - 10.088 ms
+root@dee2945:~# journalctl --follow -n 100 --unit balena.service
+...
 ```
 
 What you'll first notice here is that there's Supervisor output here. This is
@@ -2004,125 +1966,53 @@ output in the same logs chronologically.
 
 Assuming your device is still running the pushed multicontainer app,
 we can also see additionally logging for all the service containers.
-To do so, we'll restart balenaEngine, so that the services are started again:
+To do so, we'll restart balenaEngine, so that the services are started again.
+This output shows the last 50 lines of the balenaEngine journal after a restart.
 
 ```shell
-root@dee2945:~# systemctl restart balena.service
-root@dee2945:~# journalctl --follow -n 40 --unit balena.service
--- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.131177535Z" level=info msg="Daemon has completed initialization"
-Jan 15 15:02:41 dee2945 systemd[1]: Started Balena Application Container Engine.
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.176629455Z" level=info msg="API listen on [::]:2375"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179053804Z" level=info msg="API listen on /var/run/balena.sock"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179086252Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179107658Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: [17B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [35B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [16B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
-Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: [16B blob data]
-Jan 15 15:02:43 dee2945 balenad[28215]: time="2020-01-15T15:02:43.948306475Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/moby/515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981/shim.sock debug=false pid=28793
-Jan 15 15:02:45 dee2945 515ad785c072[28215]: Starting system message bus: dbus.
-Jan 15 15:02:45 dee2945 515ad785c072[28215]:  * Starting Avahi mDNS/DNS-SD Daemon: avahi-daemon
-Jan 15 15:02:45 dee2945 515ad785c072[28215]:    ...done.
-Jan 15 15:02:49 dee2945 515ad785c072[28215]: (node:1) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting event tracker
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting up api binder
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting logging infrastructure
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Event: Supervisor start {}
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Performing database cleanup for container log timestamps
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Connectivity check enabled: true
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting periodic check for IP addresses
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Reporting initial state, supervisor version and API info
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: VPN status path exists.
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Waiting for connectivity...
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Skipping preloading
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting API server
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Applying target state
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Ensuring device is provisioned
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting current state report
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting target state poll
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Supervisor API listening on allowed interfaces only
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Finished applying target state
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Apply success!
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Applying target state
-Jan 15 15:02:52 dee2945 515ad785c072[28215]: Finished applying target state
-Jan 15 15:02:52 dee2945 515ad785c072[28215]: Apply success!
-Jan 15 15:03:00 dee2945 515ad785c072[28215]: Internet Connectivity: OK
-```
-
-This is the last 40 lines of the balenaEngine journal after a restart. Note that
-the Supervisor has been restarted, but also the following lines:
-
-```shell
-Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: [17B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [35B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [16B blob data]
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: [1B blob data]
-Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: [16B blob data]
-```
-
-By default, service container output is not displayed, and instead any output
-from the containers are given as `blob data`. We can change this to output
-the actual logs by using the `--all` (`-a`) switch. Let's try the same journal
-command by requesting all output:
-
-```shell
-root@dee2945:~# journalctl --all --follow -n 40 --unit balena.service
--- Logs begin at Tue 2020-01-14 11:37:45 UTC. --
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.131177535Z" level=info msg="Daemon has completed initialization"
-Jan 15 15:02:41 dee2945 systemd[1]: Started Balena Application Container Engine.
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.176629455Z" level=info msg="API listen on [::]:2375"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179053804Z" level=info msg="API listen on /var/run/balena.sock"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179086252Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 15 15:02:41 dee2945 balenad[28215]: time="2020-01-15T15:02:41.179107658Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: Started frontend
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: > backend@1.0.0 start /usr/src/app
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: > node index.js
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
-Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: Started backend
-Jan 15 15:02:43 dee2945 balenad[28215]: time="2020-01-15T15:02:43.948306475Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/moby/515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981/shim.sock debug=false pid=28793
-Jan 15 15:02:45 dee2945 515ad785c072[28215]: Starting system message bus: dbus.
-Jan 15 15:02:45 dee2945 515ad785c072[28215]:  * Starting Avahi mDNS/DNS-SD Daemon: avahi-daemon
-Jan 15 15:02:45 dee2945 515ad785c072[28215]:    ...done.
-Jan 15 15:02:49 dee2945 515ad785c072[28215]: (node:1) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting event tracker
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting up api binder
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting logging infrastructure
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Event: Supervisor start {}
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Performing database cleanup for container log timestamps
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Connectivity check enabled: true
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting periodic check for IP addresses
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Reporting initial state, supervisor version and API info
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: VPN status path exists.
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Waiting for connectivity...
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Skipping preloading
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting API server
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Applying target state
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Ensuring device is provisioned
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting current state report
-Jan 15 15:02:50 dee2945 515ad785c072[28215]: Starting target state poll
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Supervisor API listening on allowed interfaces only
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Finished applying target state
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Apply success!
-Jan 15 15:02:51 dee2945 515ad785c072[28215]: Applying target state
-Jan 15 15:02:52 dee2945 515ad785c072[28215]: Finished applying target state
-Jan 15 15:02:52 dee2945 515ad785c072[28215]: Apply success!
-Jan 15 15:03:00 dee2945 515ad785c072[28215]: Internet Connectivity: OK
-```
-
-As you can see, this time we get the output from the service containers:
-
-```shell
-Jan 15 15:02:42 dee2945 1eb9fc69bb22[28215]: Started frontend
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: > backend@1.0.0 start /usr/src/app
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]: > node index.js
-Jan 15 15:02:42 dee2945 2da77adc4b3d[28215]:
-Jan 15 15:02:43 dee2945 2da77adc4b3d[28215]: Started backend
+root@debug-device:~# systemctl restart balena.service
+root@debug-device:~# journalctl --all --follow -n 50 --unit balena.service
+-- Journal begins at Fri 2022-08-19 18:08:10 UTC. --
+Aug 19 18:24:36 debug-device balenad[4566]: time="2022-08-19T18:24:36.794621631Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/d7b6a623d687aea38a743fc79898e57bc3b43da3dbe144499bea2a068ad6700f.sock debug=false pid=5157
+Aug 19 18:24:38 debug-device e593ab6439fe[4543]: [info]    Supervisor v14.0.8 starting up...
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Setting host to discoverable
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [warn]    Invalid firewall mode: . Reverting to state: off
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Applying firewall mode: off
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting systemd unit: avahi-daemon.service
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting systemd unit: avahi-daemon.socket
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting logging infrastructure
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Starting firewall
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Performing database cleanup for container log timestamps
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [success] Firewall mode applied
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting api binder
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Previous engine snapshot was not stored. Skipping cleanup.
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Handling of local mode switch is completed
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: (node:1) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a -S 2022-08-19 18:19:08 -o json CONTAINER_ID_FULL=4ce5bebc27c67bc198662cc38d7052e9d7dd3bfb47869ba83a88a74aa498c51f
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    API Binder bound to: https://api.balena-cloud.com/v6/
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [event]   Event: Supervisor start {}
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a -S 2022-08-19 18:19:07 -o json CONTAINER_ID_FULL=2e2a7fcfe6f6416e32b9fa77b3a01265c9fb646387dbf4410ca90147db73a4ff
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Connectivity check enabled: true
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting periodic check for IP addresses
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Reporting initial state, supervisor version and API info
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Skipping preloading
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Starting API server
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Supervisor API successfully started on port 48484
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   VPN status path exists.
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Applying target state
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Ensuring device is provisioned
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    VPN connection is active.
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [info]    Waiting for connectivity...
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting current state report
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Starting target state poll
+Aug 19 18:24:39 debug-device e593ab6439fe[4543]: [debug]   Spawning journald with: chroot  /mnt/root journalctl -a --follow -o json _SYSTEMD_UNIT=balena.service
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [debug]   Finished applying target state
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [success] Device state apply success
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [info]    Reported current state to the cloud
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [info]    Applying target state
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [debug]   Finished applying target state
+Aug 19 18:24:40 debug-device e593ab6439fe[4543]: [success] Device state apply success
+Aug 19 18:24:49 debug-device e593ab6439fe[4543]: [info]    Internet Connectivity: OK
 ```
 
 #### 9.1 Service Image, Container and Volume Locations
@@ -2132,8 +2022,9 @@ which is part of the data partition. We can see this by using the `mount`
 command:
 
 ```shell
-root@dee2945:~# mount | grep lib/docker
-/dev/mmcblk0p6 on /var/lib/docker type ext4 (rw,relatime,data=ordered)
+root@debug-device:~# mount | grep lib/docker
+/dev/mmcblk0p6 on /var/lib/docker type ext4 (rw,relatime)
+/dev/mmcblk0p6 on /var/volatile/lib/docker type ext4 (rw,relatime)
 ```
 
 All balenaEngine state is stored in here, include images, containers and
@@ -2144,11 +2035,13 @@ required.
 Run `balena images` on your device:
 
 ```shell
-root@dee2945:/var/lib/docker# balena images
-REPOSITORY                                                       TAG                 IMAGE ID            CREATED             SIZE
-registry2.balena-cloud.com/v2/9954d5f822472d8746c102abe2d81ff0   <none>              b55e61fcd743        2 days ago          238MB
-registry2.balena-cloud.com/v2/90ed3ed07798f4b1c3faf3c4926b27ea   <none>              4c973956a691        2 days ago          233MB
-balena/armv7hf-supervisor                                        v9.15.7             3977c88a7059        7 months ago        53.8MB
+root@debug-device:~# balena images
+REPOSITORY                                                       TAG       IMAGE ID       CREATED        SIZE
+registry2.balena-cloud.com/v2/8f425c77879116f77e6c8fcdebb37210   latest    f0735c857f39   32 hours ago   250MB
+registry2.balena-cloud.com/v2/9664d653a6ecc4fe2c7e0cb18e64a3d2   latest    3128dae78199   32 hours ago   246MB
+balena_supervisor                                                v14.0.8   936d20a463f5   7 weeks ago    75.7MB
+registry2.balena-cloud.com/v2/04a158f884a537fc1bd11f2af797676a   latest    936d20a463f5   7 weeks ago    75.7MB
+balena-healthcheck-image                                         latest    46331d942d63   5 months ago   9.14kB
 ```
 
 Each image has an image ID. These identify each image uniquely for operations
@@ -2156,20 +2049,22 @@ upon it, such as executing it as a container, removal, etc. We can inspect an
 image to look at how it's made up:
 
 ```shell
-root@dee2945:/var/lib/docker# balena inspect 4c973956a691
+root@debug-device:~# balena inspect f0735c857f39
 [
     {
-        "Id": "sha256:4c973956a6911b65dab8c99ebd9c0c135b6a3de7e9dfcc9184b3c69d48a5d2b9",
-        "RepoTags": [],
+        "Id": "sha256:f0735c857f39ebb303c5e908751f8ac51bbe0f999fe06b96d8bfc1a562e0f5ad",
+        "RepoTags": [
+            "registry2.balena-cloud.com/v2/8f425c77879116f77e6c8fcdebb37210:latest"
+        ],
         "RepoDigests": [
-            "registry2.balena-cloud.com/v2/90ed3ed07798f4b1c3faf3c4926b27ea@sha256:aca421984d407193b2f2dfbad9310e6e17edb2d808739c5d3e8a0fa8186540ef"
+            "registry2.balena-cloud.com/v2/8f425c77879116f77e6c8fcdebb37210@sha256:45c002b1bb325c1b93ff333a82ff401c9ba55ca7d00118b31a1c992f6fc5a4a4"
         ],
         "Parent": "",
         "Comment": "",
-        "Created": "2020-01-14T16:50:09.769384881Z",
-        "Container": "0dcf9f92cbe15e49bb1f70ab7f4f4aeaa82dd37992554d1f58d0de5cd174f78c",
+        "Created": "2022-08-18T10:17:31.25910477Z",
+        "Container": "312d5c69d19954518ae932398ab9afa144feabff83906216759cffba925d9128",
         "ContainerConfig": {
-            "Hostname": "6fbf3c3f54ca",
+            "Hostname": "faf98ca57090",
             "Domainname": "",
             "User": "",
             "AttachStdin": false,
@@ -2183,8 +2078,8 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
                 "LC_ALL=C.UTF-8",
                 "DEBIAN_FRONTEND=noninteractive",
                 "UDEV=off",
-                "NODE_VERSION=10.18.0",
-                "YARN_VERSION=1.21.1"
+                "NODE_VERSION=10.22.0",
+                "YARN_VERSION=1.22.4"
             ],
             "Cmd": [
                 "/bin/sh",
@@ -2192,8 +2087,7 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
                 "#(nop) ",
                 "CMD [\"npm\" \"start\"]"
             ],
-            "ArgsEscaped": true,
-            "Image": "sha256:3228b4f6a5bc76bde6520fb2009acdee8a925bb0c721361e05d45b5a536cdd47",
+            "Image": "sha256:c6072db33ab31c868fbce36621d57ddad8cf29b679027b7007d37ac40beea58c",
             "Volumes": null,
             "WorkingDir": "/usr/src/app",
             "Entrypoint": [
@@ -2201,15 +2095,15 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
             ],
             "OnBuild": [],
             "Labels": {
-                "io.balena.architecture": "armv7hf",
-                "io.balena.device-type": "raspberry-pi2",
-                "io.balena.qemu.version": "4.0.0+balena-arm"
+                "io.balena.architecture": "aarch64",
+                "io.balena.device-type": "jetson-tx2",
+                "io.balena.qemu.version": "4.0.0+balena2-aarch64"
             }
         },
-        "DockerVersion": "dev",
+        "DockerVersion": "v19.03.12",
         "Author": "",
         "Config": {
-            "Hostname": "6fbf3c3f54ca",
+            "Hostname": "faf98ca57090",
             "Domainname": "",
             "User": "",
             "AttachStdin": false,
@@ -2223,15 +2117,14 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
                 "LC_ALL=C.UTF-8",
                 "DEBIAN_FRONTEND=noninteractive",
                 "UDEV=off",
-                "NODE_VERSION=10.18.0",
-                "YARN_VERSION=1.21.1"
+                "NODE_VERSION=10.22.0",
+                "YARN_VERSION=1.22.4"
             ],
             "Cmd": [
                 "npm",
                 "start"
             ],
-            "ArgsEscaped": true,
-            "Image": "sha256:3228b4f6a5bc76bde6520fb2009acdee8a925bb0c721361e05d45b5a536cdd47",
+            "Image": "sha256:c6072db33ab31c868fbce36621d57ddad8cf29b679027b7007d37ac40beea58c",
             "Volumes": null,
             "WorkingDir": "/usr/src/app",
             "Entrypoint": [
@@ -2239,43 +2132,55 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
             ],
             "OnBuild": [],
             "Labels": {
-                "io.balena.architecture": "armv7hf",
-                "io.balena.device-type": "raspberry-pi2",
-                "io.balena.qemu.version": "4.0.0+balena-arm"
+                "io.balena.architecture": "aarch64",
+                "io.balena.device-type": "jetson-tx2",
+                "io.balena.qemu.version": "4.0.0+balena2-aarch64"
             }
         },
         "Architecture": "amd64",
         "Os": "linux",
-        "Size": 233307973,
-        "VirtualSize": 233307973,
+        "Size": 249802248,
+        "VirtualSize": 249802248,
         "GraphDriver": {
-            "Data": null,
-            "Name": "aufs"
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/0bc07f1279e00affc344c22f64b9f3985225fe3e06f13103e24b983b1a9fdd0e/diff:/var/lib/docker/overlay2/27229498851db6327bf134ba8ab869655a20bf5e602a435a58e03684088baf7a/diff:/var/lib/docker/overlay2/b0d957f3e2636fe4dc5b10855ad276dc0e53fa95a5c3e2ed3fa56dcee23dc50f/diff:/var/lib/docker/overlay2/4489255833d1236ba41a2d15761f065eba992069569075d0a9edf2cd53e8415f/diff:/var/lib/docker/overlay2/f77ebf3b4836d289c2515c82537cd774354b7342c2a4899fcffb51ac23e9e9b7/diff:/var/lib/docker/overlay2/c5a96f1657a4073293c3364eab567a1f62b5d7761b8dbc3617369ffbd516c8f0/diff:/var/lib/docker/overlay2/168a1333d7a784f1b1ecbe6202f8a8189e592407195349f7d2dad943084876e6/diff:/var/lib/docker/overlay2/dd17e88dd38b700214d8f13c3d820d1f808c4b1a138f91dafd729f6369d95110/diff:/var/lib/docker/overlay2/641c77f5a0c9f25154fbd868c253c8a8e894e3cebd9ba5b96cebb9384c6283d7/diff:/var/lib/docker/overlay2/8d428280199e4dc05de155f1f3b0ef63fdeef14e09662ce5676d8b1d790bdf5d/diff:/var/lib/docker/overlay2/bcc97249ce05979fc9aa578c976f770083e9948a1c1d64c05444591a7aad35a9/diff:/var/lib/docker/overlay2/41773d1c239c8a0bf31096d43ae7e17b5ca48f10530c13d965259ed386cb20d9/diff:/var/lib/docker/overlay2/697de96abdf1ae56449b0b01ce99ef867c821404d876f2b55eac8ccb760a1bc1/diff:/var/lib/docker/overlay2/4518e2c4e4ca2b5b6b26ed40a8e3f130296625c9a8c6a47c61763bf789e8df12/diff:/var/lib/docker/overlay2/662d75e19e4a9a98442111f551f48bd8841de472f16c755405276462122e1969/diff:/var/lib/docker/overlay2/338c3b3a4977e96ed25d1f2b9fbc65562a8c62a185df6baabe64dd3e40632331/diff:/var/lib/docker/overlay2/88069ce00e7cf154912b583ac49e2eb655af35777a22f68d65e560a8f8f72fb0/diff:/var/lib/docker/overlay2/7fa0af02f451bafb29410b8d6712bb84cfead585aca227dd899631b357eba12c/diff:/var/lib/docker/overlay2/fbaf99abadbb408297dae5626b85415bf62fdc40dce4ec4df11ff5f8043306b3/diff:/var/lib/docker/overlay2/f871aa611f42e273ef69b8ee3a686e084b6eddaf9d20c36e10904e4e44013fe1/diff:/var/lib/docker/overlay2/d21067d6f38aebbe391336a2251aac02e0bda38db313de18d417c12f20eba067/diff:/var/lib/docker/overlay2/daa9d5a342f3234c8f7dc2905dbbaee1823821b828f3e92b0092c9e83e56cbde/diff:/var/lib/docker/overlay2/c31888f5276a034a32c1017906f32a79000971067dee4f85c3ef87717c00fe94/diff",
+                "MergedDir": "/var/lib/docker/overlay2/2b7065b1b4192e5232b470d308e4992a47d7ab4786a7fcc9356682512c69d2ec/merged",
+                "UpperDir": "/var/lib/docker/overlay2/2b7065b1b4192e5232b470d308e4992a47d7ab4786a7fcc9356682512c69d2ec/diff",
+                "WorkDir": "/var/lib/docker/overlay2/2b7065b1b4192e5232b470d308e4992a47d7ab4786a7fcc9356682512c69d2ec/work"
+            },
+            "Name": "overlay2"
         },
         "RootFS": {
             "Type": "layers",
             "Layers": [
-                "sha256:73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a",
-                "sha256:b758ee6513f47a9887793b61c79a16d01465a58b674a916bf072e570a67d632f",
-                "sha256:e75b857a7e564a04647cf216e029c9d6575de498287f0f67ae19c76fe48592d1",
-                "sha256:20e2fb98cd33a796078954843bbaf91e1839b37d3555d7d149b57de2d5504b97",
-                "sha256:46415434afc471ef45dc42717b992b58132ffe470a104d5adfdf09aa4d9fc359",
-                "sha256:4d93bf852a4d895ba6e5ac08447ff0e5b8525f1341512e239083a314862569bb",
-                "sha256:1da735bbae3856a3fb675718650b1f35c598a7db5fb78e8eaf091c60f31e1bfe",
-                "sha256:cd89d51bc32d6c869e1d7304bb41c8bb8ee5912604dfb8e907777e5ebb6199cb",
-                "sha256:6e05cd18ed1c3297666ac314d36087cf254fed083d833be3358a6a239a356ef4",
-                "sha256:4860f5d2c966ae3a077bbbb71400b29c62d4670e1ea6ae1ce0c31945fdcfb2db",
-                "sha256:dc17678c41dfa92f8169c216369e1298307c5a64865570cf055679ad54f625f4",
-                "sha256:a2d865aefe5fd8d95f262b32c5c277ccb319e8aae9b88713e07a7adedccea027",
-                "sha256:962566b343d1e8e15dc105c8e9f3c6ed603b103ea7febac2b8144a6ced80e8f7",
-                "sha256:efb85f08e708d79d721ac3fff6643b006014d556f2de5ed82708539707914d9e",
-                "sha256:98fae2fcb97e53467a4d64aa7f0a2c38af1a10a3e097cbcc48130e1256c2f7f2",
-                "sha256:2c54bae2ed2448413f7ee4f58bffcd87b8ba3989c5069087187545ea2b5021eb",
-                "sha256:c6653d8d6f94ee255dc8fa293ebabbed56908e4e1360b93afcbc79dd662e5cb8"
+                "sha256:af0df278bec194015fd6f217c017da2cc48c7c0dfc55974a4f1da49f1fd9c643",
+                "sha256:1d3545625acc456a3b1ffe0452dc7b21b912414514f6636776d1df5f7fc5b761",
+                "sha256:d50c820f06af93966310405459feaa06ae25099493e924827ecc2b87d59b81bc",
+                "sha256:c73bea5e51f02ae807581a4308b93bb15f2a4e8eff77980f04ca16ada3e5d8fe",
+                "sha256:30781fcde1e029490e5e31142c6f87eea28f44daa1660bf727149255095aeb25",
+                "sha256:06333a8766d373657969d2c5a1785426b369f0eb67d3131100562e814944bb61",
+                "sha256:afe83b1715ba56fe1075387e987414f837ad1153e0dc83983b03b21af1fff524",
+                "sha256:b5b49d315a0b1d90a0e7f5bf0c9f349b64b83868aa4965846b05fb1c899b4d31",
+                "sha256:40e07aec657d65d0b3c2fd84983c3f725cf342a11ac8f694d19d8162556389ca",
+                "sha256:1ec17697083e5ab6e6657cb2fd3ac213bfb621497196a9b4dd01be49a05fd0ba",
+                "sha256:8cdee574cf2ff2bff80961902b11f378bd228d11f4e52135fd404f79ca7e1a63",
+                "sha256:b4cb326982763715403b5101026ad8333e2b5d59868cce0ddf21d1a231715758",
+                "sha256:94893f94e0143c27cfd1367699776035e144b4c3b3cff1c1423253f6e2b39723",
+                "sha256:8a743afad01d015d44b64fd0bedf583145d04796a429aa261596e0e6943bda7f",
+                "sha256:faa977113a35d9b622af3bb1a481a7ee5bdbc3f6c35dc8ff4ff5adb8b4a95641",
+                "sha256:59461c292cd4bd0f3fbd808371d37845e1850ed7b9c2e676b484c60950bdd3ba",
+                "sha256:285f1fb0f99ea936e0eeb5f78c83b050c3b8f334a956a40f9ec547ac29b3a58d",
+                "sha256:d653d2b6a0bde68b3194e62baec92a2ef2223cd9c56e3ea4844b38886b63798e",
+                "sha256:234dc1e17bed2bae6e5368c2667c30124dca94f0b584f5cd8b0f2be249311820",
+                "sha256:c2630cbbb8b9413cc6d8d5bd4fcdebf54d987d62e0a2c68cf8dadb5cc831209d",
+                "sha256:a5311ef02278680ab6c2cf1a5843845f5802ed024fce4f69eb8e8ea53b7a5b4e",
+                "sha256:188bd1bf502d426d5e897e31773fa885399fd69ceef850609cdaa4a45f330c71",
+                "sha256:43cb5b1fb08f5faa3ae526d509b5faa014ce9b8f1099b27e87f8cc3992a973c5",
+                "sha256:896037576e604880800e50afde6184d54e3f50b3cede0f564dcdd3e3243bba5a"
             ]
         },
         "Metadata": {
-            "LastTagTime": "0001-01-01T00:00:00Z"
+            "LastTagTime": "2022-08-19T18:24:39.169388977Z"
         }
     }
 ]
@@ -2283,37 +2188,67 @@ root@dee2945:/var/lib/docker# balena inspect 4c973956a691
 
 Of particular interest here is the `"RootFS"` section, which shows all of the
 layers that make up an image. Without going into detail (there are plenty of
-easily Googleable pages describing this), each balena image is made up of a
+easily Google-able pages describing this), each balena image is made up of a
 series of layers, usually associated with a `COPY`, `ADD`, `RUN`, etc.
 Dockerfile command at build time. Each layer makes up part of the images
 filing system, and when a service container is created from an image, it uses
 these layers 'merged' together for the underlying filing system.
 
 We can look at these individual layers by making a note of each SHA256 hash ID
-and then finding this hash in the `/var/lib/docker/image/aufs/layerdb/sha256`
-directory (note that we are moving to `overlay2` for all devices eventually,
-and that this guide will work simply by replacing `aufs` by `overlay2`). This
-directory holds a set of directories, each named after each unique layer using
+and then finding this hash in the `/var/lib/docker/image/overlay2/layerdb/sha256` directory
+This directory holds a set of directories, each named after each unique layer using
 the SHA256 associated with it. Let's look at the layer DB directory:
 
 ```shell
-root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# ls
-084d479ff39eee821c584315063f121a5fed634d8eb3dcd8cf8dd9274cc3908a  8e76114ec559fc7b9c9316286c595cad947b65e9aa4f81b8a7f440488f586870
-09f49c7cda3e1c586c48bc764a16488fadda03b47d0ba819c3c8fe8ba20d5d05  9084a902d87b7a77fe23cfa2add4a202df04fffb772019230c6f871acf54fb9f
-0d6c25eb492dd1b4e9e3d08fdc210c19745d368f1f251551af28f05c66f231a1  a1435aeefe15f0ba6265627cff1a21cb0325e67081154616938f62bd9e912a7c
-17e287edb8e0c8060cdc93a188b1ac569d88249600a343f9c9731302157763a7  a4c299ddf37369983d3c2fafc3dd39accf25f43ee8c9852f35aa063d109a650b
-1fef6aa406c258be25ad0df317685d82ee0a12a305b87086615359ce77f1d990  a72fe7d28b90078fb3bd5d447499af81e2216054f5128c6a9aba63f7ab850d15
-2d4c0dd8e82aff971df61910a43c6fb461293553dd3f4eec4994bd6a3b4d4e20  a92c7704692b81efa274dd47c24642bce835cddc6f35ab2453ad721a5e4b91a5
-353b96c9b98cef535de48d165bf8fbd6e25e40550424e54f815a8288421923ec  b428c157d64f5aad73cd60f2879fd2187db1ee59a1874ad287b41f62f8cb8c82
-3c83891236fee7910ad140c13d32a2bded8aace3064cd51cffb2f841cd8929c7  b5d596c1b258931b41ade8abf25286cc9ea93252ea77e59be2722f9cbfb3b633
-3e0ab82b73296ad755d89d677c640e1086e1b84c1d5f50720f82b44cfa2d7262  cc320321b28ac119284ee593532956b5ea152b2fb45810494c679f11fb2e5fcd
-53e4f1087efbb02257e54309ec533fbd4c96f29ac91a7573eed1125bc748b6cc  d89c5fa69091b4cb79db0f740f8a0a0fdbdfba83a7be6a0ba4a584f2a19003bc
-5eea2038dc6b2ecf7b780f1d9e29eb8655f33096e7ae22a51129c66223183f2e  e26d2d994a93ecb18ed87b952c186df8eeb5a7d445bf0c9a7fa1f244f6d5e38a
-5f3a49e21e4c8bb5fd7493ba8f75354b6f829da1ab94435fb761de9bbb25da0d  e7d96f171f2d54fc95e99d853dff1b20ed0cf81148a7b64639bca6d2712a9d6a
-73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a  f0278d96034e3b35c6a1b97321781d9fa2a1ceaa83df8206af317dfdfc0f3618
+root@debug-device:~# ls -lah /var/lib/docker/image/overlay2/layerdb/sha256
+total 176K
+drwxr-xr-x 44 root root 4.0K Aug 19 10:25 .
+drwx------  5 root root 4.0K Aug 19 10:24 ..
+drwx------  2 root root 4.0K Aug 19 10:25 09b78bc523987759f021e0a0e83e69c8084b1e3c20f14b4bb9534f3cdcc6ac3c
+drwx------  2 root root 4.0K Jul  8 18:39 1036152b568007807de32d686a009c3f4f8adbb4f472e82ac274a27d92326d80
+drwx------  2 root root 4.0K Jul  8 18:39 106a406f45c345ecbc3c42525606f80b084daf9f3423615a950c4cf5a696caa7
+drwx------  2 root root 4.0K Aug 19 10:25 144d2c5112d686b5a4b14f3d4d9d8426981debc440ae533e3c374148089a66d3
+drwx------  2 root root 4.0K Jul  8 18:39 1f9ad706e17e7786d85618534db2a36bb51b8aaaadd9a7e32d1e7080054ff620
+drwx------  2 root root 4.0K Aug 19 10:25 21331e0e0fe982279deb041181d6af17bcd8ac70dc7dc023c225d2cfb3c33b7f
+drwx------  2 root root 4.0K Jul  8 18:39 253123a3e5d5904ceeedc9b7f22f95baa93228cf7eeb8a659b2e7893e2206d32
+drwx------  2 root root 4.0K Jul  8 18:39 294ac687b5fcac6acedb9a20cc756ffe39ebc87e8a0214d3fb8ef3fc3189ee2a
+drwx------  2 root root 4.0K Jul  8 18:39 2ef1f0e36f419227844367aba4ddfa90df1294ab0fe4993e79d56d9fe3790362
+drwx------  2 root root 4.0K Aug 19 10:24 35e3a8f4d7ed3009f84e29161552f627523e42aea57ac34c92502ead41691ce9
+drwx------  2 root root 4.0K Jul  8 18:39 3eb45474328f8742c57bd7ba683431fe5f0a5154e12e382814a649cc0c4115b4
+drwx------  2 root root 4.0K Jul  8 18:39 4acac926cb8671f570045c0a1dc1d73c1ca4fbfeee82b8b69b26b095a53bd9b7
+drwx------  2 root root 4.0K Jul  8 18:39 4c345896c7e7169034e1cd5ae7a6ded46623c904503e37cfe0f590356aed869a
+drwx------  2 root root 4.0K Aug 19 10:25 4c4fb86d946143f592f295993169aa9d48e51a2583d0905874a3a122843d6ef1
+drwx------  2 root root 4.0K Jul  8 18:39 4eb65237b6a403037e5a629c93f0efd25c8cf6bc78a0c4c849e6a7d4f76892bc
+drwx------  2 root root 4.0K Aug 19 10:25 521a7e6b1a2ca6e5417331c9bb9330fd94b48ec80d80099fc5cbffce33f0b871
+drwx------  2 root root 4.0K Jul  8 18:39 5a5de1543b2bc574adae2f477ae308ea21d8bfcdd3828b01b1cf1b3e54e757bf
+drwx------  2 root root 4.0K Aug 19 10:25 60ef73a52c9699144533715efa317f7e4ff0c066697ae0bb5936888ee4097664
+drwx------  2 root root 4.0K Aug 19 10:25 7754099c5f93bb0d0269ea8193d7f81e515c7709b48c5a0ca5d7682d2f15def2
+drwx------  2 root root 4.0K Aug 19 10:25 7a9f44ed69912ac134baabbe16c4e0c6293750ee023ec22488b3e3f2a73392a6
+drwx------  2 root root 4.0K Aug 19 10:25 81713bf891edc214f586ab0d02359f3278906b2e53e034973300f8c7deb72ca2
+drwx------  2 root root 4.0K Aug 19 10:25 8515f286995eb469b1816728f2a7dc140d1a013601f3a942d98441e49e6a38e9
+drwx------  2 root root 4.0K Aug 19 10:25 8c0972b6057fafdf735562e0a92aa3830852b462d8770a9301237689dbfa6036
+drwx------  2 root root 4.0K Aug 19 10:25 a1659a5774b2cd9f600b9810ac3fa159d1ab0b6c532ff22851412fe8ff21c45e
+drwx------  2 root root 4.0K Aug 19 10:25 aa293c70cb6bdafc80e377b36c61368f1d418b33d56dcbc60b3088e945c24784
+drwx------  2 root root 4.0K Aug 19 10:25 abaae3be7599181738152e68cfd2dcf719068b3e23de0f68a85f1bfe0a3ebe6e
+drwx------  2 root root 4.0K Aug 19 10:25 acd72d7857fe303e90cd058c8b48155a0c2706ff118045baedf377934dcd5d63
+drwx------  2 root root 4.0K Aug 19 10:24 af0df278bec194015fd6f217c017da2cc48c7c0dfc55974a4f1da49f1fd9c643
+drwx------  2 root root 4.0K Aug 19 10:25 b9c29dbb49463dcc18dbf10d5188453a3c3d3159dd42b9fb403d3846649b8c1f
+drwx------  2 root root 4.0K Aug 19 10:25 bc60d12607d916904e332fc94997d59b5619885fbb51af0e885ca21e88faec7f
+drwx------  2 root root 4.0K Aug 19 10:25 c3414c33510eabf6a77f68f6714967484e7a937681d30f4578ed4415a889abbf
+drwx------  2 root root 4.0K Aug 19 10:25 d89860b1b17fbfc46a8c09473504697efc768895910a383c21182c073caa249d
+drwx------  2 root root 4.0K Aug 19 10:25 e665e5030545a1d1f8bb3ad1cda5a5d0bad976a23005313157e242e6a3a5932e
+drwx------  2 root root 4.0K Aug 19 10:25 e80af4b706db8380d5bb3d88e4262147edfaad362fe4e43cf96658709c21195a
+drwx------  2 root root 4.0K Jul  8 18:39 eb8f1151aa650015a9e6517542b193760795868a53b7644c54b5ecdac5453ede
+drwx------  2 root root 4.0K Jul  8 18:39 efb53921da3394806160641b72a2cbd34ca1a9a8345ac670a85a04ad3d0e3507
+drwx------  2 root root 4.0K Aug 19 10:25 f77763335291f524fee886c06f0f81f23b38638ba40c4695858cd8cca3c92c46
+drwx------  2 root root 4.0K Aug 19 10:25 f92d2ac421bffffd2811552a43b88a0cc4b4fe2faa26ec85225d68e580447dc4
+drwx------  2 root root 4.0K Aug 19 10:25 fae75b52757886e2f56dd7f8fbf11f5aa30ff848745b2ebf169477941282f9f9
+drwx------  2 root root 4.0K Aug 19 10:25 fc810c085b1a4492e6191b546c9708b3777cbb8976744d5119ed9e00e57e7bc6
+drwx------  2 root root 4.0K Jul  8 18:39 fd22d21dd7203b414e4d4a8d61f1e7feb80cbef515c7d38dc98f091ddaa0d4a2
+drwx------  2 root root 4.0K Jul  8 18:39 fd6efabf36381d1f93ba9485e6b4d3d9d9bdb4eff7d52997362e4d29715eb18a
 ```
 
-Note that there are layers named here that are *not* named in the `"RootFS"`
+Note that there are layers named here that are _not_ named in the `"RootFS"`
 object in the image description (although base image layers usually are). This
 is because of the way balenaEngine describes layers and naming internally
 (which we will not go into here). However, each layer is described by a
@@ -2321,483 +2256,44 @@ is because of the way balenaEngine describes layers and naming internally
 for a layer by searching for it in the layer DB directory:
 
 ```shell
-root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# grep -r 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a *
-09f49c7cda3e1c586c48bc764a16488fadda03b47d0ba819c3c8fe8ba20d5d05/parent:sha256:73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a
-73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a/diff:sha256:73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a
+root@debug-device:~# cd /var/lib/docker/image/overlay2/layerdb/sha256/
+root@debug-device:/var/lib/docker/image/overlay2/layerdb/sha256# grep -r 09b78bc523987759f021e0a0e83e69c8084b1e3c20f14b4bb9534f3cdcc6ac3c *
+7754099c5f93bb0d0269ea8193d7f81e515c7709b48c5a0ca5d7682d2f15def2/parent:sha256:09b78bc523987759f021e0a0e83e69c8084b1e3c20f14b4bb9534f3cdcc6ac3c
 ```
 
 In this case, we find two entries, but we're only interested in the directory
 with the `diff` file result, as this describes the diff for the layer:
 
 ```shell
-root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# cat 73ff1dead1b5d9c1aef91835470f8e9870c3e2dbec82e368f08ac87172fcfe1a/cache-id
-1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
+root@debug-device:/var/lib/docker/image/overlay2/layerdb/sha256# cat 09b78bc523987759f021e0a0e83e69c8084b1e3c20f14b4bb9534f3cdcc6ac3c/cache-id
+f77ebf3b4836d289c2515c82537cd774354b7342c2a4899fcffb51ac23e9e9b7
 ```
 
 We now have the corresponding `cache-id` for the layer's directory layout,
 and we can now examine the file system for this layer (all the diffs are
-store in the `/var/lib/docker/aufs/diff` directory):
+store in the `/var/lib/docker/overlay2/<ID>/diff` directory):
 
 ```shell
-root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# root@dee2945:/var/lib/docker/image/aufs/layerdb/sha256# du -hc /var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/srv
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/proc
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/dev
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/boot
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/root
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/media
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/terminfo
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/update-motd.d
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/default
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc5.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/security/limits.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/security/namespace.d
-48K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/security
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/kernel/postinst.d
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/kernel
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt/auth.conf.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt/sources.list.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt/preferences.d
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt/apt.conf.d
-64K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt/trusted.gpg.d
-112K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/apt
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/alternatives
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/logrotate.d
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/selinux
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/dpkg/origins
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/dpkg/dpkg.cfg.d
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/dpkg
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/skel
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc4.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rcS.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc1.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc2.d
-72K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/pam.d
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/init.d
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/ld.so.conf.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/profile.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/systemd/system/timers.target.wants
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/systemd/system
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/systemd
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc6.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc0.d
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/cron.daily
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/opt
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc/rc3.d
-596K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/etc
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/run/lock
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/run
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/udev/rules.d
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/udev
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/m
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/w
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/d
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/x
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/h
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/l
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/c
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/r
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/v
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/p
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/s
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/E
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo/a
-216K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/terminfo
-508K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/arm-linux-gnueabihf/security
-6.5M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/arm-linux-gnueabihf
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/init
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/systemd/system
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib/systemd
-6.7M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/lib
-2.5M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/sbin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/tmp
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/mnt
-3.2M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/bin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/home
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/sys
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/misc
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/apt/mirrors/partial
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/apt/mirrors
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/apt/periodic
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/apt/lists
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/apt
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg/parts
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg/updates
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg/alternatives
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg/triggers
-3.6M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg/info
-3.9M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/dpkg
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/systemd/deb-systemd-helper-enabled/timers.target.wants
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/systemd/deb-systemd-helper-enabled
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/systemd
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib/pam
-4.0M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/lib
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/tmp
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/spool
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/local
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/cache/apt
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/cache/ldconfig
-1.5M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/cache/debconf
-1.5M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/cache
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/backups
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/log/apt
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/log
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/mail
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var/opt
-5.5M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/var
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/opt
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/src
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/games
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/apt/solvers
-568K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/apt/methods
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/apt/planners
-636K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/apt
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/locale/C.UTF-8/LC_MESSAGES
-1.7M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/locale/C.UTF-8
-1.7M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/locale
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl
-6.2M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/gconv
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Hash
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/Hash/Util
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/Hash
-72K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/POSIX
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/File/Glob
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/File
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/attributes
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/List/Util
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/List
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/Cwd
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/Socket
-456K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/re
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/IO
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto/Fcntl
-732K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/auto
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Scalar
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Text
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/File/Spec
-108K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/File
-156K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Gc
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Blk
-144K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Perl
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/NFDQC
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Jt
-244K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Scx
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Vo
-52K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/GCB
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/UIdeo
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/GrBase
-128K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Sc
-200K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Nv
-48K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Ccc
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWU
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/XIDC
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/NFKDQC
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CE
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Cased
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/PatSyn
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CI
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Nt
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Dia
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWKCF
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Upper
-88K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/InSC
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Ideo
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/IDC
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Dep
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWCF
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/PCM
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CompEx
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Term
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Alpha
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/SD
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWT
-76K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Age
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/BidiC
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/NFCQC
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/STerm
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/IDS
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Hst
-96K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Lb
-72K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/SB
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/BidiM
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/QMark
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Hyphen
-52K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/InPC
-72K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Jg
-60K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Bc
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Ea
-60K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Dt
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Bpt
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/NFKCQC
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWL
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Math
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/XIDS
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Ext
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Lower
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Hex
-140K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/In
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/CWCM
-60K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/WB
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/DI
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib/Dash
-2.3M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/lib
-1.1M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore/To
-3.4M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/unicore
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Exporter
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/List
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/warnings
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/IPC
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Carp
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Tie
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/IO/Socket
-88K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/IO
-48K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base/Getopt
-4.9M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/perl-base
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/coreutils
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf/audit
-20M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/arm-linux-gnueabihf
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/dpkg/methods/apt
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/dpkg/methods
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/dpkg
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/mime/packages
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/mime
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/tmpfiles.d
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/gcc/arm-linux-gnueabihf/8
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/gcc/arm-linux-gnueabihf
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib/gcc
-22M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/lib
-1.4M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/sbin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/src
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/games
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/etc
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/lib
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/sbin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/bin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/include
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/share/man
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local/share
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/local
-8.6M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/bin
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/include
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/terminfo
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/bug/apt
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/bug/init-system-helpers
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/bug
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/menu
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/misc
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/pam-configs
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/locale
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/base-files
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/libc-bin
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/dpkg
-264K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/common-licenses
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libp11-kit0
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/fdisk
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/zlib1g
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libfdisk1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libdebconfclient0
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libseccomp2
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libffi6
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/diffutils
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libsemanage1
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libmount1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libext2fs2
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/sysvinit-utils
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libblkid1
-68K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/gcc-8-base
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/gpgv
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/apt
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/hostname
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libcom-err2
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libss2
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libidn2-0
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/base-files
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libc-bin
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libzstd1
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/ncurses-bin
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/debian-archive-keyring
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/liblzma5
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/util-linux
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libaudit1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/mawk
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libpam-modules
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libpcre3
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/dpkg
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libgpg-error0
-116K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/perl
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/grep
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libsmartcols1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libpam-runtime
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libgmp10
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libtasn1-6
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libuuid1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libbz2-1.0
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libsemanage-common
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libsystemd0
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/debianutils
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libdb5.3
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libtinfo6
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/findutils
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libpam0g
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/liblz4-1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libaudit-common
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/e2fsprogs
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/ncurses-base
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/tar
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libunistring2
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/dash
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/base-passwd
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/coreutils
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/sed
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/tzdata
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libattr1
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libc6
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libpam-modules-bin
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/gzip
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/passwd
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/bash
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libselinux1
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libudev1
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libnettle6
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libgcrypt20
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/debconf
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libcap-ng0
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/init-system-helpers
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/bsdutils
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libgnutls30
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libsepol1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libapt-pkg5.0
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/mount
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/adduser
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/login
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc/libacl1
-1.2M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc
-104K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gcc-8/python/libstdcxx/v6
-112K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gcc-8/python/libstdcxx
-116K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gcc-8/python
-120K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gcc-8
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Template
-60K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/DbDriver
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Teletype
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Web
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Dialog
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Gnome
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Noninteractive
-40K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element/Editor
-260K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Element
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Format
-60K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/FrontEnd
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf/Client
-508K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debconf
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debian/DebConf/Client
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debian/DebConf
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5/Debian
-536K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/perl5
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/tabset
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/debianutils
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/man
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Australia
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Europe
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Arctic
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Africa
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Canada
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/US
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Brazil
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Antarctica
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Atlantic
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Indian
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Pacific
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Etc
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Asia
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/America/Kentucky
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/America/Indiana
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/America/Argentina
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/America/North_Dakota
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/America
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/SystemV
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Chile
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix/Mexico
-88K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/posix
-52K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Australia
-160K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Europe
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Arctic
-52K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Australia
-160K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Europe
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Arctic
-76K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Africa
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Canada
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/US
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Brazil
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Antarctica
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Atlantic
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Indian
-132K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Pacific
-108K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Etc
-280K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Asia
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/America/Kentucky
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/America/Indiana
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/America/Argentina
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/America/North_Dakota
-536K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/America
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/SystemV
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Chile
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right/Mexico
-1.7M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/right
-76K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Africa
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Canada
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/US
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Brazil
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Antarctica
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Atlantic
-36K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Indian
-132K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Pacific
-108K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Etc
-280K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Asia
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/America/Kentucky
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/America/Indiana
-32K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/America/Argentina
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/America/North_Dakota
-524K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/America
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/SystemV
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Chile
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo/Mexico
-3.4M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/zoneinfo
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gdb/auto-load/usr/lib/arm-linux-gnueabihf
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gdb/auto-load/usr/lib
-16K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gdb/auto-load/usr
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gdb/auto-load
-24K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/gdb
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/base-passwd
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/pixmaps
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/lintian/overrides
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/lintian/profiles/dpkg
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/lintian/profiles
-20K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/lintian
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/info
-44K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/pam
-136K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/keyrings
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/doc-base
-348K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/bash-completion/completions
-352K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/bash-completion
-28K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/debconf
-4.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/dict
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/polkit-1/actions
-12K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/polkit-1
-8.0K	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share/adduser
-6.3M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr/share
-38M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587/usr
-57M	/var/lib/docker/aufs/diff/1c02591c74b65735bde1fbd18acaf896910756a265672526caba3bb257c18587
-57M	total
+roroot@debug-device:~# du -hc /var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/
+8.0K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/root/.config/configstore
+16K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/root/.config
+24K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/root
+4.0K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/tmp/balena
+4.0K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/tmp/resin
+12K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/tmp
+4.0K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/run/mount
+8.0K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/run
+48K	/var/lib/docker/overlay2/f278e81229574468df2f798e3ffbe576a51c2ad0c752c0b1997fdb33314130ae/diff/
+48K	total
 ```
 
-And there's all of the directories in the base image for the image! You can
-find the diffs for subsequent layers in the same way.
+You can find the diffs for subsequent layers in the same way.
 
 However, whilst this allows you to examine all the layers for an image, the
 situation changes slightly when an image is used to create a container. At this
 point, a container can also bind to volumes (persistent data directories across
 container restarts) and writeable layers that are used only for that container
-(which are *not* persistent across container restarts). Volumes are described in
+(which are _not_ persistent across container restarts). Volumes are described in
 a later section dealing with media storage. However, we will show an example
 here of creating a writeable layer in a container and finding it in the
 appropriate `/var/lib/docker` directory.
@@ -2806,38 +2302,40 @@ Assuming you're running the source code that goes along with this masterclass,
 SSH into your device:
 
 ```shell
-root@dee2945:~# balena ps
-CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                 PORTS               NAMES
-3ce646179335        8353bf5a40d9                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               frontend_1862610_1219773
-5c36f880c4b3        95fb9c5f84d2                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 3 minutes                               backend_1862611_1219773
-515ad785c072        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             2 days ago          Up 2 hours (healthy)                       balena_supervisor
+root@debug-device:~# balena ps
+CONTAINER ID   IMAGE                                                            COMMAND                  CREATED          STATUS                    PORTS     NAMES
+4ce5bebc27c6   3128dae78199                                                     "/usr/bin/entry.sh n…"   27 minutes ago   Up 22 minutes                       backend_5298819_2265201_0a9d4b0e8c1ff1202773ac2104a2bb48
+2e2a7fcfe6f6   f0735c857f39                                                     "/usr/bin/entry.sh n…"   27 minutes ago   Up 22 minutes                       frontend_5298818_2265201_0a9d4b0e8c1ff1202773ac2104a2bb48
+e593ab6439fe   registry2.balena-cloud.com/v2/04a158f884a537fc1bd11f2af797676a   "/usr/src/app/entry.…"   27 minutes ago   Up 22 minutes (healthy)             balena_supervisor
 ```
 
 You should see something similar. Let's pick the `backend` service, which in
-this instance is container `5c36f880c4b3`. We'll `exec` into it via a `bash`
+this instance is container `4ce5bebc27c6`. We'll `exec` into it via a `bash`
 shell, and create a new file. This will create a new writeable layer for the
 container:
 
 ```shell
-root@dee2945:~# balena exec -ti 5c36f880c4b3 /bin/bash
-root@5c36f880c4b3:/usr/src/app# echo 'This is a new, container-only writeable file!' > /mynewfile.txt
-root@5c36f880c4b3:/usr/src/app# cat /mynewfile.txt
+root@debug-device:~# balena exec -ti 4ce5bebc27c6 /bin/bash
+root@4ce5bebc27c6:/usr/src/app# echo 'This is a new, container-only writeable file!' > /mynewfile.txt
+root@4ce5bebc27c6:/usr/src/app# cat /mynewfile.txt
 This is a new, container-only writeable file!
-root@5c36f880c4b3:/usr/src/app# exit
+root@4ce5bebc27c6:/usr/src/app# exit
 ```
 
 Now we'll determine where this new file has been stored by balenaEngine.
 Similarly to the images, any writeable layer ends up in the
-`/var/lib/docker/aufs/diff` directory, but to determine the correct layer ID
+`/var/lib/docker/overlay2/<ID>/diff` directory, but to determine the correct layer ID
 we need to examine the layer DB for it. We do this by looking in the
-`/var/lib/docker/image/aufs/layerdb/mounts` directory, which lists all the
+`/var/lib/docker/image/overlay2/layerdb/mounts` directory, which lists all the
 currently created containers:
 
 ```shell
-root@dee2945:~# cd /var/lib/docker/image/aufs/layerdb/mounts
-root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# ls
-3ce646179335cedd38c8bd74bb434e5ce583ce07d4ddc29f17f16ea47e0ed428  5c36f880c4b3d6f8a73034fdce0efc44c2021b2b8575e11b215db7659a2282ba
-515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981
+root@debug-device:~# cd /var/lib/docker/image/overlay2/layerdb/mounts
+root@debug-device:~# ls -lh
+total 12K
+drwxr-xr-x 2 root root 4.0K Aug 19 18:19 2e2a7fcfe6f6416e32b9fa77b3a01265c9fb646387dbf4410ca90147db73a4ff
+drwxr-xr-x 2 root root 4.0K Aug 19 18:19 4ce5bebc27c67bc198662cc38d7052e9d7dd3bfb47869ba83a88a74aa498c51f
+drwxr-xr-x 2 root root 4.0K Aug 19 18:19 e593ab6439fee4f5003e68e616fbaf3c3dfd7e37838b1e27d9773ecb65fb26c6
 ```
 
 As you can see, there's a list of all the container IDs of those container
@@ -2848,10 +2346,10 @@ directory to find our newly created file (the `awk` command below is to add
 a newline to the end of the discovered value for clarity reasons):
 
 ```shell
-root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat 5c36f880c4b3d6f8a73034fdce0efc44c2021b2b8575e11b215db7659a2282ba/mount-id | awk '{ print $1 }'
-root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# ls /var/lib/docker/aufs/diff/7a1b70a76338b34aefc37763fdeb29ea876cb6d79ff8204ae9b74b8b90ee1fcb
-mynewfile.txt  root  run  tmp
-root@dee2945:/var/lib/docker/image/aufs/layerdb/mounts# cat /var/lib/docker/aufs/diff/7a1b70a76338b34aefc37763fdeb29ea876cb6d79ff8204ae9b74b8b90ee1fcb/mynewfile.txt
+root@debug-device:~# cd /var/lib/docker/image/overlay2/layerdb/mounts
+root@debug-device:/var/lib/docker/image/overlay2/layerdb/mounts# cat 4ce5bebc27c67bc198662cc38d7052e9d7dd3bfb47869ba83a88a74aa498c51f/mount-id | awk '{ print $1 }'
+18d634420eceb9792f57554a5451510c1a3e38efe15552045d9b074c5120ef3c
+root@debug-device:/var/lib/docker/image/overlay2/layerdb/mounts# cat /var/lib/docker/overlay2/18d634420eceb9792f57554a5451510c1a3e38efe15552045d9b074c5120ef3c/diff/mynewfile.txt
 This is a new, container-only writeable file!
 ```
 
@@ -2862,173 +2360,52 @@ However, for completeness, should you need to, this again is as simple as
 carrying out a `systemd` restart with `systemctl restart balena.service`:
 
 ```shell
-Jan 17 09:58:51 dee2945 systemd[1]: Stopping Balena Application Container Engine...
-Jan 17 09:58:53 dee2945 balenad[772]: time="2020-01-17T09:58:53.817987274Z" level=info msg="Container failed to stop after sending signal 15 to the process, force killing"
-Jan 17 09:58:53 dee2945 balenad[772]: time="2020-01-17T09:58:53.818949240Z" level=info msg="Container failed to stop after sending signal 15 to the process, force killing"
-Jan 17 09:58:53 dee2945 balenad[772]: time="2020-01-17T09:58:53.818953615Z" level=info msg="Container failed to stop after sending signal 15 to the process, force killing"
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.452812004Z" level=info msg="libcontainerd: started new balena-engine-containerd process" pid=19414
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.597877145Z" level=info msg="starting containerd" revision= version=1.2.2+unknown
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.600199250Z" level=info msg="loading plugin \"io.containerd.content.v1.content\"..." type=io.containerd.content.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.600518725Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.aufs\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.606675624Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.native\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.606883798Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.overlayfs\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.607302230Z" level=info msg="loading plugin \"io.containerd.metadata.v1.bolt\"..." type=io.containerd.metadata.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.607420666Z" level=info msg="metadata content store policy set" policy=shared
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.607835400Z" level=info msg="loading plugin \"io.containerd.differ.v1.walking\"..." type=io.containerd.differ.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.607960138Z" level=info msg="loading plugin \"io.containerd.gc.v1.scheduler\"..." type=io.containerd.gc.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608133834Z" level=info msg="loading plugin \"io.containerd.service.v1.containers-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608231697Z" level=info msg="loading plugin \"io.containerd.service.v1.content-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608325654Z" level=info msg="loading plugin \"io.containerd.service.v1.diff-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608421434Z" level=info msg="loading plugin \"io.containerd.service.v1.images-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608515496Z" level=info msg="loading plugin \"io.containerd.service.v1.leases-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608607213Z" level=info msg="loading plugin \"io.containerd.service.v1.namespaces-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.608695910Z" level=info msg="loading plugin \"io.containerd.service.v1.snapshots-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.609478921Z" level=info msg="loading plugin \"io.containerd.runtime.v1.linux\"..." type=io.containerd.runtime.v1
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.610460054Z" level=error msg="connecting to shim" error="dial unix \x00/containerd-shim/moby/1eb9fc69bb220e0442fbd6dda1c554f6868b8a6db0d6f5c02cabd2588bbcad34/shim.sock: connect: connection refused" id=1eb9fc69bb220e0442fbd6dda1c554f6868b8a6db0d6f5c02cabd2588bbcad34 namespace=moby
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.769884382Z" level=error msg="connecting to shim" error="dial unix \x00/containerd-shim/moby/2da77adc4b3d44688b743b42942fabdf8084c88cc6580964b496899f94cea6f7/shim.sock: connect: connection refused" id=2da77adc4b3d44688b743b42942fabdf8084c88cc6580964b496899f94cea6f7 namespace=moby
-Jan 17 09:59:01 dee2945 balenad[772]: time="2020-01-17T09:59:01.946398384Z" level=error msg="connecting to shim" error="dial unix \x00/containerd-shim/moby/515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981/shim.sock: connect: connection refused" id=515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981 namespace=moby
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.239728833Z" level=info msg="loading plugin \"io.containerd.runtime.v2.task\"..." type=io.containerd.runtime.v2
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.240514864Z" level=info msg="loading plugin \"io.containerd.monitor.v1.cgroups\"..." type=io.containerd.monitor.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.248040443Z" level=info msg="loading plugin \"io.containerd.service.v1.tasks-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.248365595Z" level=info msg="loading plugin \"io.containerd.internal.v1.restart\"..." type=io.containerd.internal.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.248797256Z" level=info msg="loading plugin \"io.containerd.grpc.v1.containers\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249001629Z" level=info msg="loading plugin \"io.containerd.grpc.v1.content\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249180585Z" level=info msg="loading plugin \"io.containerd.grpc.v1.diff\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249353395Z" level=info msg="loading plugin \"io.containerd.grpc.v1.events\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249519955Z" level=info msg="loading plugin \"io.containerd.grpc.v1.healthcheck\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249695891Z" level=info msg="loading plugin \"io.containerd.grpc.v1.images\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.249867659Z" level=info msg="loading plugin \"io.containerd.grpc.v1.leases\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.250040417Z" level=info msg="loading plugin \"io.containerd.grpc.v1.namespaces\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.250210884Z" level=info msg="loading plugin \"io.containerd.internal.v1.opt\"..." type=io.containerd.internal.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.250522234Z" level=warning msg="failed to load plugin io.containerd.internal.v1.opt" error="mkdir /opt: read-only file system"
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.250679576Z" level=info msg="loading plugin \"io.containerd.grpc.v1.snapshots\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.250868844Z" level=info msg="loading plugin \"io.containerd.grpc.v1.tasks\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.251043998Z" level=info msg="loading plugin \"io.containerd.grpc.v1.version\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.251210871Z" level=info msg="loading plugin \"io.containerd.grpc.v1.introspection\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.252537364Z" level=info msg=serving... address=/var/run/balena-engine/containerd/balena-engine-containerd-debug.sock
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.253431206Z" level=info msg=serving... address=/var/run/balena-engine/containerd/balena-engine-containerd.sock
-Jan 17 09:59:02 dee2945 balenad[772]: time="2020-01-17T09:59:02.257138085Z" level=info msg="containerd successfully booted in 0.658867s"
-Jan 17 09:59:06 dee2945 balenad[772]: time="2020-01-17T09:59:06.816100032Z" level=error msg="Force shutdown daemon"
-Jan 17 09:59:06 dee2945 balenad[772]: time="2020-01-17T09:59:06.816369820Z" level=info msg="stopping healthcheck following graceful shutdown" module=libcontainerd
-Jan 17 09:59:06 dee2945 balenad[772]: time="2020-01-17T09:59:06.816548203Z" level=info msg="stopping event stream following graceful shutdown" error="context canceled" module=libcontainerd namespace=moby
-Jan 17 09:59:06 dee2945 balenad[772]: time="2020-01-17T09:59:06.816814189Z" level=info msg="stopping event stream following graceful shutdown" error="context canceled" module=libcontainerd namespace=plugins.moby
-Jan 17 09:59:08 dee2945 systemd[1]: Stopped Balena Application Container Engine.
-Jan 17 09:59:08 dee2945 systemd[1]: Starting Balena Application Container Engine...
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.028691773Z" level=warning msg="Running experimental build"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.031776524Z" level=warning msg="[!] DON'T BIND ON ANY IP ADDRESS WITHOUT setting --tlsverify IF YOU DON'T KNOW WHAT YOU'RE DOING [!]"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.040633076Z" level=info msg="libcontainerd: started new balena-engine-containerd process" pid=19476
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.177392023Z" level=info msg="starting containerd" revision= version=1.2.2+unknown
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.179182051Z" level=info msg="loading plugin \"io.containerd.content.v1.content\"..." type=io.containerd.content.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.179392622Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.aufs\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.185649728Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.native\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.185875766Z" level=info msg="loading plugin \"io.containerd.snapshotter.v1.overlayfs\"..." type=io.containerd.snapshotter.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.186246647Z" level=info msg="loading plugin \"io.containerd.metadata.v1.bolt\"..." type=io.containerd.metadata.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.186366854Z" level=info msg="metadata content store policy set" policy=shared
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.186792994Z" level=info msg="loading plugin \"io.containerd.differ.v1.walking\"..." type=io.containerd.differ.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.186922367Z" level=info msg="loading plugin \"io.containerd.gc.v1.scheduler\"..." type=io.containerd.gc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187099969Z" level=info msg="loading plugin \"io.containerd.service.v1.containers-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187200228Z" level=info msg="loading plugin \"io.containerd.service.v1.content-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187303821Z" level=info msg="loading plugin \"io.containerd.service.v1.diff-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187401371Z" level=info msg="loading plugin \"io.containerd.service.v1.images-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187503714Z" level=info msg="loading plugin \"io.containerd.service.v1.leases-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187596733Z" level=info msg="loading plugin \"io.containerd.service.v1.namespaces-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187686211Z" level=info msg="loading plugin \"io.containerd.service.v1.snapshots-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.187783241Z" level=info msg="loading plugin \"io.containerd.runtime.v1.linux\"..." type=io.containerd.runtime.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.188296828Z" level=info msg="loading plugin \"io.containerd.runtime.v2.task\"..." type=io.containerd.runtime.v2
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.188845884Z" level=info msg="loading plugin \"io.containerd.monitor.v1.cgroups\"..." type=io.containerd.monitor.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.192477139Z" level=info msg="loading plugin \"io.containerd.service.v1.tasks-service\"..." type=io.containerd.service.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.192660053Z" level=info msg="loading plugin \"io.containerd.internal.v1.restart\"..." type=io.containerd.internal.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.192863384Z" level=info msg="loading plugin \"io.containerd.grpc.v1.containers\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.192958174Z" level=info msg="loading plugin \"io.containerd.grpc.v1.content\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193046454Z" level=info msg="loading plugin \"io.containerd.grpc.v1.diff\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193149578Z" level=info msg="loading plugin \"io.containerd.grpc.v1.events\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193233327Z" level=info msg="loading plugin \"io.containerd.grpc.v1.healthcheck\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193344731Z" level=info msg="loading plugin \"io.containerd.grpc.v1.images\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193433168Z" level=info msg="loading plugin \"io.containerd.grpc.v1.leases\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193520302Z" level=info msg="loading plugin \"io.containerd.grpc.v1.namespaces\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193605822Z" level=info msg="loading plugin \"io.containerd.internal.v1.opt\"..." type=io.containerd.internal.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193735768Z" level=warning msg="failed to load plugin io.containerd.internal.v1.opt" error="mkdir /opt: read-only file system"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193810611Z" level=info msg="loading plugin \"io.containerd.grpc.v1.snapshots\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.193906235Z" level=info msg="loading plugin \"io.containerd.grpc.v1.tasks\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.194001025Z" level=info msg="loading plugin \"io.containerd.grpc.v1.version\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.194085711Z" level=info msg="loading plugin \"io.containerd.grpc.v1.introspection\"..." type=io.containerd.grpc.v1
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.194702526Z" level=info msg=serving... address=/var/run/balena-engine/containerd/balena-engine-containerd-debug.sock
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.194975752Z" level=info msg=serving... address=/var/run/balena-engine/containerd/balena-engine-containerd.sock
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.195078407Z" level=info msg="containerd successfully booted in 0.020871s"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.281511968Z" level=info msg="Graph migration to content-addressability took 0.00 seconds"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.282850128Z" level=warning msg="Your kernel does not support cgroup rt period"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.282952418Z" level=warning msg="Your kernel does not support cgroup rt runtime"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.283454651Z" level=warning msg="mountpoint for pids not found"
-Jan 17 09:59:09 dee2945 balenad[19453]: time="2020-01-17T09:59:09.284340212Z" level=info msg="Loading containers: start."
-Jan 17 09:59:11 dee2945 balenad[19453]: time="2020-01-17T09:59:11.848735650Z" level=info msg="Removing stale sandbox 300d5a91417cee5a4d2648204bd49326074ea21df1ab29b24349bb4756d4d21d (515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981)"
-Jan 17 09:59:11 dee2945 balenad[19453]: time="2020-01-17T09:59:11.871655820Z" level=warning msg="Error (Unable to complete atomic operation, key modified) deleting object [endpoint 114484af9c2b13004e64ccf6fc84d1ea6447ffe930d3cfdbcc65124fc4648330 fd993d4b601306980de6b7fde37945157639181bfbb376b10859f15ecd5fb481], retrying...."
-Jan 17 09:59:12 dee2945 balenad[19453]: time="2020-01-17T09:59:12.481754693Z" level=info msg="Removing stale sandbox c0cf014f8eb743f89538c8cc2edff3d76f16485a9180535bd0e22bff3c1b237a (1eb9fc69bb220e0442fbd6dda1c554f6868b8a6db0d6f5c02cabd2588bbcad34)"
-Jan 17 09:59:12 dee2945 balenad[19453]: time="2020-01-17T09:59:12.496422471Z" level=warning msg="Error (Unable to complete atomic operation, key modified) deleting object [endpoint 114484af9c2b13004e64ccf6fc84d1ea6447ffe930d3cfdbcc65124fc4648330 493a4db20ffe61333920207747151e4fdaf92bc418d67e2cf90d5eafad383527], retrying...."
-Jan 17 09:59:13 dee2945 balenad[19453]: time="2020-01-17T09:59:13.178202649Z" level=info msg="Removing stale sandbox dc992cf6b4a4bd22280f719a28938193f6a5e229186d0d2097244ca954e61c32 (2da77adc4b3d44688b743b42942fabdf8084c88cc6580964b496899f94cea6f7)"
-Jan 17 09:59:13 dee2945 balenad[19453]: time="2020-01-17T09:59:13.218499832Z" level=warning msg="Error (Unable to complete atomic operation, key modified) deleting object [endpoint 5ca4eb69a9792c4089a90eb9d2c809fd9323ce9b20e7d063f3b0ca1dcca42304 d0a1ffa96b6b1b20c53442d40ab3983fdc825705d75864e9d63c20ea0e97eff5], retrying...."
-Jan 17 09:59:13 dee2945 balenad[19453]: time="2020-01-17T09:59:13.278917170Z" level=warning msg="Error (Unable to complete atomic operation, key modified) deleting object [endpoint 6c245966c6cb4a2d2cb5f62055c76c1c4ae93f9fe44429863f05e26b29f7c3dd a1f27c82c6f0b9e034bfb29b5771d10b6cb27ee447f022ceff0e9a1af2d3ef97], retrying...."
-Jan 17 09:59:14 dee2945 balenad[19453]: time="2020-01-17T09:59:14.314057900Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/moby/1eb9fc69bb220e0442fbd6dda1c554f6868b8a6db0d6f5c02cabd2588bbcad34/shim.sock debug=false pid=19718
-Jan 17 09:59:14 dee2945 balenad[19453]: time="2020-01-17T09:59:14.324304797Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/moby/2da77adc4b3d44688b743b42942fabdf8084c88cc6580964b496899f94cea6f7/shim.sock debug=false pid=19723
-Jan 17 09:59:17 dee2945 1eb9fc69bb22[19453]:
-Jan 17 09:59:17 dee2945 1eb9fc69bb22[19453]: > frontend@1.0.0 start /usr/src/app
-Jan 17 09:59:17 dee2945 1eb9fc69bb22[19453]: > node index.js
-Jan 17 09:59:17 dee2945 1eb9fc69bb22[19453]:
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.671769979Z" level=info msg="Loading containers: done."
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.891942423Z" level=info msg="Docker daemon" commit=95c7371304f9cef494efe93f0a8ffd53a75eac21 graphdriver(s)=aufs version=18.09.6-dev
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.892111483Z" level=info msg="Daemon has completed initialization"
-Jan 17 09:59:17 dee2945 systemd[1]: Started Balena Application Container Engine.
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.930547388Z" level=info msg="API listen on /var/run/balena.sock"
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.931250139Z" level=info msg="API listen on [::]:2375"
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.931670238Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 17 09:59:17 dee2945 balenad[19453]: time="2020-01-17T09:59:17.931087850Z" level=info msg="API listen on /var/run/balena-engine.sock"
-Jan 17 09:59:19 dee2945 1eb9fc69bb22[19453]: Started frontend
-Jan 17 09:59:19 dee2945 2da77adc4b3d[19453]:
-Jan 17 09:59:19 dee2945 2da77adc4b3d[19453]: > backend@1.0.0 start /usr/src/app
-Jan 17 09:59:19 dee2945 2da77adc4b3d[19453]: > node index.js
-Jan 17 09:59:19 dee2945 2da77adc4b3d[19453]:
-Jan 17 09:59:20 dee2945 2da77adc4b3d[19453]: Started backend
-Jan 17 09:59:20 dee2945 balenad[19453]: time="2020-01-17T09:59:20.471432091Z" level=info msg="shim balena-engine-containerd-shim started" address=/containerd-shim/moby/515ad785c0727bf127195e44c632bc16db6e1290323321e340220aae7692f981/shim.sock debug=false pid=20031
-Jan 17 09:59:21 dee2945 515ad785c072[19453]: Starting system message bus: dbus.
-Jan 17 09:59:21 dee2945 515ad785c072[19453]:  * Starting Avahi mDNS/DNS-SD Daemon: avahi-daemon
-Jan 17 09:59:21 dee2945 515ad785c072[19453]:    ...done.
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: (node:1) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Starting event tracker
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Starting up api binder
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Starting logging infrastructure
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Event: Supervisor start {}
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Performing database cleanup for container log timestamps
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Connectivity check enabled: true
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Starting periodic check for IP addresses
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Reporting initial state, supervisor version and API info
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: VPN status path exists.
-Jan 17 09:59:26 dee2945 515ad785c072[19453]: Waiting for connectivity...
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Skipping preloading
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Starting API server
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Applying target state
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Ensuring device is provisioned
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Starting current state report
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Starting target state poll
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Supervisor API listening on allowed interfaces only
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Finished applying target state
-Jan 17 09:59:27 dee2945 515ad785c072[19453]: Apply success!
-Jan 17 09:59:28 dee2945 515ad785c072[19453]: Applying target state
-Jan 17 09:59:28 dee2945 515ad785c072[19453]: Finished applying target state
-Jan 17 09:59:28 dee2945 515ad785c072[19453]: Apply success!
-Jan 17 09:59:36 dee2945 515ad785c072[19453]: Internet Connectivity: OK
+root@debug-device:~# systemctl restart balena.service
+root@debug-device:~# systemctl status balena.service
+● balena.service - Balena Application Container Engine
+     Loaded: loaded (/lib/systemd/system/balena.service; enabled; vendor preset: enabled)
+    Drop-In: /etc/systemd/system/balena.service.d
+             └─storagemigration.conf
+     Active: active (running) since Fri 2022-08-19 19:00:03 UTC; 13s ago
+TriggeredBy: ● balena-engine.socket
+       Docs: https://www.balena.io/docs/getting-started
+   Main PID: 8721 (balenad)
+      Tasks: 60 (limit: 1878)
+     Memory: 130.2M
+     CGroup: /system.slice/balena.service
+             ├─4544 /proc/self/exe --healthcheck /usr/lib/balena/balena-healthcheck --pid 4543
+             ├─8721 /usr/bin/balenad --experimental --log-driver=journald --storage-driver=overlay2 -H fd:// -H unix:///var/run/balena.so>
+             ├─8722 /proc/self/exe --healthcheck /usr/lib/balena/balena-healthcheck --pid 8721
+             ├─8744 balena-engine-containerd --config /var/run/balena-engine/containerd/containerd.toml --log-level info
+             ├─8922 balena-engine-containerd-shim -namespace moby -workdir /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.lin>
+             ├─8941 balena-engine-containerd-shim -namespace moby -workdir /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.lin>
+             ├─9337 balena-engine-containerd-shim -namespace moby -workdir /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.lin>
+             └─9343 balena-engine-runc --root /var/run/balena-engine/runtime-balena-engine-runc/moby --log /run/balena-engine/containerd/>
 
+Aug 19 19:00:06 debug-device e593ab6439fe[8721]: [info]    Applying target state
+Aug 19 19:00:06 debug-device e593ab6439fe[8721]: [debug]   Finished applying target state
+Aug 19 19:00:06 debug-device e593ab6439fe[8721]: [success] Device state apply success
+Aug 19 19:00:06 debug-device e593ab6439fe[8721]: [info]    Reported current state to the cloud
+Aug 19 19:00:14 debug-device balenad[8721]: time="2022-08-19T19:00:14.615648023Z" level=info msg="Container failed to exit within 10s of >
+Aug 19 19:00:15 debug-device balenad[8744]: time="2022-08-19T19:00:15.074224040Z" level=info msg="shim reaped" id=e593ab6439fee4f5003e68e>
+Aug 19 19:00:15 debug-device balenad[8721]: time="2022-08-19T19:00:15.077066553Z" level=info msg="ignoring event" container=e593ab6439fee>
+Aug 19 19:00:16 debug-device balenad[8721]: time="2022-08-19T19:00:16.870509180Z" level=warning msg="Configured runtime \"runc\" is depre>
+Aug 19 19:00:16 debug-device balenad[8744]: time="2022-08-19T19:00:16.911032847Z" level=warning msg="runtime v1 is deprecated since conta>
+Aug 19 19:00:16 debug-device balenad[8744]: time="2022-08-19T19:00:16.916761744Z" level=info msg="shim balena-engine-containerd-shim star>
 ```
 
 However, doing so has also had another side-effect. Because the Supervisor is
-itself comprised of a container, restarting balenaEngine has *also* stopped
+itself comprised of a container, restarting balenaEngine has _also_ stopped
 and restarted the Supervisor. This is another good reason why balenaEngine
 should only be stopped/restarted if absolutely necessary.
 
 So, when is absolutely necessary? There are some issues which occasionally
-occur that might require this. Some examples might include:
+occur that might require this.
 
-* Corruption in the `/var/lib/docker` directory, usually related to
-* Memory exhaustion and investigation
-* Container start/stop conflicts
+One example could be due to corruption in the `/var/lib/docker` directory, usually related to:
+
+- Memory exhaustion and investigation
+- Container start/stop conflicts
 
 Many examples of these are documented in the support knowledge base, so we will
 not delve into them here.
@@ -3046,54 +2423,69 @@ causing an issue.
 To examine the kernel log on-device, simply run `dmesg` from the host OS:
 
 ```shell
-root@dee2945:/# dmesg
-[    0.000000] Booting Linux on physical CPU 0x0
-[    0.000000] Linux version 4.14.98 (oe-user@oe-host) (gcc version 8.2.0 (GCC)) #1 SMP Mon Jun 17 12:12:45 UTC 2019
-[    0.000000] CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
-[    0.000000] CPU: div instructions available: patching division code
-[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
-[    0.000000] OF: fdt: Machine model: Raspberry Pi Compute Module 3 Plus Rev 1.0
-[    0.000000] Memory policy: Data cache writealloc
-[    0.000000] cma: Reserved 8 MiB at 0x3dc00000
-[    0.000000] On node 0 totalpages: 255488
-[    0.000000] free_area_init_node: node 0, pgdat 8138ae00, node_mem_map bd336000
-[    0.000000]   Normal zone: 2246 pages used for memmap
-[    0.000000]   Normal zone: 0 pages reserved
-[    0.000000]   Normal zone: 255488 pages, LIFO batch:31
-[    0.000000] random: get_random_bytes called from start_kernel+0xac/0x448 with crng_init=0
-[    0.000000] percpu: Embedded 17 pages/cpu @be59c000 s38796 r8192 d22644 u69632
-[    0.000000] pcpu-alloc: s38796 r8192 d22644 u69632 alloc=17*4096
+root@debug-device:~# dmesg
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
+[    0.000000] Linux version 5.10.95-v8 (oe-user@oe-host) (aarch64-poky-linux-gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.37.20210721) #1 SMP PREEMPT Thu Feb 17 11:43:01 UTC 2022
+[    0.000000] random: fast init done
+[    0.000000] Machine model: Raspberry Pi 4 Model B Rev 1.2
+[    0.000000] efi: UEFI not found.
+[    0.000000] Reserved memory: created CMA memory pool at 0x000000001ac00000, size 320 MiB
+[    0.000000] OF: reserved mem: initialized node linux,cma, compatible id shared-dma-pool
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000000000-0x000000003fffffff]
+[    0.000000]   DMA32    [mem 0x0000000040000000-0x000000007fffffff]
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000003e5fffff]
+[    0.000000]   node   0: [mem 0x0000000040000000-0x000000007fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000007fffffff]
+[    0.000000] On node 0 totalpages: 517632
+[    0.000000]   DMA zone: 4096 pages used for memmap
+[    0.000000]   DMA zone: 0 pages reserved
+[    0.000000]   DMA zone: 255488 pages, LIFO batch:63
+[    0.000000]   DMA32 zone: 4096 pages used for memmap
+[    0.000000]   DMA32 zone: 262144 pages, LIFO batch:63
+[    0.000000] On node 0, zone DMA32: 512 pages in unavailable ranges
+[    0.000000] percpu: Embedded 32 pages/cpu s92376 r8192 d30504 u131072
+[    0.000000] pcpu-alloc: s92376 r8192 d30504 u131072 alloc=32*4096
 [    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3
-[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 253242
-[    0.000000] Kernel command line: bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbdepth=16 bcm2708_fb.fbswap=1 smsc95xx.macaddr=B8:27:EB:A1:10:56 vc_mem.mem_base=0x3f000000 vc_mem.mem_size=0x3f600000  dwc_otg.lpm_enable=0 console=tty1 console=ttyAMA0,115200 rootfstype=ext4 rootwait root=PARTUUID=4194026e-02 rootwait
-[    0.000000] PID hash table entries: 4096 (order: 2, 16384 bytes)
-[    0.000000] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
-[    0.000000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-[    0.000000] Memory: 983756K/1021952K available (8192K kernel code, 600K rwdata, 2284K rodata, 7168K init, 704K bss, 30004K reserved, 8192K cma-reserved)
-[    0.000000] Virtual kernel memory layout:
-                   vector  : 0xffff0000 - 0xffff1000   (   4 kB)
-                   fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
-                   vmalloc : 0xbe800000 - 0xff800000   (1040 MB)
-                   lowmem  : 0x80000000 - 0xbe600000   ( 998 MB)
-                   modules : 0x7f000000 - 0x80000000   (  16 MB)
-                     .text : 0x80008000 - 0x80900000   (9184 kB)
-                     .init : 0x80c00000 - 0x81300000   (7168 kB)
-                     .data : 0x81300000 - 0x8139622c   ( 601 kB)
-                      .bss : 0x8139e624 - 0x8144e7b0   ( 705 kB)
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] CPU features: detected: Spectre-v2
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 509440
+[    0.000000] Kernel command line: coherent_pool=1M 8250.nr_uarts=0 snd_bcm2835.enable_compat_alsa=0 snd_bcm2835.enable_hdmi=1  smsc95xx.macaddr=DC:A6:32:9E:18:DD vc_mem.mem_base=0x3f000000 vc_mem.mem_size=0x3f600000  dwc_otg.lpm_enable=0 rootfstype=ext4 rootwait dwc_otg.lpm_enable=0 rootwait vt.global_cursor_default=0 console=null cgroup_enable=memory root=UUID=ba1eadef-20c9-4504-91f4-275265fa5dbf rootwait
+[    0.000000] cgroup: Enabling memory control group subsystem
+[    0.000000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] software IO TLB: mapped [mem 0x000000003a600000-0x000000003e600000] (64MB)
+[    0.000000] Memory: 1602680K/2070528K available (11392K kernel code, 2022K rwdata, 4460K rodata, 14208K init, 1284K bss, 140168K reserved, 327680K cma-reserved)
 [    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
-[    0.000000] ftrace: allocating 27474 entries in 81 pages
-[    0.000000] Hierarchical RCU implementation.
-[    0.000000] NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
-[    0.000000] arch_timer: cp15 timer(s) running at 19.20MHz (phys).
-[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
-[    0.000007] sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
-[    0.000022] Switching to timer-based delay loop, resolution 52ns
-[    0.000266] Console: color dummy device 80x30
-[    0.000841] console [tty1] enabled
-[    0.000879] Calibrating delay loop (skipped), value calculated using timer frequency.. 38.40 BogoMIPS (lpj=192000)
-[    0.000920] pid_max: default: 32768 minimum: 301
-[    0.001247] Mount-cache hash table entries: 2048 (order: 1, 8192 bytes)
-[    0.001281] Mountpoint-cache hash table entries: 2048 (order: 1, 8192 bytes)
+[    0.000000] ftrace: allocating 44248 entries in 173 pages
+[    0.000000] ftrace: allocated 173 pages with 5 groups
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=4.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Rude variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=4
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GIC: Using split EOI/Deactivate mode
+[    0.000000] irq_brcmstb_l2: registered L2 intc (/soc/interrupt-controller@7ef00100, parent irq: 10)
+[    0.000000] random: get_random_bytes called from start_kernel+0x3a4/0x570 with crng_init=1
+[    0.000000] arch_timer: cp15 timer(s) running at 54.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
+[    0.000007] sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
+[    0.000332] Console: colour dummy device 80x25
+[    0.000405] Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=216000)
+[    0.000443] pid_max: default: 32768 minimum: 301
+[    0.000643] LSM: Security Framework initializing
+[    0.000891] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.000939] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
 ...
 ```
 
@@ -3109,13 +2501,13 @@ easier to run it on-device.
 
 Some common issues to watch for include:
 
-* Under-voltage warnings, signifying that a device is not receiving what it
-    requires from the power supply to operate correctly (these warnings
-    are only present on the Raspberry Pi series).
-* Block device warnings, which could signify issues with the media that balenaOS
-    is running from (for example, SD card corruption).
-* Device detection problems, where devices that are expected to show in the
-    device node list are either incorrectly detected or misdetected.
+- Under-voltage warnings, signifying that a device is not receiving what it
+  requires from the power supply to operate correctly (these warnings
+  are only present on the Raspberry Pi series).
+- Block device warnings, which could signify issues with the media that balenaOS
+  is running from (for example, SD card corruption).
+- Device detection problems, where devices that are expected to show in the
+  device node list are either incorrectly detected or misdetected.
 
 ### 11. Media Issues
 
@@ -3129,33 +2521,30 @@ of free space on a device, or that of SD card corruption.
 
 A media partition that is full can cause issues such as the following:
 
-* Failure to download release updates, or failure to start new/updated
-    services after a download has occurred
-* Failure for a service to store data into defined volumes
-* Failure of services to start up (mostly those that need to store data that
-    isn't in `tmpfs`)
+- Failure to download release updates, or failure to start new/updated
+  services after a download has occurred
+- Failure for a service to store data into defined volumes
+- Failure of services to start up (mostly those that need to store data that
+  isn't in `tmpfs`)
 
 Determining how much space is left on the media for a device can be achieved by
 logging into the host OS and running:
 
 ```shell
-root@dee2945:/# df -h
-Filesystem                         Size  Used Avail Use% Mounted on
-devtmpfs                           481M     0  481M   0% /dev
-/dev/disk/by-partuuid/4194026e-02  300M  205M   75M  74% /mnt/sysroot/active
-/dev/disk/by-label/resin-state      19M  3.3M   14M  20% /mnt/state
-none                               300M  205M   75M  74% /
-tmpfs                              488M  168K  488M   1% /dev/shm
-tmpfs                              488M  828K  488M   1% /run
-tmpfs                              488M     0  488M   0% /sys/fs/cgroup
-/dev/mmcblk0p1                      40M  8.3M   32M  21% /mnt/boot
-tmpfs                              488M     0  488M   0% /tmp
-tmpfs                              488M   20K  488M   1% /var/volatile
-overlay                            488M   20K  488M   1% /srv
-overlay                            488M   20K  488M   1% /var/spool
-overlay                            488M   20K  488M   1% /var/cache
-overlay                            488M   20K  488M   1% /var/lib
-/dev/mmcblk0p6                      57G  342M   54G   1% /mnt/data
+root@debug-device:~# df -h
+Filesystem                      Size  Used Avail Use% Mounted on
+devtmpfs                        783M     0  783M   0% /dev
+tmpfs                           950M  5.3M  945M   1% /run
+/dev/mmcblk0p2                  300M  276M  4.5M  99% /mnt/sysroot/active
+/dev/disk/by-state/resin-state   18M   75K   16M   1% /mnt/state
+overlay                         300M  276M  4.5M  99% /
+/dev/mmcblk0p6                   29G  367M   27G   2% /mnt/data
+tmpfs                           950M     0  950M   0% /dev/shm
+tmpfs                           4.0M     0  4.0M   0% /sys/fs/cgroup
+tmpfs                           950M     0  950M   0% /tmp
+tmpfs                           950M   40K  950M   1% /var/volatile
+/dev/mmcblk0p1                   40M  7.2M   33M  19% /mnt/boot
+/dev/mmcblk0p3                  300M   14K  280M   1% /mnt/sysroot/inactive
 ```
 
 The `-h` switch makes the figures returned 'human readable'. Without this switch
@@ -3174,27 +2563,23 @@ There are a few ways to try and relieve out of space issues on a media drive.
 One fairly easy cleanup routine to perform is that of pruning the Docker tree
 so that any unused images, containers, networks and volumes are removed. It
 should be noted that in the day-to-day operation of the Supervisor, it attempts
-to ensure that anything that is no longer used on the device *is* removed when
+to ensure that anything that is no longer used on the device _is_ removed when
 not required. However, there are issues that sometimes occur that can cause this
 behavior to not work correctly. In these cases, a prune should help clean
 anything that should not be present:
 
 ```shell
-root@dee2945:/# balena system prune -a -f --volumes
-Deleted Containers:
-81473114c1ed742595d1f04aee193e1071a29dadfce619b1d72253c5f7a98388
-
+root@debug-device:~# balena system prune -a -f --volumes
 Deleted Images:
-untagged: balenalib/raspberrypi3-node:latest
-untagged: balenalib/raspberrypi3-node@sha256:159a190198db61d4d6ed5ab10e5b0f643f51564b0ed97a688e615a33331722b3
-deleted: sha256:5040ee970506c5446c3147b7a30d7f6a89e32b8170bafa258a790ad12400b160
-deleted: sha256:3db1a2a86bb6a2fe5261856cf2f287b6f0aca107e884190a179cece8a8177ec5
-deleted: sha256:ea46a56e67595cafbd7632b362b1b21b5c167d3188564987735a4f29ddee969d
+untagged: balena-healthcheck-image:latest
+deleted: sha256:46331d942d6350436f64e614d75725f6de3bb5c63e266e236e04389820a234c4
+deleted: sha256:efb53921da3394806160641b72a2cbd34ca1a9a8345ac670a85a04ad3d0e3507
+untagged: balena_supervisor:v14.0.8
 
-Total reclaimed space: 98.85MB
+Total reclaimed space: 9.136kB
 ```
 
-Note that in the above, *all* unused images, containers, networks and volumes
+Note that in the above, _all_ unused images, containers, networks and volumes
 will be removed. To just remove dangling images, you can use
 `balena system prune -a`.
 
@@ -3228,36 +2613,17 @@ that service and then manually remove data from the service's volume.
 
 Data volumes are always located in the `/var/lib/docker/volumes` directory. Care
 needs to be taken to ensure the right volumes are examine/pruned of data, as
-not all volumes pertain directly to customer data.
+not all volumes pertain directly to customer data. Let's list the volumes:
+
+```shell
+root@debug-device:~# ls -l /var/lib/docker/volumes/
+total 28
+drwx-----x 3 root root  4096 Aug 19 19:15 1958513_backend-data
+-rw------- 1 root root 32768 Aug 19 19:15 metadata.db
+```
 
 In single service apps, the relevant data volume is suffixed with the
-`_resin-data` string. For example:
-
-```shell
-root@dee2945:/# ls -l /var/lib/docker/volumes/
-total 28
-drwxr-xr-x 3 root root  4096 Jan 14 11:10 1544229_resin-data
--rw------- 1 root root 32768 Jan 14 11:11 metadata.db
-```
-
-This tallies with the single service currently running, which can be inspected
-to determine the relevant volume:
-
-```shell
-root@dee2945:/# balena ps
-CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
-f596a2ac8d19        b1b05d58f2a7                        "/usr/bin/entry.sh n…"   18 seconds ago      Up 14 seconds                               main_1849012_1215051
-62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 24 hours (healthy)                       balena_supervisor
-root@dee2945:/# balena inspect main_1849012_1215051 | grep /var/lib/docker/volumes
-                "Source": "/var/lib/docker/volumes/1544229_resin-data/_data",
-```
-
-As you can see, all data that can be saved by a service into `/data` corresponds
-to the `/var/lib/docker/volumes/1544229_resin-data/_data` on the host.
-As `/var/lib/docker` is mapped to the host OS's data partition, this data gets
-saved onto that partition. The bound volume uses the directory transparently,
-so any data saved there by the service is immediately available on the host
-OS.
+`_balena-data` string.
 
 In multicontainer apps, the suffix always corresponds with the name
 of the bound volume. For example, let's look at the docker-compose manifest
@@ -3287,16 +2653,16 @@ app for this masterclass, SSH into the device, and then examine the
 running services:
 
 ```shell
-root@dee2945:/# balena ps
-CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS                  PORTS               NAMES
-75727d0a4bea        eeb7acdade4c                        "/usr/bin/entry.sh n…"   4 minutes ago       Up 4 minutes                                backend_1849057_1215070
-2c4881a3a3cc        238fe0dacd83                        "/usr/bin/entry.sh n…"   19 minutes ago      Up 19 minutes                               frontend_1849056_1215070
-62e5d3984a53        balena/armv7hf-supervisor:v9.15.7   "./entry.sh"             4 days ago          Up 25 hours (healthy)                       balena_supervisor
-root@dee2945:/# balena inspect backend_1849057_1215070 | grep /var/lib/docker/volumes/
-                "Source": "/var/lib/docker/volumes/1544229_backend-data/_data",
+root@debug-device:~# balena ps
+CONTAINER ID   IMAGE                                                            COMMAND                  CREATED              STATUS                    PORTS     NAMES
+330d34540489   3128dae78199                                                     "/usr/bin/entry.sh n…"   About a minute ago   Up About a minute                   backend_5302053_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c
+2e2a7fcfe6f6   f0735c857f39                                                     "/usr/bin/entry.sh n…"   57 minutes ago       Up 16 minutes                       frontend_5302052_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c
+e593ab6439fe   registry2.balena-cloud.com/v2/04a158f884a537fc1bd11f2af797676a   "/usr/src/app/entry.…"   57 minutes ago       Up 16 minutes (healthy)             balena_supervisor
+root@debug-device:~# balena inspect backend_5302053_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c | grep /var/lib/docker/volumes
+                "Source": "/var/lib/docker/volumes/1958513_backend-data/_data",
 ```
 
-This time, the volume is denoted with the suffix of the defined volume name.
+The volume is denoted with the suffix of the defined volume name.
 Should there be multiple volumes, then appropriate directories for these will
 be created in the `/var/lib/docker/volumes` directory, with the relevant
 suffixes.
@@ -3305,9 +2671,9 @@ Knowing this, it becomes fairly simple to stop services that have filled volumes
 and to clear these out:
 
 1. Stop the Supervisor and start timer (`balena-supervisor.service` and
-    `update-balena-supervisor.timer`).
+   `update-balena-supervisor.timer`).
 2. Determine the relevant data directories for the volumes filling the data
-    partition.
+   partition.
 3. Clean them appropriately.
 4. Restart the Supervisor and start timer.
 
@@ -3322,13 +2688,13 @@ any type of flash memory based storage includes a shorter lifespan compared to
 media such as platter drives). Initially, media corruption and wearing exhibit
 'random' signs, including but not limited to:
 
-* Release updates failing to download/start/stop.
-* Services suddenly restarting.
-* Devices not being mapped to device nodes.
-* Extreme lag when interacting with services/utilities from the CLI.
-* Spurious kernel errors.
+- Release updates failing to download/start/stop.
+- Services suddenly restarting.
+- Devices not being mapped to device nodes.
+- Extreme lag when interacting with services/utilities from the CLI.
+- Spurious kernel errors.
 
-In fact, media corruption could potentially exhibit as *any* sort of issue,
+In fact, media corruption could potentially exhibit as _any_ sort of issue,
 because there's (generally) no way to determine where wearing may exhibit
 itself. Additionally, we have seen issues where media write/reads take so
 long that they also adversely impact the system (for example, healthchecks
@@ -3343,8 +2709,7 @@ whether corruption may be an issue (but it certainly isn't guaranteed).
 SSH into your device and run the following:
 
 ```shell
-root@dee2945:/# grep -v "/var/cache/ldconfig/aux-cache" /resinos.fingerprint | md5sum --quiet -c -
-root@dee2945:/#
+root@debug-device:~# grep -v "/var/cache/ldconfig/aux-cache" /balenaos.fingerprint | md5sum --quiet -c -
 ```
 
 If the check returns successfully, none of the files differ in their MD5
@@ -3357,13 +2722,13 @@ not ask them to do so.
 Should the worst happen and a device is no longer bootable due to filesystem
 corruption, they still have the option of recovering data from the device.
 In this case, they'll need to remove the media (SD card, HDD, etc.) from the
-device and then follow appropriate instructions. The Jellyfish knowledgebase
-includes an entry for doing this (search for 'Recovery data from a dead
-device').
+device and then follow appropriate instructions.
 
 ### 12. Device connectivity status
 
 When the device's network connectivity is fully operational, the status displays as Online, which is comprised of healthy Heartbeat and VPN statuses. When one of the aforementioned conditions is abnormal, the status will display as Heartbeat Only or VPN Only.
+
+So then, what do these states mean for your app? A device can be Heartbeat or VPN Only and still have full internet access, which means your app may be deployed and continuing to run without interruption. However, in the case of VPN Only, future updates will not be deployed until the Supervisor on the device is fixed.
 
 #### 12.1 Heartbeat Only
 
@@ -3373,26 +2738,22 @@ A device with a Heartbeat Only status has internet connectivity and can poll the
 
 A device with a VPN Only status is not able to apply any new changes made such as deploying new releases, applying service configuration values, or switching to local mode. However, it is accessible via SSH or the web terminal. Performing an action such as rebooting or restarting containers might work, but most likely will not. This is because the device loses its Heartbeat if it's not communicating with the API, which is usually when the Supervisor on the device is not running or crashing. Since we have VPN access, we can SSH into the device and investigate further.
 
-#### 12.3 What do these states mean for my app ?
-
-A device can be Heartbeat or VPN Only and still have full internet access, which means your app may be deployed and continuing to run without interruption. However, in the case of VPN Only, future updates will not be deployed until the Supervisor on the device is fixed.
-
 ## Conclusion
 
 In this masterclass, you've learned how to deal with balena devices as a
 support agent. You should now be confident enough to:
 
-* Request access from a customer and access their device, including 'offline'
-    devices on the same network as one that is 'online'.
-* Run diagnostics checks and understand their results.
-* Understand the core balenaOS services that make up the system, including
-    the ability to read journals from those services, as well as stopping,
-    starting and restarting them.
-* Enable persistent logs, and then examine them when required.
-* Diagnose and handle a variety of network issues.
-* Understand and work with the `config.json` configuration file.
-* Understand the Supervisor's role, including key concepts.
-* Understand the balenaEngine's role, including key concepts.
-* Be able to look at kernel logs, and determine some common faults.
-* Work with media issues, including dealing with full media, working with customer data, and diagnosing corruption issues.
-* Understand why your device's status is Online (Heartbeat Only) or Online (VPN Only) and how it can be impacting your app.
+- Request access from a customer and access their device, including 'offline'
+  devices on the same network as one that is 'online'.
+- Run diagnostics checks and understand their results.
+- Understand the core balenaOS services that make up the system, including
+  the ability to read journals from those services, as well as stopping,
+  starting and restarting them.
+- Enable persistent logs, and then examine them when required.
+- Diagnose and handle a variety of network issues.
+- Understand and work with the `config.json` configuration file.
+- Understand the Supervisor's role, including key concepts.
+- Understand the balenaEngine's role, including key concepts.
+- Be able to look at kernel logs, and determine some common faults.
+- Work with media issues, including dealing with full media, working with customer data, and diagnosing corruption issues.
+- Understand why your device's status is Online (Heartbeat Only) or Online (VPN Only) and how it can be impacting your app.
