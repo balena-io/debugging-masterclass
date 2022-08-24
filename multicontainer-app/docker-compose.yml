@@ -1,4 +1,6 @@
 version: '2.1'
+volumes:
+  backend-data: {}
 services:
   frontend:
     build: ./frontend
@@ -9,3 +11,5 @@ services:
       io.balena.features.supervisor-api: '1'
       io.balena.features.balena-api: '1'
     privileged: true
+    volumes:
+      - 'backend-data:/mydata'
