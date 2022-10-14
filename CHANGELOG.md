@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.25
+## (2022-10-14)
+
+* patch: Fix the spelling error and apostrophe error breaking docs spelling tests [zoobot]
+
 # v1.0.24
 ## (2022-08-24)
 
