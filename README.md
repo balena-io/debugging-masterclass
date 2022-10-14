@@ -820,7 +820,7 @@ the journal for it:
 root@9294512:~# journalctl --no-pager -u chronyd.service
 Aug 18 10:51:01 9294512 healthdog[2011]: 2022-08-18T10:51:01Z chronyd version 4.0 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -NTS -SECHASH +IPV6 -DEBUG)
 Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Backward time jump detected!
-Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Cannot synchronise: no selectable sources
+Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Cannot synchronize: no selectable sources
 Mar 23 12:01:19 9294512 healthdog[135156]: [chrony-healthcheck][INFO] No online NTP sources - forcing poll
 Mar 23 12:01:19 9294512 healthdog[2011]: 2017-03-23T12:01:19Z System clock was stepped by -0.000000 seconds
 Mar 23 12:01:25 9294512 healthdog[2011]: 2017-03-23T12:01:25Z Selected source 198.199.14.101 (0.resinio.pool.ntp.org)
