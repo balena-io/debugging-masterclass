@@ -820,7 +820,7 @@ the journal for it:
 root@9294512:~# journalctl --no-pager -u chronyd.service
 Aug 18 10:51:01 9294512 healthdog[2011]: 2022-08-18T10:51:01Z chronyd version 4.0 starting (+CMDMON +NTP +REFCLOCK +RTC -PRIVDROP -SCFILTER -SIGND +ASYNCDNS -NTS -SECHASH +IPV6 -DEBUG)
 Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Backward time jump detected!
-Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Can't synchronise: no selectable sources
+Mar 23 12:01:09 9294512 healthdog[2011]: 2017-03-23T12:01:09Z Cannot synchronise: no selectable sources
 Mar 23 12:01:19 9294512 healthdog[135156]: [chrony-healthcheck][INFO] No online NTP sources - forcing poll
 Mar 23 12:01:19 9294512 healthdog[2011]: 2017-03-23T12:01:19Z System clock was stepped by -0.000000 seconds
 Mar 23 12:01:25 9294512 healthdog[2011]: 2017-03-23T12:01:25Z Selected source 198.199.14.101 (0.resinio.pool.ntp.org)
@@ -2480,7 +2480,7 @@ root@debug-device:~# dmesg
 [    0.000000] arch_timer: cp15 timer(s) running at 54.00MHz (phys).
 [    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
 [    0.000007] sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
-[    0.000332] Console: colour dummy device 80x25
+[    0.000332] Console: color dummy device 80x25
 [    0.000405] Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=216000)
 [    0.000443] pid_max: default: 32768 minimum: 301
 [    0.000643] LSM: Security Framework initializing
