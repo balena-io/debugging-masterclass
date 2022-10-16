@@ -1,9 +1,6 @@
 # Balena Device Debugging Masterclass
 
-- **Masterclass Type:** Core
-- **Maximum Expected Time To Complete:** 3-5 hours
-
-## Prerequisite Classes
+## Prerequisites
 
 This masterclass builds upon knowledge that has been taught in previous classes.
 To gain the most from this masterclass, we recommend that you first undertake
@@ -11,7 +8,23 @@ the following masterclasses:
 
 - [Balena CLI Masterclass](https://github.com/balena-io/balena-cli-masterclass)
 - [BalenaOS Masterclass](https://github.com/balena-io/balenaos-masterclass/)
-- [Balena Networking Masterclass](https://github.com/balena-io/networking-masterclass/) _NOT YET AVAILABLE_
+
+### Hardware and Software Requirements
+
+It is assumed that the reader has access to the following:
+
+- A local copy of this repository [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass). This copy can be obtained by either method:
+  - `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
+  - Download ZIP file (from 'Clone or download'->'Download ZIP') and then unzip it to a suitable directory
+- A balena supported device, such as a [balenaFin
+  1.1](https://store.balena.io/products/balenafin-developer-kit-v1-1-cm3-l), [Raspberry Pi
+  3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) or [Intel
+  NUC](https://www.intel.co.uk/content/www/uk/en/products/boards-kits/nuc.html). If you don't have a device, you can emulate an Intel NUC by
+  installing VirtualBox and following [this guide](https://www.balena.io/blog/no-hardware-use-virtualbox/)
+- A suitable shell environment for command execution (such as `bash` or `zsh`)
+- A [balenaCloud](https://www.balena.io/) account
+- A familiarity with [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
+- An installed instance of the [balena CLI](https://github.com/balena-io/balena-cli/)
 
 ## Introduction
 
@@ -47,7 +60,7 @@ In this masterclass, you will learn how to:
 - Understand media-based issues (such as SD card corruption)
 - Understand how heartbeat and the VPN only status affects your devices
 
-**Note:** Whilst this masterclass is intended for new engineers about to start
+Whilst this masterclass is intended for new engineers about to start
 support duties at balena, it is also intended to act as an item of interest
 to customers who wish to know more about how we initially go about debugging
 a device (and includes information that customers themselves could use
@@ -56,23 +69,6 @@ balena support is _always_ contacted should you have an issue with a device
 that is not working correctly.
 
 **Note:** The balena VPN service was renamed to cloudlink in 2022 in customer facing documentation.
-
-## Hardware and Software Requirements
-
-It is assumed that the reader has access to the following:
-
-- A local copy of this repository [Balena Device Debugging Masterclass](https://github.com/balena-io-projects/debugging-masterclass). This copy can be obtained by either method:
-  - `git clone https://github.com/balena-io-projects/debugging-masterclass.git`
-  - Download ZIP file (from 'Clone or download'->'Download ZIP') and then unzip it to a suitable directory
-- A balena supported device, such as a [balenaFin
-  1.1](https://store.balena.io/products/balenafin-developer-kit-v1-1-cm3-l), [Raspberry Pi
-  3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) or [Intel
-  NUC](https://www.intel.co.uk/content/www/uk/en/products/boards-kits/nuc.html). If you don't have a device, you can emulate an Intel NUC by
-  installing VirtualBox and following [this guide](https://www.balena.io/blog/no-hardware-use-virtualbox/)
-- A suitable shell environment for command execution (such as `bash`)
-- A [balenaCloud](https://www.balena.io/) account
-- A familiarity with [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
-- An installed instance of the [balena CLI](https://github.com/balena-io/balena-cli/)
 
 ## Exercises
 
@@ -186,6 +182,8 @@ using `balena ssh <uuid> [serviceName]`.
 
 #### 1.2 Access Restrictions
 
+<!-- Need to find a place for this in the main docs (docs/support) -->
+
 There are limits on what a support agent may do with a device they have
 been granted access to. This includes the alteration of variables and
 configurations (both fleet and device), the ability to reboot the device,
@@ -218,6 +216,8 @@ page and select 'Diagnostics' from the left-hand panel.
 Diagnostics are split into three separate sections: Device health checks, Device diagnostics and Supervisor state.
 
 #### 2.1 Device Health Checks
+
+<!-- Update https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md to have latest data and a table; ref back to that page rather than having this section (redundant); screenshot of the table rather than the text representation -->
 
 Select the 'Device Health Checks' tab in the Diagnostics page, and then click
 'Run checks'. This may take a couple of minutes. A set of [health checks](https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md)
@@ -272,6 +272,8 @@ again.
 Now we'll look at the health checks again. Click 'Run checks' again in the
 Dashboard. After a couple minutes, you'll see the 'check_container_engine`
 section has changed:
+
+<!-- Update the following w/ a screenshot instead of this md table -->
 
 | Check                  | Status | Notes                                                                                                                                               |
 | ---------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
