@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.0.26
+## (2022-10-16)
+
+* patch: Fix synchronize spelling [zoobot]
+
 # v1.0.25
 ## (2022-10-14)
 
