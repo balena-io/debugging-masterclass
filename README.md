@@ -807,17 +807,8 @@ device and then follow appropriate instructions.
 
 ### 12. Device connectivity status
 
-When the device's network connectivity is fully operational, the status displays as Online, which is comprised of healthy Heartbeat and VPN statuses. When one of the aforementioned conditions is abnormal, the status will display as Heartbeat Only or VPN Only.
+{{>"masterclass/debugging/device-connectivity"}}
 
-So then, what do these states mean for your app? A device can be Heartbeat or VPN Only and still have full internet access, which means your app may be deployed and continuing to run without interruption. However, in the case of VPN Only, future updates will not be deployed until the Supervisor on the device is fixed.
-
-#### 12.1 Heartbeat Only
-
-A device with a Heartbeat Only status has internet connectivity and can poll the cloud for new updates to apply. However, performing any actions which do not change the target state or attempting to access the device via SSH will error, as these actions only have effect with a VPN connection. Actions that do not change the target state include purging data, restarting, rebooting, or shutting down, and they all require the VPN because they are proxied from the dashboard API to the [Supervisor API](https://www.balena.io/docs/reference/supervisor/supervisor-api/) on device.
-
-#### 12.2 VPN Only
-
-A device with a VPN Only status is not able to apply any new changes made such as deploying new releases, applying service configuration values, or switching to local mode. However, it is accessible via SSH or the web terminal. Performing an action such as rebooting or restarting containers might work, but most likely will not. This is because the device loses its Heartbeat if it's not communicating with the API, which is usually when the Supervisor on the device is not running or crashing. Since we have VPN access, we can SSH into the device and investigate further.
 
 ## Conclusion
 
