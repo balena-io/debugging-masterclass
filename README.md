@@ -149,97 +149,21 @@ $ balena push DebugFleet
 
 ### 1. Accessing a User Device
 
-Any device owned by a customer automatically allows access by that user via
-either the WebTerminal (in the device's Dashboard page), or the balena CLI
-via `balena ssh <uuid>`. However, for a support agent to gain access to a device
-that isn't owned by them, a user that does have access must
-grant it explicitly.
+{{>"masterclass/debugging/access-device"}}
 
 #### 1.1 Granting Support Access to a Support Agent
 
-A user can grant access to support agents by selecting the device from the
-Dashboard, and then selecting the 'Actions' tab in the sidebar.
-Scrolling down the Actions page will show a list of actions, with the 'Grant
-Support Access' option being the one required here. A user can select this, then
-determine the amount of time that support agents are allowed access for.
-
-**Note:** It's also possible for a user to grant support to an entire
-fleet by selecting the fleet's Dashboard page and going through
-the same process (selecting 'Actions' and then 'Grant Support Access'). Granting
-access to a fleet automatically grants access to all of its associated
-devices.
-
-Support access can also be granted via the CLI: `balena support enable -d <uuid>`
-for devices, and `balena support enable -a <appName>` for applications.
-
-Once support access has been granted, an agent will be able to use the UUID of
-a device to gain access to it, using a URL of the form:
-https://dashboard.balena-cloud.com/devices/&lt;deviceUUID&gt;/summary
-
-The Dashboard will function in almost exactly the same way as it would were
-the device owned by the support agent viewing it. They may view logs and
-use the WebTerminal to access either the Host balenaOS or any service currently
-running.
-
-They may also use balena CLI to SSH into either the balenaOS host or any service
-using `balena ssh <uuid> [serviceName]`.
-
-#### 1.2 Access Restrictions
-
-There are limits on what a support agent may do with a device they have
-been granted access to. This includes the alteration of variables and
-configurations (both fleet and device), the ability to reboot the device,
-apply balenaOS upgrades, pin releases, etc. This is not a comprehensive list
-and may be subject to further changes.
-
-Whilst this sounds like a limitation, it ensures that a device being
-investigated for an issue cannot be unnecessarily altered or modified. Support
-investigations are intended as an avenue of exploration and research for
-ensuring that issues are categorized to allow improvements to the product
-surface such that these issues are eliminated.
+{{>"masterclass/debugging/support-access-device"}}
 
 ### 2. Initial Diagnosis
 
-The balenaCloud Dashboard includes the ability to run a set of diagnostics on
-a device to determine its current condition. This should, in most cases,
-be the first step in attempting to diagnose an issue without having to
-actually access the device via SSH. Ensuring diagnostics and health checks
-are examined first ensures that a support agent has a good idea of the state a
-device is in before SSHing into it, as well as ensuring that the information can
-be accessed later if required (should a device be in a catastrophic state). This
-helps greatly in a support post-mortem should one be required.
-
-Currently, diagnosis is only available via the Dashboard.
-
-Let's take a look at the device provisioned earlier that should now be
-running the code pushed to the DebugFleet. Bring up the balenaCloud Dashboard
-page and select 'Diagnostics' from the left-hand panel.
-
-Diagnostics are split into three separate sections: Device health checks, Device diagnostics and Supervisor state.
+{{>"masterclass/debugging/initial-diagnosis"}}
 
 #### 2.1 Device Health Checks
 
-Select the 'Device Health Checks' tab in the Diagnostics page, and then click
-'Run checks'. This may take a couple of minutes. A set of [health checks](https://github.com/balena-io-modules/device-diagnostics/blob/master/diagnostics.md)
-will be run on the device, and you should see the following conditions:
+This will trigger a set of [health checks](https://www.balena.io/docs/reference/diagnostics/) to run on the device, and you should see the all the checks as `Succeeded` in the Success column. This shows that the device is healthy and there are no obvious faults. 
 
-| Check                  | Status    | Notes                                        |
-| ---------------------- | --------- | -------------------------------------------- |
-| check_balenaOS         | Succeeded | Supported balenaOS 2.x detected              |
-| check_container_engine | Succeeded | No container_engine issues detected          |
-| check_localdisk        | Succeeded | No localdisk issues detected                 |
-| check_memory           | Succeeded | 82% memory available                         |
-| check_networking       | Succeeded | No networking issues detected                |
-| check_os_rollback      | Succeeded | No OS rollbacks detected                     |
-| check_supervisor       | Succeeded | Supervisor is running & healthy              |
-| check_temperature      | Succeeded | No temperature issues detected               |
-| check_timesync         | Succeeded | Time is synchronized                         |
-| check_under_voltage    | Succeeded | No under-voltage events detected             |
-| check_service_backend  | Succeeded | User service 'backend' is running & healthy  |
-| check_service_frontend | Succeeded | User service 'frontend' is running & healthy |
-
-This shows a healthy device, where there are no obvious faults. That's no fun,
-let's create one!
+That's no fun, let's create one a fault
 
 SSH into your device, via `balena ssh <UUID>`, using the appropriate UUID. We want to
 SSH into the host OS, as that's where we'll wreak havoc:
@@ -269,8 +193,7 @@ which will make it immediately terminate instead of shutting down correctly.
 In fact, we'll do it twice. Once you've waited about 30 seconds, run the command
 again.
 
-Now we'll look at the health checks again. Click 'Run checks' again in the
-Dashboard. After a couple minutes, you'll see the 'check_container_engine`
+Now if you run the health checks again. After a couple minutes, you'll see the 'check_container_engine`
 section has changed:
 
 | Check                  | Status | Notes                                                                                                                                               |
@@ -332,55 +255,14 @@ of these scenarios later in this masterclass.
 
 #### 2.2 Device Diagnostics
 
-Move to the 'Device Diagnostics' tab on the 'Diagnostics' page and click the
-'Run diagnostics' button.
+{{>"masterclass/debugging/device-diagnostics"}}
 
-Device diagnostics can be considered a more detailed snapshot of a running
-system as opposed to the healthchecks, which give the current status of a few
-of the core components of the OS.
-
-Once the diagnostic run has completed, you'll see a lot of logs from commands
-that have been run. The section `--- COMMANDS ---` shows a list of all of the
-commands that are run to produce the diagnostics report. These commands cover
-a wide range of functionality, but are comprised of 5 main areas:
-
-- BALENA - The balenaEngine and latest journals
-- HARDWARE - All aspects of HW, including CPU, memory and device tree info
-  as well as statistics on device nodes, USB devices and disk space
-- NETWORK - Covering everything from the current interface configurations
-  to test pings/curls of remote hosts, the state of DNSmasq, OpenVPN and
-  the current iptables configuration
-- OS - This includes the current device configuration, the kernel log,
-  the boot journal and the state of any HUP that may have been attempted
-- SUPERVISOR - The current state and logs for the Supervisor
-- TIME - The current date, state of the time and uptime for the device
-
-Examination of this output will help to determine if something is not working
-correctly. Whilst we won't go into this here, the following exercises will all
+Whilst we won't go into this here, the following exercises will all
 deal with issues where the diagnostics will show abnormalities when examined.
 
 #### 2.3 Supervisor State
 
-Now click the 'Supervisor State' tab on the 'Diagnostics' page.
-
-This does not require execution, and immediately queries the Supervisor to
-determine its current configuration. This output is shown in two panels:
-
-- Supervisor status - This is the current status of the Supervisor, including the address and port it can be reached on, the versions pertaining to it and the current status (note that this only works should the VPN be operational and connected to the balenaCloud backend).
-- Target supervisor state - This is the target state for the Supervisor, based upon the release the device is associated with (usually this is the latest release, unless otherwise pinned). This includes all of the services, and any configuration set for each service, for the fleet, as well as configuration (such as boot and device tree settings).
-
-The Supervisor status should always be available; if it isn't, this
-is an initial indication that something is wrong (including the Supervisor
-itself failing to run).
-
-The Supervisor status is useful for ensuring that versions of the Supervisor/OS
-and access to the API is as expected (or has been changed, should access
-be required).
-
-The Target supervisor state is extremely useful for ensuring that a release is running
-correctly upon a device (as the `docker-compose` manifest for the release
-can be read from the fleet's 'Release' page in the Dashboard), as well
-as ensuring it's the commit that's expected.
+{{>"masterclass/debugging/supervisor-state"}}
 
 ### 3. Device Access Responsibilities
 
@@ -435,74 +317,7 @@ ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 
 #### 4. Accessing a Device using a Gateway Device
 
-It may not always be possible to access the device directly, especially if the
-the VPN component isn't working.
-
-In the examples, we're able to stay connected to the device when the OpenVPN
-service isn't running because we're using a development image, and development
-images allow passwordless root connections via SSH. Had we been running a
-production image, then the device would have been in the 'Offline' state, but
-it would still potentially have had network access and be otherwise running
-correctly. This brings up an issue though, how can we connect to a faulty
-production device in the field?
-
-The answer comes from the mechanism behind how SSH is tunneled through the VPN,
-and we can actually use another device (in the 'Online' state) on the same
-local network as an 'Offline' device to do this.
-
-Doing so is pretty simple, you need the UUIDs of both the gateway
-('Online') and target ('Offline') devices, as well as your username and, if
-possible, the IP address of the target device (by default, the last seen
-'Online' state IP address will be used if the IP is not passed). Once you
-have these details, you can carry this out by executing the following on your
-host machine:
-
-```shell
-$ ssh -t \
-   -o LogLevel=ERROR \
-   -p 22 $USERNAME@ssh.balena-devices.com hostvia $UUID_GATEWAY $UUID_TARGET [$IPADDR]
-```
-
-Should this not work, it's possible that the IP address has changed (and if it
-has, you _will_ need to specify the correct address). The easiest way to find
-the potentially correct IP address is to SSH into the gateway device and run the
-following script (which should work for both legacy DropBear SSH daemons and
-those running on more recent balenaOS installations):
-
-```shell
-( prefix=192.168.1; \
-    for i in {2..254}; \
-    do \
-        addr=$prefix.$i; \
-        curl -s -m 1 $addr:22222 --http0.9 | grep -q "SSH-2.0" && echo $addr BALENA DEVICE || echo $addr; \
-     done \
-)
-```
-
-Ensure you change the `prefix` variable to the correct prefix for the local
-network before starting. This script will then go through the range `$prefix.2`
-to `$prefix.254`, and flag those devices it believes are potential balena
-devices. This should help you narrow down the address range to try connections
-to balena devices, substituting the IP address appropriately in the SSH
-connection command. All IP addresses will be printed by the script, but those
-that are potentially balena devices will show up with `BALENA DEVICE` next to
-them. If you have multiple potential UUIDs, you'll need to mix and match UUIDs
-and IP addresses until you find a matching combination.
-
-You may also try using mDNS from the gateway device to locate the IP of the
-target based on its hostname. Simply ping the `.local` address and grab the IP
-that way:
-
-```shell
-root@9294512:~# ping -c1 $(hostname).local
-PING 9294512.local (172.17.0.1): 56 data bytes
-64 bytes from 172.17.0.1: seq=0 ttl=64 time=0.400 ms
-
---- 9294512.local ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max = 0.400/0.400/0.400 ms
-...
-```
+{{>"masterclass/debugging/device-gateway"}}
 
 ### 5. Component Checklist
 
@@ -662,7 +477,7 @@ configuring the Supervisor and running it should it crash, etc.
 
 #### 5.2 Persistent Logs
 
-Updated on information for device logs and persistent logging can be found in the [Device logs](/learn/manage/device-logs/) section.
+{{>"masterclass/debugging/device-logs"}}
 
 ### 6. Determining Networking Issues
 
