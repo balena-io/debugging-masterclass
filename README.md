@@ -251,14 +251,14 @@ of these scenarios later in this masterclass.
 
 #### 2.2 Device Diagnostics
 
-{{>"masterclass/debugging/device-diagnostics"}}
+{{>"masterclass/debugging/device-diagnostics-partial"}}
 
 Whilst we won't go into this here, the following exercises will all
 deal with issues where the diagnostics will show abnormalities when examined.
 
 #### 2.3 Supervisor State
 
-{{>"masterclass/debugging/supervisor-state"}}
+{{>"masterclass/debugging/supervisor-diagnostics"}}
 
 ### 3. Device Access Responsibilities
 
@@ -313,7 +313,7 @@ ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 
 #### 4. Accessing a Device using a Gateway Device
 
-{{>"masterclass/debugging/device-gateway"}}
+{{>"masterclass/debugging/device-gateway-partial"}}
 
 ### 5. Component Checklist
 
@@ -335,145 +335,11 @@ and in what order comes down to the context of support, and the symptoms seen.
 
 #### 5.1 Service Status and Journal Logs
 
-balenaOS uses [systemd](https://www.freedesktop.org/wiki/Software/systemd/) as
-its [init system](https://en.wikipedia.org/wiki/Init), and as such almost all
-the fundamental components in balenaOS run as systemd services. systemd builds
-a dependency graph of all of its unit files (in which services are defined) to
-determine the order that these should be started/shutdown in. This is
-generated when systemd is run, although there are ways to rebuild this after
-startup and during normal system execution.
-
-Possibly the most important command is `journalctl`, which allows you to read
-the service's journal entries. This takes a variety of switches, the most
-useful being:
-
-- `--follow`/`-f` - Continues displaying journal entries until the command is halted
-  (eg. with Ctrl-C)
-- `--unit=<unitFile>`/`-u <unitFile>` - Specifies the unit file to read journal
-  entries for. Without this, all units entries are read.
-- `--pager-end`/`-e` - Jump straight to the final entries for a unit.
-- `--all`/`-a` - Show all entries, even if long or with unprintable
-  characters. This is especially useful for displaying the service container
-  logs from user containers when applied to `balena.service`.
-
-A typical example of using `journalctl` might be following a service to see
-what's occuring. Here's it for the Supervisor, following journal entries in
-real time:
-
-```shell
-root@9294512:~# journalctl --follow --unit=balena-supervisor
--- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
-Aug 18 16:56:55 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:57:05 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:58:17 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:58:27 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:58:37 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:58:48 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:58:58 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:59:19 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 16:59:40 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-Aug 18 17:00:00 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-```
-
-Any systemd service can be referenced in the same way, and there are some common
-commands that can be used with services:
-
-- `systemctl status <serviceName>` - Will show the status of a service. This
-  includes whether it is currently loaded and/or enabled, if it is currently
-  active (running) and when it was started, its PID, how much memory it is
-  notionally (and beware here, this isn't always the amount of physical
-  memory) using, the command used to run it and finally the last set of
-  entries in its journal log. Here's example output from the OpenVPN service:
-
-  ```shell
-  root@9294512:~# journalctl --follow --unit=balena-supervisor
-  -- Journal begins at Fri 2021-08-06 14:40:59 UTC. --
-  Aug 18 16:56:55 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:57:05 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:58:17 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:58:27 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:58:37 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:58:48 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:58:58 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:59:19 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 16:59:40 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 17:00:00 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 17:00:11 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 17:00:31 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 17:00:42 9294512 balena-supervisor[6890]: [info]    Reported current state to the cloud
-  Aug 18 17:00:49 9294512 balena-supervisor[6890]: [api]     GET /v1/healthy 200 - 3.272 ms
-  ```
-
-- `systemctl start <serviceName>` - Will start a non-running service. Note that
-  this will _not_ restart a service that is already running.
-- `systemctl stop <serviceName>` - Will stop a running service. If the service
-  is not running, this command will not do anything.
-- `systemctl restart <serviceName>` - Will restart a running service. If the
-  service is not running, this will start it.
-- `systemctl daemon-reload` - Will essentially run through the startup process
-  systemd carries out at initialisation, but without restarting services or
-  units. This allows the rebuild of the system dependency graph, and should be
-  carried out if any of the unit files are changed whilst the system is
-  running.
-
-This last command may sound a bit confusing but consider the following. Imagine
-that you need to dynamically change the `balena-supervisor.service` unit file
-to increase the healthcheck timeout on a very slow system. Once that change has
-been made, you'll want to restart the service. However, first, you need to
-reload the unit file as this has changed from the loaded version. To do this,
-you'll run `systemctl daemon-reload` and then
-`systemctl restart balena-supervisor.service` to restart the Supervisor.
-
-In general, there are some core services that need to execute for a device to
-come online, connect to the balenaCloud VPN, download releases and then run
-them:
-
-- `chronyd.service` - Responsible for NTP duties and syncing 'real' network
-  time to the device. Note that balenaOS versions less than v2.13.0 used
-  `systemd-timesyncd.service` as their NTP service, although inspecting it is
-  very similar to that of `chronyd.service`.
-- `dnsmasq.service` - The local DNS service which is used for all host OS
-  lookups (and is the repeater for user service containers by default).
-- `NetworkManager.service` - The underlying Network Manager service, ensuring
-  that configured connections are used for networking.
-- `os-config.service` - Retrieves settings and configs from the API endpoint,
-  including certificates, authorized keys, the VPN config, etc.
-- `openvpn.service` - The VPN service itself, which connects to the balenaCloud
-  VPN, allowing a device to come online (and to be SSHd to and have actions
-  performed on it). Note that in balenaOS versions less than v2.10.0 this
-  was called `openvpn-resin.service`, but the method for inspecting and
-  dealing with the service is the same.
-- `balena.service` - The balenaEngine service, the modified Docker daemon fork
-  that allows the management and running of service images,
-  containers, volumes and networking.
-- `balena-supervisor.service` - The {{ $names.company.short }} Supervisor service,
-  responsible for the management of releases, including downloading updates of the app and
-  self-healing (via monitoring), variables (fleet/device), and exposure of these
-  services to containers via an API endpoint.
-- `dbus.service` - The DBus daemon socket can be used by services if the
-  `io.balena.features.dbus` label is applied. This exposes the DBus daemon
-  socket in the container which allows the service to control several
-  host OS features, including the Network Manager.
-
-Additionally, there are some utility services that, whilst not required
-for a barebones operation, are also useful:
-
-- `ModemManager.service` - Deals with non-Ethernet or Wifi devices, such as
-  LTE/GSM modems.
-- `avahi-daemon.service` - Used to broadcast the device's local hostname
-  (useful in development mode, responds to `balena scan`).
-
-We'll go into several of these services in the following sections, but generally
-these are the first points to examine if a system is not behaving as it should,
-as most issues will be associated with these services.
-
-Additionally there are a large number of utility services that facilitate the
-services above, such as those to mount the correct partitions for data storage,
-configuring the Supervisor and running it should it crash, etc.
+{{>"masterclass/debugging/journal-logs"}}
 
 #### 5.2 Persistent Logs
 
-{{>"masterclass/debugging/device-logs"}}
+{{>"masterclass/debugging/device-logs-partial"}}
 
 ### 6. Determining Networking Issues
 
@@ -481,329 +347,23 @@ configuring the Supervisor and running it should it crash, etc.
 
 ### 7. Working with the `config.json` File
 
-{{>"masterclass/debugging/configuration"}}
+{{>"masterclass/debugging/configuration-partial"}}
 
 ### 8. Working with the Supervisor
 
-{{>"masterclass/debugging/supervisor-debugging"}}
+{{>"masterclass/debugging/supervisor"}}
 
 ### 9. Working with balenaEngine
 
-{{>"masterclass/debugging/balenaengine-debugging"}}
+{{>"masterclass/debugging/engine"}}
 
 ### 10. Using the Kernel Logs
 
-There are occasionally instances where a problem arises which is not immediately
-obvious. In these cases, you might see services fail 'randomly', perhaps
-attached devices don't behave as they should, or maybe spurious reboots occur.
-
-If an issue isn't apparent fairly soon after looking at a device, the
-examination of the kernel logs can be a useful check to see if anything is
-causing an issue.
-
-To examine the kernel log on-device, simply run `dmesg` from the host OS:
-
-```shell
-root@debug-device:~# dmesg
-[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd083]
-[    0.000000] Linux version 5.10.95-v8 (oe-user@oe-host) (aarch64-poky-linux-gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.37.20210721) #1 SMP PREEMPT Thu Feb 17 11:43:01 UTC 2022
-[    0.000000] random: fast init done
-[    0.000000] Machine model: Raspberry Pi 4 Model B Rev 1.2
-[    0.000000] efi: UEFI not found.
-[    0.000000] Reserved memory: created CMA memory pool at 0x000000001ac00000, size 320 MiB
-[    0.000000] OF: reserved mem: initialized node linux,cma, compatible id shared-dma-pool
-[    0.000000] Zone ranges:
-[    0.000000]   DMA      [mem 0x0000000000000000-0x000000003fffffff]
-[    0.000000]   DMA32    [mem 0x0000000040000000-0x000000007fffffff]
-[    0.000000]   Normal   empty
-[    0.000000] Movable zone start for each node
-[    0.000000] Early memory node ranges
-[    0.000000]   node   0: [mem 0x0000000000000000-0x000000003e5fffff]
-[    0.000000]   node   0: [mem 0x0000000040000000-0x000000007fffffff]
-[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000007fffffff]
-[    0.000000] On node 0 totalpages: 517632
-[    0.000000]   DMA zone: 4096 pages used for memmap
-[    0.000000]   DMA zone: 0 pages reserved
-[    0.000000]   DMA zone: 255488 pages, LIFO batch:63
-[    0.000000]   DMA32 zone: 4096 pages used for memmap
-[    0.000000]   DMA32 zone: 262144 pages, LIFO batch:63
-[    0.000000] On node 0, zone DMA32: 512 pages in unavailable ranges
-[    0.000000] percpu: Embedded 32 pages/cpu s92376 r8192 d30504 u131072
-[    0.000000] pcpu-alloc: s92376 r8192 d30504 u131072 alloc=32*4096
-[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3
-[    0.000000] Detected PIPT I-cache on CPU0
-[    0.000000] CPU features: detected: Spectre-v2
-[    0.000000] CPU features: detected: Spectre-v4
-[    0.000000] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
-[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 509440
-[    0.000000] Kernel command line: coherent_pool=1M 8250.nr_uarts=0 snd_bcm2835.enable_compat_alsa=0 snd_bcm2835.enable_hdmi=1  smsc95xx.macaddr=DC:A6:32:9E:18:DD vc_mem.mem_base=0x3f000000 vc_mem.mem_size=0x3f600000  dwc_otg.lpm_enable=0 rootfstype=ext4 rootwait dwc_otg.lpm_enable=0 rootwait vt.global_cursor_default=0 console=null cgroup_enable=memory root=UUID=ba1eadef-20c9-4504-91f4-275265fa5dbf rootwait
-[    0.000000] cgroup: Enabling memory control group subsystem
-[    0.000000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
-[    0.000000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
-[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
-[    0.000000] software IO TLB: mapped [mem 0x000000003a600000-0x000000003e600000] (64MB)
-[    0.000000] Memory: 1602680K/2070528K available (11392K kernel code, 2022K rwdata, 4460K rodata, 14208K init, 1284K bss, 140168K reserved, 327680K cma-reserved)
-[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
-[    0.000000] ftrace: allocating 44248 entries in 173 pages
-[    0.000000] ftrace: allocated 173 pages with 5 groups
-[    0.000000] rcu: Preemptible hierarchical RCU implementation.
-[    0.000000] rcu: 	RCU event tracing is enabled.
-[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=4.
-[    0.000000] 	Trampoline variant of Tasks RCU enabled.
-[    0.000000] 	Rude variant of Tasks RCU enabled.
-[    0.000000] 	Tracing variant of Tasks RCU enabled.
-[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
-[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=4
-[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
-[    0.000000] GIC: Using split EOI/Deactivate mode
-[    0.000000] irq_brcmstb_l2: registered L2 intc (/soc/interrupt-controller@7ef00100, parent irq: 10)
-[    0.000000] random: get_random_bytes called from start_kernel+0x3a4/0x570 with crng_init=1
-[    0.000000] arch_timer: cp15 timer(s) running at 54.00MHz (phys).
-[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
-[    0.000007] sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
-[    0.000332] Console: color dummy device 80x25
-[    0.000405] Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=216000)
-[    0.000443] pid_max: default: 32768 minimum: 301
-[    0.000643] LSM: Security Framework initializing
-[    0.000891] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
-[    0.000939] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
-...
-```
-
-The rest of the output is truncated here. Note that the time output is in
-seconds. If you want to display a human readable time, use the `-T` switch.
-This will, however, strip the nanosecond accuracy and revert to chronological
-order with a minimum granularity of a second.
-
-Note that the 'Device Diagnostics' tab from the 'Diagnostics' section of a
-device also runs `dmesg -T` and will display these in the output window.
-However, due to the sheer amount of information presented here, it's sometimes
-easier to run it on-device.
-
-Some common issues to watch for include:
-
-- Under-voltage warnings, signifying that a device is not receiving what it
-  requires from the power supply to operate correctly (these warnings
-  are only present on the Raspberry Pi series).
-- Block device warnings, which could signify issues with the media that balenaOS
-  is running from (for example, SD card corruption).
-- Device detection problems, where devices that are expected to show in the
-  device node list are either incorrectly detected or misdetected.
+{{>"masterclass/debugging/kernel-logs"}}
 
 ### 11. Media Issues
 
-Sometimes issues occur with the media being used (the medium that balenaOS
-and all other data is stored on, for example an SD card or eMMC drive).
-
-This can include multiple issues, but the most common are that of exhaustion
-of free space on a device, or that of SD card corruption.
-
-#### 11.1 Out of Space Issues
-
-A media partition that is full can cause issues such as the following:
-
-- Failure to download release updates, or failure to start new/updated
-  services after a download has occurred
-- Failure for a service to store data into defined volumes
-- Failure of services to start up (mostly those that need to store data that
-  isn't in `tmpfs`)
-
-Determining how much space is left on the media for a device can be achieved by
-logging into the host OS and running:
-
-```shell
-root@debug-device:~# df -h
-Filesystem                      Size  Used Avail Use% Mounted on
-devtmpfs                        783M     0  783M   0% /dev
-tmpfs                           950M  5.3M  945M   1% /run
-/dev/mmcblk0p2                  300M  276M  4.5M  99% /mnt/sysroot/active
-/dev/disk/by-state/resin-state   18M   75K   16M   1% /mnt/state
-overlay                         300M  276M  4.5M  99% /
-/dev/mmcblk0p6                   29G  367M   27G   2% /mnt/data
-tmpfs                           950M     0  950M   0% /dev/shm
-tmpfs                           4.0M     0  4.0M   0% /sys/fs/cgroup
-tmpfs                           950M     0  950M   0% /tmp
-tmpfs                           950M   40K  950M   1% /var/volatile
-/dev/mmcblk0p1                   40M  7.2M   33M  19% /mnt/boot
-/dev/mmcblk0p3                  300M   14K  280M   1% /mnt/sysroot/inactive
-```
-
-The `-h` switch makes the figures returned 'human readable'. Without this switch
-the returned figures will be in block sizes (usually 1k or 512byte blocks).
-
-The two main mounts where full space problems commonly occur are `/mnt/data` and
-`/mnt/state`. The former is the data partition where all service images, containers
-and volumes are stored. The latter is the state partition, where overlays for the
-root FS (such as user defined network configuraions) and the permanent logs
-are stored.
-
-There are a few ways to try and relieve out of space issues on a media drive.
-
-##### 11.1.1 Image and Container Pruning
-
-One fairly easy cleanup routine to perform is that of pruning the Docker tree
-so that any unused images, containers, networks and volumes are removed. It
-should be noted that in the day-to-day operation of the Supervisor, it attempts
-to ensure that anything that is no longer used on the device _is_ removed when
-not required. However, there are issues that sometimes occur that can cause this
-behavior to not work correctly. In these cases, a prune should help clean
-anything that should not be present:
-
-```shell
-root@debug-device:~# balena system prune -a -f --volumes
-Deleted Images:
-untagged: balena-healthcheck-image:latest
-deleted: sha256:46331d942d6350436f64e614d75725f6de3bb5c63e266e236e04389820a234c4
-deleted: sha256:efb53921da3394806160641b72a2cbd34ca1a9a8345ac670a85a04ad3d0e3507
-untagged: balena_supervisor:v14.0.8
-
-Total reclaimed space: 9.136kB
-```
-
-Note that in the above, _all_ unused images, containers, networks and volumes
-will be removed. To just remove dangling images, you can use
-`balena system prune -a`.
-
-##### 11.1.2 Customer Data
-
-Occasionally, customer volumes can also fill up the data partition. This
-obviously causes more issues, because usually this is data that cannot just
-be deleted. In these cases, it's imperative that the customer is informed that
-they've filled the data partition and that appropriate pruning is required.
-Filling disk space does not tend to stop access to devices, so in these cases
-customers should be asked to enter the relevant services and manually prune
-data.
-
-Before discussion on persistent data, it's worth noting that occasionally
-customer apps store data to the service container instead of a
-persistent data volume. Sometimes, this data is intended as temporary, so doing
-so is not an issue (although if they are doing so and expecting it to stay
-permanent, this will not occur as service container rebuilds will remove the
-layers where new data is stored). However there are cases where even this
-temporary data can be so large that it fills the storage media. In these cases,
-the Supervisor can be stopped, and then the service container affected, allowing
-that container to be removed so the Supervisor can rebuild from the service
-image. This will remove the layers filling the space. Care should be taken
-and customers informed first, in case this data is required. They should also
-be informed of persistent data and how to use it.
-
-Because persistent data is stored as volumes, it's also possible to prune data
-for a service from within the host OS. For example, should a service be filling
-a volume so quickly as to prevent sensible data removal, an option is to stop
-that service and then manually remove data from the service's volume.
-
-Data volumes are always located in the `/var/lib/docker/volumes` directory. Care
-needs to be taken to ensure the right volumes are examine/pruned of data, as
-not all volumes pertain directly to customer data. Let's list the volumes:
-
-```shell
-root@debug-device:~# ls -l /var/lib/docker/volumes/
-total 28
-drwx-----x 3 root root  4096 Aug 19 19:15 1958513_backend-data
--rw------- 1 root root 32768 Aug 19 19:15 metadata.db
-```
-
-In single service apps, the relevant data volume is suffixed with the
-`_balena-data` string.
-
-In multicontainer apps, the suffix always corresponds with the name
-of the bound volume. For example, let's look at the docker-compose manifest
-for the `multicontainer-app` app used in this debugging masterclass:
-
-```yaml
-version: '2.1'
-volumes:
-  backend-data: {}
-services:
-  frontend:
-    build: ./frontend
-    network_mode: host
-  backend:
-    build: ./backend
-    labels:
-      io.balena.features.supervisor-api: '1'
-      io.balena.features.balena-api: '1'
-    privileged: true
-    volumes:
-      - 'backend-data:/mydata'
-```
-
-As you can see, a `backend-data` volume is defined, and then used by the
-`backend` service. Assuming your device is still running the multicontainer
-app for this masterclass, SSH into the device, and then examine the
-running services:
-
-```shell
-root@debug-device:~# balena ps
-CONTAINER ID   IMAGE                                                            COMMAND                  CREATED              STATUS                    PORTS     NAMES
-330d34540489   3128dae78199                                                     "/usr/bin/entry.sh n…"   About a minute ago   Up About a minute                   backend_5302053_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c
-2e2a7fcfe6f6   f0735c857f39                                                     "/usr/bin/entry.sh n…"   57 minutes ago       Up 16 minutes                       frontend_5302052_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c
-e593ab6439fe   registry2.balena-cloud.com/v2/04a158f884a537fc1bd11f2af797676a   "/usr/src/app/entry.…"   57 minutes ago       Up 16 minutes (healthy)             balena_supervisor
-root@debug-device:~# balena inspect backend_5302053_2266082_28d1b0e8e99c2ae6b7361f3b0f835f5c | grep /var/lib/docker/volumes
-                "Source": "/var/lib/docker/volumes/1958513_backend-data/_data",
-```
-
-The volume is denoted with the suffix of the defined volume name.
-Should there be multiple volumes, then appropriate directories for these will
-be created in the `/var/lib/docker/volumes` directory, with the relevant
-suffixes.
-
-Knowing this, it becomes fairly simple to stop services that have filled volumes
-and to clear these out:
-
-1. Stop the Supervisor and start timer (`balena-supervisor.service` and
-   `update-balena-supervisor.timer`).
-2. Determine the relevant data directories for the volumes filling the data
-   partition.
-3. Clean them appropriately.
-4. Restart the Supervisor and start timer.
-
-#### 11.2 Storage Media Corruption
-
-Many device types use storage media that has high wear levels. This includes
-devices such as the Raspberry Pi series, where SD cards are the usual storage
-media. Because we recommend very hard-wearing cards (the SanDisk Extreme Pro
-family are extremely resilient), we don't regularly have issues with customer devices
-dying due to SD card failure. However, they do occur (and not just on SD cards,
-any type of flash memory based storage includes a shorter lifespan compared to
-media such as platter drives). Initially, media corruption and wearing exhibit
-'random' signs, including but not limited to:
-
-- Release updates failing to download/start/stop.
-- Services suddenly restarting.
-- Devices not being mapped to device nodes.
-- Extreme lag when interacting with services/utilities from the CLI.
-- Spurious kernel errors.
-
-In fact, media corruption could potentially exhibit as _any_ sort of issue,
-because there's (generally) no way to determine where wearing may exhibit
-itself. Additionally, we have seen issues where media write/reads take so
-long that they also adversely impact the system (for example, healthchecks
-may take too long to occur, which could potentially restart services including
-the Supervisor and balenaEngine), in these cases swapping the media for a
-known, working brand has caused this issues to be resolved.
-
-One quick check that can be carried out is the root filing system integrity
-check. This checks the MD5 hashes fingerprints of all the files in the filing
-system against those when they were built. This tends to give an idea of
-whether corruption may be an issue (but it certainly isn't guaranteed).
-SSH into your device and run the following:
-
-```shell
-root@debug-device:~# grep -v "/var/cache/ldconfig/aux-cache" /balenaos.fingerprint | md5sum --quiet -c -
-```
-
-If the check returns successfully, none of the files differ in their MD5
-fingerprints from when they were built.
-
-Generally, if it appears that media corruption may be an issue, we generally
-check with customers if they're running a recommended media brand, and if
-not ask them to do so.
-
-Should the worst happen and a device is no longer bootable due to filesystem
-corruption, they still have the option of recovering data from the device.
-In this case, they'll need to remove the media (SD card, HDD, etc.) from the
-device and then follow appropriate instructions.
+{{>"masterclass/debugging/storage-media"}}
 
 ### 12. Device connectivity status
 
