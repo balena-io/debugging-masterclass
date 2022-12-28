@@ -1,3 +1,12 @@
+<!-- 
+
+This masterclass is being generated dynamically.
+
+At build stage, partials being pulled from balenaCloud docs to fill parts of the masterclass 
+You can find the section to section related docs referenced in this script https://github.com/balena-io/docs/tree/master/tools/build-masterclass.sh
+
+-->
+
 # Balena Device Debugging Masterclass
 
 ## Prerequisite Classes
