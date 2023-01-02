@@ -1,0 +1,451 @@
+- commits:
+    - subject: "minor: Convert Masterclass to dynamic"
+      hash: e0792b54596286432345c626b81e8b81e937a372
+      body: ""
+      footer:
+        Signed-off-by: Vipul Gupta (@vipulgupta2048) <vipul@balena.io>
+        signed-off-by: Vipul Gupta (@vipulgupta2048) <vipul@balena.io>
+      author: Vipul Gupta (@vipulgupta2048)
+      nested: []
+  version: 1.1.0
+  title: ""
+  date: 2023-01-02T13:12:06.490Z
+- version: 1.0.26
+  date: 2022-10-16T02:39:07Z
+  commits:
+    - hash: a8cc92e01292fc1869c5d4a5cdb2511c996ef915
+      author: zoobot
+      footers:
+        signed-off-by: zoobot <rommims@gmail.com>
+      subject: "patch: Fix synchronize spelling"
+      body: null
+- version: 1.0.25
+- date: 2022-10-14T06:18:42Z
+- commits:
+    - hash: e97dd4b0c13345a69f47073a66a854fb1d967121
+- commits:
+    - author: zoobot
+- commits:
+    - footers:
+        signed-off-by: zoobot <rommims@gmail.com>
+- commits:
+    - subject: "patch: Fix the spelling error and apostrophe error breaking docs
+        spelling tests"
+- commits:
+    - body: null
+- version: 1.0.24
+- date: 2022-08-24T18:50:02Z
+- commits:
+    - hash: 04480ee8a0243910c274884175d90e683eea486a
+- commits:
+    - author: Ryan H
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Ryan Hampton (@rhampt) <rhampt@balena.io>
+- commits:
+    - subject: Update masterclass's content and code snippets
+- commits:
+    - body: null
+- version: 1.0.23
+- date: 2022-04-28T12:05:40Z
+- commits:
+    - hash: 25d368080980e63d7dc27af7b5ec075987028421
+- commits:
+    - author: Vipul Gupta (@vipulgupta2048)
+- commits:
+    - footers:
+        signed-off-by: Vipul Gupta (@vipulgupta2048) <vipul@balena.io>
+- commits:
+    - subject: "patch: Point to updated persistent logging section"
+- commits:
+    - body: null
+- version: 1.0.22
+- date: 2022-04-28T11:58:34Z
+- commits:
+    - hash: b4e4b4c7e21c00ad8ffba0ac4324b771bd2972d2
+- commits:
+    - author: Tomás Migone
+- commits:
+    - footers:
+        signed-off-by: Tomás Migone <tomas@balena.io>
+- commits:
+    - subject: "patch: Rename application to release, fleet or app"
+- commits:
+    - body: null
+- version: 1.0.21
+- date: 2022-04-27T15:03:31Z
+- commits:
+    - hash: 96778724e97ec62ab512fa77f473425ec27d72e9
+- commits:
+    - author: srlowe
+- commits:
+    - subject: "patch: Add info about granting support access via CLI"
+- commits:
+    - body: null
+- version: 1.0.20
+- date: 2022-02-11T13:46:55Z
+- commits:
+    - hash: 065f62e3fe728a5ea9c808984a5ceedb484102c1
+- commits:
+    - author: Ryan
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - subject: Fixed the scan command to respond to http0.9
+- commits:
+    - body: The previous command received a http0.9 response which wasn't allowed by
+        curl, so now we've explicitly allowed it.
+- commits:
+    - hash: 3360caf6e9a3f0a432836b97ebe6ab8bbb63bbaf
+- commits:
+    - author: Ryan
+- commits:
+    - subject: Merge branch 'master' into rhampt-patch-1
+- commits:
+    - body: null
+- version: 1.0.19
+- date: 2022-01-14T11:51:47Z
+- commits:
+    - hash: c100c70dd75c219bdf20392078870e16401d1877
+- commits:
+    - author: Ken Bannister
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Ken Bannister <kb2ma@runbox.com>
+- commits:
+    - subject: Add link to description of health checks
+- commits:
+    - body: null
+- version: 1.0.18
+- date: 2021-11-08T13:46:23Z
+- commits:
+    - hash: 2d8a1099209014ea7b262fa5968efd3020b36472
+- commits:
+    - author: Kyle Harding
+- commits:
+    - subject: "patch: Fix URL to balenaFin dev kit store page"
+- commits:
+    - body: null
+- version: 1.0.17
+- date: 2021-06-30T16:04:35Z
+- commits:
+    - hash: f22cf54a81873785cf7383481e708908f6d10964
+- commits:
+    - author: dfunckt
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - subject: Delete .github directory
+- commits:
+    - body: null
+- version: 1.0.16
+- date: 2021-05-21T14:07:44Z
+- commits:
+    - hash: 53e8399b5060051a9d722f9eeeb731a0816cacb9
+- commits:
+    - author: Kyle Harding
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Kyle Harding <kyle@balena.io>
+- commits:
+    - subject: Rename resin-supervisor to balena-supervisor
+- commits:
+    - body: null
+- version: 1.0.15
+- date: 2021-05-07T04:26:22Z
+- commits:
+    - hash: e011c3aa4d89167d3d55fb6b119eb9ced3ed8f77
+- commits:
+    - author: Miguel Casqueira
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Miguel Casqueira <miguel@balena.io>
+- commits:
+    - subject: Added notes explaining device connectivity status (heartbeat/vpn only)
+- commits:
+    - body: null
+- version: 1.0.14
+- date: 2021-05-06T22:56:39Z
+- commits:
+    - hash: 2a6154be76018cb1653abc2313158695b3045eb8
+- commits:
+    - author: Miguel Casqueira
+- commits:
+    - footers:
+        closes: "#23"
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Miguel Casqueira <miguel@balena.io>
+- commits:
+    - subject: Use SDK functions for managing Supervisor version on a device
+- commits:
+    - body: null
+- version: 1.0.13
+- date: 2021-03-19T14:16:28Z
+- commits:
+    - hash: 5ea90638d07badd69ccafa3e98e636133080d5c5
+- commits:
+    - author: Christina Wang
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Christina Wang <christina@balena.io>
+- commits:
+    - subject: Update Supervisor Database section's tables and data examples
+- commits:
+    - body: null
+- version: 1.0.12
+- date: 2021-02-10T12:36:56Z
+- commits:
+    - hash: c40736c4cac322aec9be40b420f1f5196af69c0a
+- commits:
+    - author: Vipul Gupta
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - subject: Remove Customer Data Warning
+- commits:
+    - body: "\r"
+- version: 1.0.11
+- date: 2020-12-15T20:23:16Z
+- commits:
+    - hash: 47cb42c6f3d0ee89c11017e72b6fad21206f57dc
+- commits:
+    - author: Kyle Harding
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Kyle Harding <kyle@balena.io>
+- commits:
+    - subject: "README: fix typo in chronyc"
+- commits:
+    - body: Fix a very minor mispelling of chronyc.
+- version: 1.0.10
+- date: 2020-05-19T16:12:36Z
+- commits:
+    - hash: b23432be0e29647496db5eb8d8b44f3866f1f135
+- commits:
+    - author: Matthew McGinn
+- commits:
+    - footers:
+        connects-to: https://github.com/balena-os/balenahup/issues/266
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Matthew McGinn <matthew@balena.io>
+- commits:
+    - subject: "HUP: rename to balenahup"
+- commits:
+    - body: null
+- version: 1.0.9
+- date: 2020-05-15T13:48:43Z
+- commits:
+    - hash: 2a21739b7d8fd00e408b95915f1f7702705da6fb
+- commits:
+    - author: Paulo Castro
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - subject: Add 'openssl' command to detect Deep Packet Inspection (SSL intercept)
+- commits:
+    - body: Thanks to @ab77 for the hint!
+- version: 1.0.8
+- date: 2020-05-08T19:52:53Z
+- commits:
+    - hash: f2ca38ce3b73fbd22e90f6ef184bd69ce6522a41
+- commits:
+    - author: Gareth Davies
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Gareth Davies <gareth@balena.io>
+- commits:
+    - subject: Update CODEOWNERS
+- commits:
+    - body: null
+- version: 1.0.7
+- date: 2020-05-01T20:05:17Z
+- commits:
+    - hash: e2859720e5b2ceabab251ff82febcf6b4b275e7a
+- commits:
+    - author: Matthew McGinn
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Matthew McGinn <matthew@balena.io>
+- commits:
+    - subject: mention using mDNS to discover device IP during hostvia
+- commits:
+    - body: null
+- version: 1.0.6
+- date: 2020-04-20T19:36:37Z
+- commits:
+    - hash: b5da7069eec4c18fcd83913b9daf8dd72a3875db
+- commits:
+    - author: Matthew McGinn
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Matthew McGinn <matthew@balena.io>
+- commits:
+    - subject: remove hedss as codeowner
+- commits:
+    - body: null
+- version: 1.0.5
+- date: 2020-04-15T23:12:17Z
+- commits:
+    - hash: 4a250763c17734f8289834cf4cdcf3e30fec2213
+- commits:
+    - author: Heds Simons
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Heds Simons <heds@balena.io>
+- commits:
+    - subject: "readme: Add a paragraph about remote file copying."
+- commits:
+    - body: Another useful little tip.
+- version: 1.0.4
+- date: 2020-04-13T21:57:38Z
+- commits:
+    - hash: 5fd28d8e2cf11880dea5d54be88e409971bfda5f
+- commits:
+    - author: Heds Simons
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Heds Simons <heds@balena.io>
+- commits:
+    - subject: "readme: Update the gateway discovery script"
+- commits:
+    - body: null
+- version: 1.0.3
+- date: 2020-02-27T19:27:03Z
+- commits:
+    - hash: f2592ee0a5af3c5d207bf823dad9efa1af092a52
+- commits:
+    - author: Heds Simons
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        connects-to: "#7"
+- commits:
+    - footers:
+        signed-off-by: Heds Simons <heds@balena.io>
+- commits:
+    - subject: "readme: Correct log storage from state to data"
+- commits:
+    - body: null
+- version: 1.0.2
+- date: 2020-02-26T19:59:01Z
+- commits:
+    - hash: c62d6e025f767fb40d8a1e95cf868c3b9498f2b1
+- commits:
+    - author: Scott Lowe
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Scott Lowe <scott@balena.io>
+- commits:
+    - subject: Fix typos and update device healthchecks table
+- commits:
+    - body: null
+- version: 1.0.1
+- date: 2020-02-25T18:35:40Z
+- commits:
+    - hash: d518a2dc0fcd80874d466a0019fc273e8f61a25b
+- commits:
+    - author: Josh Bowling
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Josh Bowling <josh@balena.io>
+- commits:
+    - subject: Fix a few typos and add missing command
+- commits:
+    - body: null
+- version: 1.0.0
+- date: 2020-02-24T20:18:28Z
+- commits:
+    - hash: 27fa346b5f1cd1bead55d0be94e9beaafbbc7799
+- commits:
+    - author: Heds Simons
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Heds Simons <heds@balena.io>
+- commits:
+    - subject: "repo: Ensure type is present"
+- commits:
+    - body: null
+- commits:
+    - hash: 3298835853bb064ed97b070333e46767ee09e8b5
+- commits:
+    - author: Gareth Davies
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Gareth Davies <gareth@balena.io>
+- commits:
+    - subject: "meta: Updating to use American spelling"
+- commits:
+    - body: null
+- commits:
+    - hash: 5d58dd355f5f86f73af832ef35c0e5120953fca1
+- commits:
+    - author: Gareth Davies
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Gareth Davies gareth@balena.io
+- commits:
+    - subject: "meta: Formatting for external docs"
+- commits:
+    - body: null

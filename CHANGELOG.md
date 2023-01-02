@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.1.0
+## (2023-01-02)
+
+* minor: Convert Masterclass to dynamic [Vipul Gupta (@vipulgupta2048)]
+
 # v1.0.26
 ## (2022-10-16)
 
