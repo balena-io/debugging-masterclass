@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.1.1
+## (2023-11-24)
+
+* Fix header size [Kyle Harding]
+
 # v1.1.0
 ## (2023-01-02)
 

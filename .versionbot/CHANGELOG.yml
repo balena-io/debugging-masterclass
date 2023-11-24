@@ -1,4 +1,16 @@
 - commits:
+    - subject: Fix header size
+      hash: 6472d64eccc3a3c7e472b96bf7ab977b1106f71d
+      body: ""
+      footer:
+        Change-type: patch
+        change-type: patch
+      author: Kyle Harding
+      nested: []
+  version: 1.1.1
+  title: ""
+  date: 2023-11-24T20:34:53.187Z
+- commits:
     - subject: "minor: Convert Masterclass to dynamic"
       hash: e0792b54596286432345c626b81e8b81e937a372
       body: ""
