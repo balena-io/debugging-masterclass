@@ -320,7 +320,7 @@ instead:
 ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${USER}@ssh.balena-devices.com host -s ${UUID} 'cat > ${PATH_TO_FILE}' < ${LOCAL_PATH}
 ```
 
-#### 4. Accessing a Device using a Gateway Device
+### 4. Accessing a Device using a Gateway Device
 
 {{>"masterclass/debugging/device-gateway-partial"}}
 
