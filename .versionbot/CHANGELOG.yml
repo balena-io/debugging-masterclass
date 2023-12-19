@@ -1,4 +1,14 @@
 - commits:
+    - subject: "patch: Update balenaFin link"
+      hash: d55817dd2a2be4c3dccea6e403a884c39e10ba94
+      body: ""
+      footer: {}
+      author: Vipul Gupta
+      nested: []
+  version: 1.1.2
+  title: ""
+  date: 2023-12-19T10:57:06.368Z
+- commits:
     - subject: Fix header size
       hash: 6472d64eccc3a3c7e472b96bf7ab977b1106f71d
       body: ""

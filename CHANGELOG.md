@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.1.2
+## (2023-12-19)
+
+* patch: Update balenaFin link [Vipul Gupta]
+
 # v1.1.1
 ## (2023-11-24)
 
