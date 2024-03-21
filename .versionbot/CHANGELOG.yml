@@ -1,4 +1,18 @@
 - commits:
+    - subject: Reduce informational content to keep the tutorial flow
+      hash: a85d92486a1b585b1ce287c74dcc6ca1758b8e22
+      body: ""
+      footer:
+        Change-type: patch
+        change-type: patch
+        Signed-off-by: Vipul Gupta (@vipulgupta2048) <vipulgupta2048@gmail.com>
+        signed-off-by: Vipul Gupta (@vipulgupta2048) <vipulgupta2048@gmail.com>
+      author: Vipul Gupta (@vipulgupta2048)
+      nested: []
+  version: 1.1.3
+  title: ""
+  date: 2024-03-21T17:24:25.668Z
+- commits:
     - subject: "patch: Update balenaFin link"
       hash: d55817dd2a2be4c3dccea6e403a884c39e10ba94
       body: ""
