@@ -162,13 +162,24 @@ $ balena push DebugFleet
 
 ### 2. Initial Diagnosis
 
-{{>"masterclass/debugging/initial-diagnosis"}}
+The balenaCloud Dashboard includes the ability to run diagnostics on
+a device to determine its current condition. This should
+be the first step in attempting to diagnose an issue without having to
+actually access the device via SSH. Ensuring diagnostics and health checks
+are examined first ensures that you have a good idea of the state a
+device is in before SSHing into it, as well as ensuring that the information can
+be accessed later if required (should a device be in a catastrophic state). This
+helps significantly in a support post-mortem should one be required.
 
 #### 2.1 Device Health Checks
 
-This will trigger a set of [health checks](https://www.balena.io/docs/reference/diagnostics/) to run on the device, and you should see the all the checks as `Succeeded` in the Success column. This shows that the device is healthy and there are no obvious faults. 
+To run health checks through balenaCloud dashboard, head to the `Diagnostics` tab in the sidebar and click the `Run checks` button to start the tests.
 
-That's no fun, let's create one a fault
+![diagnostics](https://user-images.githubusercontent.com/22801822/154141814-6953717d-f90a-456b-ad51-474b14dcc5e9.png)
+
+This will trigger a set of [health checks](https://www.balena.io/docs/reference/diagnostics#device-health-checks) to run on the device. You should see all the checks as `Succeeded` in the Success column if the device is healthy and there are no obvious faults. 
+
+That's no fun, let's create a fault.
 
 SSH into your device, via `balena ssh <UUID>`, using the appropriate UUID. We want to
 SSH into the host OS, as that's where we'll wreak havoc:
@@ -258,16 +269,7 @@ containers restarting abnormally (especially if a service runs
 unchecked and consumes memory until none is left). We'll also go through some
 of these scenarios later in this masterclass.
 
-#### 2.2 Device Diagnostics
-
-{{>"masterclass/debugging/device-diagnostics-partial"}}
-
-Whilst we won't go into this here, the following exercises will all
-deal with issues where the diagnostics will show abnormalities when examined.
-
-#### 2.3 Supervisor State
-
-{{>"masterclass/debugging/supervisor-diagnostics"}}
+Checkout the [Diagnostics page](https://www.balena.io/docs/reference/diagnostics) for more information on tests you can run on the device.
 
 ### 3. Device Access Responsibilities
 
