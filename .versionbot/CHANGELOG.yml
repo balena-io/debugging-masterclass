@@ -1,4 +1,16 @@
 - commits:
+    - subject: Replace README with simple description
+      hash: 55a934ae64500679d5332bf22e02f23145ef6831
+      body: ""
+      footer:
+        Change-type: patch
+        change-type: patch
+      author: Matthew Yarmolinsky
+      nested: []
+  version: 1.1.4
+  title: ""
+  date: 2026-03-05T14:00:57.063Z
+- commits:
     - subject: Reduce informational content to keep the tutorial flow
       hash: a85d92486a1b585b1ce287c74dcc6ca1758b8e22
       body: ""

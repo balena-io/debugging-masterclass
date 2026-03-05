@@ -5,6 +5,11 @@
 * meta: Updating to use American spelling [Gareth Davies]
 * meta: Formatting for external docs [Gareth Davies]
 
+# v1.1.4
+## (2026-03-05)
+
+* Replace README with simple description [Matthew Yarmolinsky]
+
 # v1.1.3
 ## (2024-03-21)
 
